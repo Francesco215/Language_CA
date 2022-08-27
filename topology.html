@@ -1,0 +1,99 @@
+<!doctype html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=1200">
+    <script src="https://distill.pub/template.v2.js"></script>
+    <link rel="stylesheet" href="website/style.css">
+    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"></script>
+    <script >
+        document.addEventListener("DOMContentLoaded", function() {
+            renderMathInElement(document.body, {
+                // customised options
+                // • auto-render specific keys, e.g.:
+                delimiters: [
+                    {left: '$$', right: '$$', display: true},
+                    {left: '$', right: '$', display: false},
+                    {left: '\\(', right: '\\)', display: false},
+                    {left: '\\[', right: '\\]', display: true}
+                ],
+                // • rendering keys, e.g.:
+                throwOnError : false
+            });
+        });
+    </script>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELW1T3C1CX"></script>
+    <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+
+    gtag('config', 'G-ELW1T3C1CX');
+</script>
+
+</head>
+
+
+<d-front-matter>
+  <script type="text/json">{
+    "title": "Self-organizing text",
+    "description": "Here we take the idea of self organizing systems and apply it to text",
+    "authors": [
+      {
+        "author": "Francesco Sacco",
+        "authorURL": "https://github.com/Francesco215",
+        "affiliation": "University of Pisa",
+        "affiliationURL": "https://www.unipi.it"
+      },
+      {
+        "author": "Lorenzo Cavuoti",
+        "authorURL": "https://github.com/LetteraUnica",
+        "affiliation": "University of Trieste",
+        "affiliationURL": "https://www.units.it"
+      }
+      ]
+  }</script>
+</d-front-matter>
+
+  <d-title> 
+    <h1>Self-organizing text</h1>
+    <p>
+        Here we take the idea of self organizing systems and apply it to text
+    </p>
+    
+  </d-title>
+
+  <d-article>
+
+    
+    <div>
+    <p>
+        In Cellular automata neighboring cells communicate between each other in order to organize with remarcable accuracy large scale scructures with high detail at a small scale
+    </p>
+    <p>
+        Language models have proven unreliable at long distances due to the limited input size of the transformer. If it were possible to create a model that makes neighboring pieces of text like a CA we should expect to have a final result where the output is coherent at long distances.
+    </p>
+    </div>
+
+    <d-section id="intro">The model</d-section>
+    <p>
+    A single cell here can be a token, a phrase or in general a piece of text with some extra hidden channel that can be used to communicate information that is not explicitly written in the text. 
+    </p>
+    <p>
+        At each step the model updates a cell based on its internal state and the state of its surrounding cells, and the function is iterated for some steps
+    </p>
+   
+
+  </d-article>
+  <d-bibliography src="website/bibliography.bib"></d-bibliography>
+  <script rel="text/javascript" src="website/sourcecode.js"> </script>
+
+</body>
+
+<!--
+    <p>
+    As you can see from equation <d-reference key="gauss"></d-reference>  and section <d-reference key="remarks"></d-reference> the phase of the wavefunction is not observable. <d-cite key="shneiderman1996eyes"></d-cite>
+</p>
+-->
