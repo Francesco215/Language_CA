@@ -2,7 +2,10 @@ import torch
 from torch_geometric.data import Data
 from .utils import remove_duplicates
 
-def sequence_to_linear_graph(sequence:torch.Tensor):
+
+
+
+def linear_graph_edges(sequence:torch.Tensor):
     """Converts a sequence of nodes to a linear graph.
 
     Args:
