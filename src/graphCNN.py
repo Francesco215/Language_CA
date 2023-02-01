@@ -35,9 +35,6 @@ class GraphCNN(nn.Module):
 
 
 
-
-
-
 class GraphAttentionNetwork(nn.Module):
     """graph convolutional neural network
     This is the simplest possible way to implement a cellular automata in graphs.
