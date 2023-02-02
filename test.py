@@ -1,21 +1,12 @@
-import torch, torch_geometric
-from src import graphCA
-from src.graphCNN import GraphCNN
-import networkx as nx
-
-features=20
-
-sequence=torch.rand(10,features)
-
-data=graphCA.sequence_to_random_graph(sequence,5)
-
-g = torch_geometric.utils.to_networkx(data, to_undirected=True)
-colors= ['red' if edge[0]==edge[1]-1 else 'grey' for edge in g.edges()]
-width= [4 if edge[0]==edge[1]-1 else 2 for edge in g.edges()]
-nx.draw(g,edge_color=colors, width=width, with_labels=True)
+import torch
+from src import graphAN
 
 
-old_data=data
-update_f=GraphCNN(features)
+x=torch.rand([4,8]).float()
+#p_encoding=PositionalEncoding(10)
+#print(x.shape,p_encoding(x).shape)
+#.einsum(x,p_encoding(x),'c l, l c -> c l')
 
-data['x']=update_f(data)
+embedding_f=graphAN.InputEmbedding()
+
+x=embedding_f(x)

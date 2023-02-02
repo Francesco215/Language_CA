@@ -66,7 +66,7 @@ class text_to_graph():
     
     def __call__(self,text:list)->torch.Tensor:
 
-        tokens=self.tokenizer(text)['input_ids']
-        graphs= [self.seq_to_graph(torch.tensor(token)) for token in tokens]
+        tokenize_texts=self.tokenizer(text)['input_ids']
+        graphs= [self.seq_to_graph(torch.tensor(tokens)) for tokens in tokenize_texts]
         
         return Batch.from_data_list(graphs)
