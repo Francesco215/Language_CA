@@ -1,4 +1,4 @@
-import torch
+import torch, torch_geometric
 from torch_geometric.data import Data,Batch
 from transformers import AutoTokenizer
 from .utils import remove_duplicates
@@ -57,16 +57,31 @@ def sequence_to_random_graph(sequence:torch.Tensor, avg_n_edges:int=5):
 
 
 class text_to_graph():
+    """Given a list of texts, returns a torch_geometric.data.Batch object containing the graphs.
+    """
     def __init__(self,
                 tokenizer=AutoTokenizer.from_pretrained("bert-base-cased"),
                 seq_to_graph=sequence_to_random_graph):
-                
+        """
+        Args:
+            tokenizer (optional): A tokenizer object. 
+                Defaults to AutoTokenizer.from_pretrained("bert-base-cased").
+            seq_to_graph (optional): A function that converts a sequence of nodes to a graph.
+                Defaults to sequence_to_random_graph.
+        """     
         self.tokenizer=tokenizer
         self.seq_to_graph=seq_to_graph
     
-    def __call__(self,text:list)->torch.Tensor:
-
+    def __call__(self,text:list)->torch_geometric.data.Batch:
+        """Given a list of texts, returns a torch_geometric.data.Batch object containing the graphs.
+        Args:
+            text (list): A list of texts.
+        Returns:
+            torch_geometric.data.Batch: A torch_geometric.data.Batch object containing the graphs.
+        """
+        
         tokenize_texts=self.tokenizer(text)['input_ids']
-        graphs= [self.seq_to_graph(torch.tensor(tokens)) for tokens in tokenize_texts]
+
+        graphs = [self.seq_to_graph(torch.tensor(tokens).unsqueeze(-1).float()) for tokens in tokenize_texts]
         
         return Batch.from_data_list(graphs)
