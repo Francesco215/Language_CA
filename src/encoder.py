@@ -1,8 +1,7 @@
 import torch
 from torch import nn
-import einops
 
-class InputEmbedding(nn.Module):
+class Encoder(nn.Module):
     """Layer to turn tokens into word embeddings, it also supports positional embeddings
 
     Args:
@@ -39,6 +38,9 @@ class InputEmbedding(nn.Module):
         
         self.base_freq=base_freq
 
+        self.embedding_dim=embedding_dim
+
+
     def forward(self,x):
         x=self.emb(x)
         
@@ -47,6 +49,9 @@ class InputEmbedding(nn.Module):
         #intuitively the positional encoding should be multiplied, but the ML comunity sums it. maybe its just the same...
         return x+p_encoding 
 
+
+
+import einops
 
 @torch.no_grad()
 def positional_encoding(shape:torch.tensor,base_freq:float=1e-5)->torch.Tensor:
