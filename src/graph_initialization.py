@@ -1,7 +1,6 @@
 import torch, torch_geometric
 from torch_geometric.data import Data,Batch
 from transformers import AutoTokenizer
-from .utils import remove_duplicates
 
 def sequence_to_linear_graph(sequence:torch.Tensor):
     """Converts a sequence of nodes to a linear graph.
@@ -90,3 +89,19 @@ class text_to_graph():
         return Batch.from_data_list(graphs)
 
 
+
+
+
+
+#utils
+def remove_duplicates(edges:torch.Tensor)->torch.Tensor:
+    """Removes duplicate edges from a list of edges.
+
+    Args:
+        edges (torch.Tensor): A tensor of shape (2, N) where N is the number of edges.
+
+    Returns:
+        torch.Tensor: A tensor of shape (2, M) where M is the number of unique edges.
+    """
+    edges = edges[edges[:,0]!=edges[:,1]]
+    return torch.unique(edges,dim=0)
