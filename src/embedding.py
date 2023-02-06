@@ -12,23 +12,26 @@ class InputEmbedding(nn.Module):
         hidden_dim: int = 2048,
         embedding_dim:int = 512,
         base_freq: float = 1e-5,
+        dictionary_size: int = 28996, #defaults to the bert-base dictionary size
         ):
         """We first turn tokens into embedding via the self.emb function which turns each token,
         which is a scalar, into n_embedding dimentional vector.
-        The input vector has size (N,L,C) where N is the batch size, L is the sequence lenght, which is the
-        total number of tokens, and C is the number of channels which is equal to 1 in the case of tokens.
+        The input vector has size (N,L) where N is the batch size, L is the sequence lenght, which is the
+        total number of tokens in the batch.
          
 
         Args:
-            hidden_dim (int): _description_
-            embedding_dim (int): _description_
+            hidden_dim (int): The size of the hidden layer.
+            embedding_dim (int):The size of the embedding vector.
             base_freq (float, optional): The base frequency of sinusoidal
                 functions for the positional encoding. (default: 1e-4)
+            dictionary_size (int, optional): The size of the dictionary of the tokenizer.
+                default: 28996 which is equal to the bert-base dictionary size
         """
         super().__init__()
 
         self.emb=nn.Sequential(
-            nn.Linear(1,hidden_dim),
+            nn.Embedding(dictionary_size,hidden_dim),#efficent way to turn tokens into embeddings
             nn.ReLU(),
             nn.Linear(hidden_dim,embedding_dim),
             nn.ReLU()
@@ -45,7 +48,7 @@ class InputEmbedding(nn.Module):
         return x+p_encoding 
 
 
-
+@torch.no_grad()
 def positional_encoding(shape:torch.tensor,base_freq:float=1e-5)->torch.Tensor:
     """This function gives the positional encoding, it's slightly different then the one defined in
         the paper "Attention is all you need"

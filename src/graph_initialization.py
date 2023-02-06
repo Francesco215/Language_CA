@@ -56,6 +56,7 @@ def sequence_to_random_graph(sequence:torch.Tensor, avg_n_edges:int=5):
 
 
 
+@torch.no_grad()
 class text_to_graph():
     """Given a list of texts, returns a torch_geometric.data.Batch object containing the graphs.
     """
@@ -70,6 +71,8 @@ class text_to_graph():
                 Defaults to sequence_to_random_graph.
         """     
         self.tokenizer=tokenizer
+        self.vocab_size=tokenizer.vocab_size
+        
         self.seq_to_graph=seq_to_graph
     
     def __call__(self,text:list)->torch_geometric.data.Batch:
@@ -82,6 +85,8 @@ class text_to_graph():
         
         tokenize_texts=self.tokenizer(text)['input_ids']
 
-        graphs = [self.seq_to_graph(torch.tensor(tokens).unsqueeze(-1).float()) for tokens in tokenize_texts]
+        graphs = [self.seq_to_graph(torch.LongTensor(tokens)) for tokens in tokenize_texts]
         
         return Batch.from_data_list(graphs)
+
+
