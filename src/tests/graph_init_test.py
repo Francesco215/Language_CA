@@ -1,6 +1,6 @@
 import unittest
 
-import torch,torch_geometric
+import torch, torch_geometric
 from src import graph_initialization
 
 
