@@ -89,37 +89,3 @@ def batch_graphs(nodes_list:list[torch.Tensor], edges_list:list[torch.Tensor]):
 
     return nodes,edges
 
-@torch.no_grad()
-class Mini_batched_graph():
-    """Given a list of texts, returns a torch.Tensor containing the graphs.
-    """
-    def __init__(self,
-                tokenizer=AutoTokenizer.from_pretrained("bert-base-cased"),
-                seq_to_graph=random_graph_maker
-                ):
-        """
-        Args:
-            tokenizer (optional): A tokenizer object. 
-                Defaults to AutoTokenizer.from_pretrained("bert-base-cased").
-            seq_to_graph (optional): A function that converts a sequence of nodes to a graph.
-                Defaults to sequence_to_random_graph.
-        """     
-        self.tokenizer=tokenizer
-        self.vocab_size=tokenizer.vocab_size
-        
-        self.seq_to_graph=seq_to_graph
-    
-    def __call__(self,text:list):
-        """Given a list of texts, makes batches of text using mini-batching tecnique.
-        Args:
-            text (list): A list of texts.
-        Returns:
-
-        """
-        
-        tokenize_texts=self.tokenizer(text)['input_ids']
-
-        graphs = [self.seq_to_graph(torch.LongTensor(tokens)) for tokens in tokenize_texts]
-        
-        return graphs
-
