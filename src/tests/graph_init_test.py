@@ -1,43 +1,54 @@
 import unittest
 
-import torch, torch_geometric
-from src import graph_initialization
+import torch
 
-
-converter=graph_initialization.text_to_graph()
-batches=converter(["Hello world! good i saw you", "How are you?"])
-
+from src.graph_initialization import linear_graph_maker, random_graph_maker, batch_graphs
 class graph_init_test(unittest.TestCase):
-    def test_graph_data_dtype(self):
-        data=batches.get_example(0)
-        x=data.x
-        edge_index=data.edge_index
-        self.assertEqual(x.dtype,torch.long)
-        self.assertEqual(edge_index.dtype,torch.long)
+    def test_linear_graph(self):
+        n_nodes=4
+        graph_maker=linear_graph_maker(window_width=1)
 
-    def test_graph_data_type(self):
-        data=batches.get_example(0)
-        x=data.x
-        edge_index=data.edge_index
-        self.assertEqual(type(x),torch.Tensor)
-        self.assertEqual(type(edge_index),torch.Tensor)
+        edges=graph_maker(n_nodes)
 
-    def test_graph_data_edge_shape(self):
-        data=batches.get_example(0)
-        edge_index=data.edge_index
-        self.assertEqual(edge_index.shape[0],2)
+        expected_n_edges=n_nodes*3-2
 
-    def test_data_range(self):
-        data=batches.get_example(0)
-        x=data.x
-        edge_index=data.edge_index
-        self.assertTrue(torch.all(x>=0))
-        self.assertTrue(torch.all(edge_index>=0))
-        self.assertTrue(torch.all(x<converter.vocab_size))
-        self.assertTrue(torch.all(edge_index<converter.vocab_size))
+        self.assertEqual(edges.shape,(2,expected_n_edges))
 
-    def test_batces_type(self):
-        self.assertEqual(type(batches),torch_geometric.data.batch.DataBatch)
-        self.assertEqual(type(batches[0]),torch_geometric.data.Data)
-        data=batches.get_example(0)
-        self.assertEqual(type(data),torch_geometric.data.Data)
+        expected_output= torch.tensor([[0, 1, 2, 1, 2, 3, 0, 1, 2, 3],
+                                       [1, 2, 3, 0, 1, 2, 0, 1, 2, 3]])
+
+        assertion=(edges==expected_output).all()
+        self.assertTrue(assertion)
+
+
+    def test_random_graph(self):
+        n_nodes=56
+        average_n_edges=5
+
+        graph_maker=random_graph_maker(window_width=1,avg_n_edges=average_n_edges)
+        edges=graph_maker(n_nodes)
+
+        self.assertEqual(edges.shape[0],2)
+
+    
+    def test_torch_unique(self):
+        t = torch.tensor([[1, 2, 3], [4, 5, 6], [1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        t_expeced=torch.tensor([[1, 2, 3], [4, 5, 6], [7, 8, 9]])
+        
+        assertion=(torch.unique(t, dim=0)==t_expeced).all()
+
+        self.assertTrue(assertion)
+
+    def test_batch_graphs(self):
+        nodes_list=[torch.rand((2,2)), torch.rand((3,2)), torch.rand((4,2))]
+        edges_list=[torch.tensor([[0,1],[1,0]]), torch.tensor([[0,1,2],[1,2,0]]), torch.tensor([[0,1,2,3],[1,2,3,0]])]
+
+        nodes,edges=batch_graphs(nodes_list,edges_list)
+
+        self.assertEqual(nodes.shape[0],9)
+        self.assertEqual(edges.shape[1],9)
+
+        self.assertEqual(nodes.shape[1],2)
+        self.assertEqual(edges.shape[0],2)
+
+    
