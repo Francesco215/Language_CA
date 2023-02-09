@@ -70,3 +70,30 @@ class select_index_test(unittest.TestCase):
 
         strength=strength/nodes[receivers]
         self.assertEqual(strength.shape,(n_edges,heads))
+
+    def test_shape_normalize_strength(self):
+        n_nodes=74
+        n_edges=563
+        heads=6
+        receivers=torch.randint(0,n_nodes,(n_edges,))
+        strength = torch.rand([n_edges,heads])
+
+        nodes=torch.zeros([n_nodes,heads])
+        
+        strength=normalize_strength(strength,receivers,n_nodes,heads)
+        self.assertEqual(strength.shape,(n_edges,heads))
+
+    def test_normalize_strength(self):
+        n_nodes=74
+        n_edges=563
+        heads=6
+        receivers=torch.randint(0,n_nodes,(n_edges,))
+        strength = torch.rand([n_edges,heads])
+        
+        strength=normalize_strength(strength,receivers,n_nodes,heads)
+        
+        nodes=torch.zeros([n_nodes,heads])
+        nodes=nodes.index_add_(0,receivers,strength)
+
+        assertion=torch.allclose(nodes,torch.ones_like(nodes))
+        self.assertTrue(assertion)

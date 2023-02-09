@@ -11,8 +11,8 @@ class TransformerBlock(nn.Module):
     """
     #TODO: Implement the dropout
     def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, device='cpu'):
-        super().__init__(aggr='add')
 
+        super().__init__()
         # Save the parameters
         self.d_Embedding=d_Embedding
         self.dK=dK
@@ -55,9 +55,8 @@ class TransformerBlock(nn.Module):
         V = self.value(x)
         Q = self.query(x)
 
-        receivers,senders=edge_index
         #calculate the multi-head attention and activation function
-        out = attention_message(K,Q,V,receivers,senders)
+        out = attention_message(K,Q,V,edge_index)
         out = self.activation(out)
 
         #now we merge the output of the heads and apply the final linear layer
@@ -76,35 +75,46 @@ class TransformerBlock(nn.Module):
 
 
 
-def attention_message(K,Q,V,receivers,senders):
-    #Q: (N, h, dQ)
-    #K: (N, h, dK)
-    #V: (N, h, dV)
-    #receivers: (M,)
-    #senders: (M,)
+def attention_message(K:torch.Tensor,
+                      Q:torch.Tensor,
+                      V:torch.Tensor,
+                      edge_index:torch.Tensor
+                      ):
+    """This function calculates the attention message for each node in the graph.
+    It's hard to read, but it's the only way I found to make it fast and parallelizable.
+
+    Args:
+        K (torch.Tensor): Key tensor of shape (N, h, dK)
+        Q (torch.Tensor): Query tensor of shape (N, h, dK)
+        V (torch.Tensor): Value tensor of shape (N, h, dV)
+        edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
+
+    Returns:
+        torch.Tensor: Multi-head attention message of shape (N, h, dV)
+    """
     assert K.dim()==Q.dim()==V.dim()==3, "K,Q,V must be 3-dimentional tensors"
     assert K.shape[0]==Q.shape[0]==V.shape[0], "K,Q,V must have the same first dimension"
     assert K.shape[1]==Q.shape[1]==V.shape[1], "K,Q,V must have the same second dimension"
     assert K.shape[2]==Q.shape[2], "K,Q must have the same third dimension"
 
-    assert receivers.dim()==senders.dim()==1, "receivers and senders must be 1-dimentional tensors"
-    assert receivers.shape[0]==senders.shape[0], "receivers and senders must have the same length"
+    assert edge_index.dim()==2, "edge_index must be a 2-dimentional tensor"
+    assert edge_index.shape[0]==2, "edge_index must have 2 rows"
 
+    receivers,senders=edge_index
     N,h,d=K.shape   
 
     #Q.K^T 
-    att=(Q[receivers]*K[senders]).sum(dim=-1)
+    att=(Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
 
     #softmax    
-    att=att*3/att.max()
-    att = torch.exp(att)
-    att = normalize_strength(att, receivers, N, h)/sqrt(d)
+    att = torch.exp(att) #could be done in-plase using the function att.exp_()
+    att = normalize_strength(att, receivers, N, h)
 
+    #softmax*V
     att = einops.einsum(att,V[senders],' ... , ... c -> ... c')
-
     out=torch.zeros_like(V,device=V.device)
 
-    return out.index_add_(0,receivers,att)
+    return out.index_add(0,receivers,att) #could be done in-place using the function out.index_add_()
 
 
 def normalize_strength(strength,receivers,n_nodes,heads):
@@ -123,7 +133,7 @@ def normalize_strength(strength,receivers,n_nodes,heads):
         receivers (torch.Tensor): A 1D-tensor of length n_edges
         strength (torch.Tensor): strength of each connection, (M,h) where M is the number of edges
             head is the number of heads
-        N (int): number of nodes
+        n_nodes (int): number of nodes
         heads (int): number of heads
 
     Returns:
@@ -140,11 +150,13 @@ def normalize_strength(strength,receivers,n_nodes,heads):
 
 
 
+#Utilis function to make the code more readable. they are just to make the generation of K,Q,V
+#with multi-head and going back to the embedding much easier to read
 class make_heads(nn.Linear):
 
     def __init__(self, in_features, out_features, heads=8, device='cpu'):
         super().__init__(in_features, out_features*heads, device=device)
-        self.out_features = out_features
+        self.out_features = out_features #this overwrites the out_features of the nn.Linear class but shouldn't matter
         self.heads = heads
 
     def forward(self,x):
@@ -154,8 +166,7 @@ class aggregate_heads(nn.Linear):
     
         def __init__(self, in_features, out_features, heads=8, device='cpu'):
             super().__init__(in_features*heads, out_features, device=device)
-            self.out_features = out_features
-            self.heads = heads
-    
+            self.x_dim=heads*in_features
+
         def forward(self,x):
-            return super().forward(x.view(-1,self.heads*self.out_features))
+            return super().forward(x.view(-1,self.x_dim))
