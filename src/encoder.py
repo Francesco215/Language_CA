@@ -40,6 +40,8 @@ class Encoder(nn.Module):
 
         self.embedding_dim=embedding_dim
 
+        self.n_parameters= hidden_dim * embedding_dim + dictionary_size * hidden_dim
+
 
     def forward(self,x):
         x=self.emb(x)

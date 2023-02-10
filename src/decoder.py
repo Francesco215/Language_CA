@@ -7,15 +7,46 @@ class Decoder(nn.Module):
     def __init__(self,
         hidden_dim: int = 2048,
         embedding_dim:int = 512,
-        dictionary_size: int = 28996, #defaults to the bert-base dictionary size
+        vocab_size: int = 28996, #defaults to the bert-base dictionary size
         ):
+
+        super().__init__()
 
         self.layers=nn.Sequential(
             nn.Linear(embedding_dim,hidden_dim),
             nn.ReLU(),
-            nn.Linear(hidden_dim,dictionary_size),
+            nn.Linear(hidden_dim,vocab_size),
             nn.Softmax(dim=-1)
         )
 
+        self.n_parameters=hidden_dim*embedding_dim + vocab_size*hidden_dim
+
     def forward(self,x):
         return self.layers(x)
+
+
+
+class Loss(Decoder):
+    def __init__(self,
+        hidden_dim: int = 2048,
+        embedding_dim:int = 512,
+        vocab_size: int = 28996, #defaults to the bert-base dictionary size
+        ):
+        #TODO: add mask to the loss
+        
+        super().__init__(hidden_dim,embedding_dim,vocab_size)
+
+        self.loss=nn.CrossEntropyLoss() #TODO: check if it computes the loss in the correct channels
+
+    def forward(self, x, y):
+        """calculates the loss between the prediction x and the target y
+
+        Args:
+            x (torch.Tensor): prediction, has the shape (n_nodes, vocab_size). dtype: torch.float
+            y (torch.Tensor): target, has the shape (n_nodes,). dtype: torch.long
+
+        Returns:
+            torch.Tensor: the loss scalar, has the shape (1,). dtype: torch.float
+        """
+        x=self.layers(x)
+        return self.loss(x,y)

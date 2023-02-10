@@ -31,6 +31,7 @@ class GraphAttentionNetwork(nn.Module):
 
         self.transformer = nn.Sequential(*transformer_blocks)
 
+        self.n_parameters=encoder.n_parameters + decoder.n_parameters + transformer_blocks[0].n_parameters*transformer_layers
 
     def forward(self, x, edge_index,iterations:int=1):
         """It takes in a graph and returns a graph
@@ -44,9 +45,12 @@ class GraphAttentionNetwork(nn.Module):
         Returns:
             torch.Tensor: The predicted token for each node of the graph
         """
+
         x=self.encoder(x)
+        
         for _ in range(iterations):
             x=self.transformer(x, edge_index)
+        
         x=self.decoder(x)
 
         return x

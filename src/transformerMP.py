@@ -32,6 +32,8 @@ class TransformerBlock(nn.Module):
         self.activation=nn.ReLU()
         self.feedforward=nn.Linear(d_Embedding, d_Embedding,device=device)
         
+        # Calculate the number of parameters = # attention parameters + # feedforward parameters
+        self.n_parameters=d_Embedding*heads*2*(dK+dV) + d_Embedding**2 
 
     def forward(self, x, edge_index):
         """Here the forward is different than in the figure 1 of attention is all you need.
