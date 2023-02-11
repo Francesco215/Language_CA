@@ -24,7 +24,8 @@ class LossTest(unittest.TestCase):
 
         y=torch.randint(0,vocab_size,(sequence_length,))
         x = torch.rand(sequence_length, embedding_dim)
-        loss = Loss(hidden_dim, embedding_dim, vocab_size)
+        decoder=Decoder(hidden_dim, embedding_dim, vocab_size)
+        loss = Loss(decoder)
         y_hat = loss(x, y)
         self.assertEqual(y_hat.shape, torch.Size([]))
 

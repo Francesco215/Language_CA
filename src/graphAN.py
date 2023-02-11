@@ -5,6 +5,7 @@ from torch import nn
 from .encoder import Encoder
 from .decoder import Decoder
 from .transformerMP import TransformerBlock
+from .data_loader import Tokenizer
 
 
 
@@ -13,6 +14,7 @@ class GraphAttentionNetwork(nn.Module):
         The entire assembly for the graph attention network, it takes in a graph and returns a graph
     """
     def __init__(self, 
+        tokenizer:Tokenizer,
         encoder:Encoder,
         decoder:Decoder,
         transformer:TransformerBlock,
@@ -22,16 +24,17 @@ class GraphAttentionNetwork(nn.Module):
         
         super().__init__()
         
+        self.tokenizer=tokenizer
         self.encoder = encoder
         self.decoder = decoder
 
         self.embedding_dim=encoder.embedding_dim
 
-        transformer_blocks=[transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)]
+        self.transformer_blocks=[transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)]
 
-        self.transformer = nn.Sequential(*transformer_blocks)
+        #self.transformer = nn.Sequential(*transformer_blocks)
 
-        self.n_parameters=encoder.n_parameters + decoder.n_parameters + transformer_blocks[0].n_parameters*transformer_layers
+        self.n_parameters=encoder.n_parameters + decoder.n_parameters + self.transformer_blocks[0].n_parameters*transformer_layers
 
     def forward(self, x, edge_index,iterations:int=1):
         """It takes in a graph and returns a graph
@@ -48,10 +51,16 @@ class GraphAttentionNetwork(nn.Module):
 
         x=self.encoder(x)
         
-        for _ in range(iterations):
-            x=self.transformer(x, edge_index)
+        for transformer in self.transformer_blocks:
+            x=transformer(x, edge_index)
         
+        return x
+
+    def inference(self, x , edge_index, iterations:int=1):
+        x=self.__call__(x,edge_index,iterations)
         x=self.decoder(x)
+        x=x.argmax(dim=-1)
+        x=self.tokenizer.decode(x)
 
         return x
 

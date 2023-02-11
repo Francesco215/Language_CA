@@ -1,6 +1,5 @@
 import torch
 from transformers import AutoTokenizer
-
 class linear_graph_maker:
     
     def __init__(self, window_width:int=1):
@@ -11,6 +10,7 @@ class linear_graph_maker:
         
         self.window_width=window_width
 
+    @torch.no_grad()
     def __call__(self, n_nodes:int):
         """Makes a linear graph of n_nodes nodes.
 
@@ -35,7 +35,6 @@ class linear_graph_maker:
         return edges
 
 
-
 class random_graph_maker(linear_graph_maker):
     """makes a random graph on n_nodes nodes.
     The graph is completely random, meaning that the probability of an edge
@@ -54,6 +53,7 @@ class random_graph_maker(linear_graph_maker):
         super().__init__(window_width)
         self.avg_n_edges=avg_n_edges
 
+    @torch.no_grad()
     def __call__(self, n_nodes:int):
         #makes connection between neighbors
         edges=super().__call__(n_nodes).t()
@@ -66,8 +66,8 @@ class random_graph_maker(linear_graph_maker):
 
         return edges
 
-
-def batch_graphs(nodes_list:list[torch.Tensor], edges_list:list[torch.Tensor]):
+@torch.no_grad()
+def batch_graphs(nodes_list:list, edges_list:list):
     """Given a list of nodes and a list of edges, returns a batch of graphs.
     Args:
         nodes_list (list[torch.Tensor]): a list of nodes

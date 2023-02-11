@@ -26,15 +26,11 @@ class Decoder(nn.Module):
 
 
 
-class Loss(Decoder):
-    def __init__(self,
-        hidden_dim: int = 2048,
-        embedding_dim:int = 512,
-        vocab_size: int = 28996, #defaults to the bert-base dictionary size
-        ):
+class Loss(nn.Module):
+    def __init__(self, decoder:Decoder):
         #TODO: add mask to the loss
-        
-        super().__init__(hidden_dim,embedding_dim,vocab_size)
+        super().__init__()
+        self.decoder=decoder
 
         self.loss=nn.CrossEntropyLoss() #TODO: check if it computes the loss in the correct channels
 
@@ -48,5 +44,5 @@ class Loss(Decoder):
         Returns:
             torch.Tensor: the loss scalar, has the shape (1,). dtype: torch.float
         """
-        x=self.layers(x)
+        x=self.decoder(x)
         return self.loss(x,y)
