@@ -3,7 +3,6 @@ from transformers import AutoTokenizer
 import torch
 from .graph_initialization import *
 
-@torch.no_grad()
 class Wiki(Dataset):
     def __init__(self, dataset, tokenizer, graph_maker, transform = None, device="cpu"):
         """Creates a dataset class from a the hugging cast dataset of wikipedia 
@@ -15,6 +14,9 @@ class Wiki(Dataset):
                 Defaults to None.
         """   
         #parameters     
+        assert isinstance(tokenizer, Tokenizer), "tokenizer must be an instance of the Tokenizer class"
+        assert isinstance(graph_maker, linear_graph_maker), "graph_maker must be an instance of the GraphMaker class"
+
         self.dataset=dataset
         self.tokenizer=tokenizer
         self.graph_maker=graph_maker
@@ -23,6 +25,7 @@ class Wiki(Dataset):
     def __len__(self):
         return self.dataset.nom_rows
 
+    @torch.no_grad()
     def __getitem__(self,idx):
         dataset=self.dataset[idx]
         
@@ -44,7 +47,6 @@ class Wiki(Dataset):
     def get_original_text(self,idx):
         return self.datatet[idx]['text']
 
-@torch.no_grad()
 class Tokenizer:
 
     def __init__(self,
@@ -59,7 +61,7 @@ class Tokenizer:
         self.vocab_size=self.tokenizer.vocab_size
         self.max_length=max_length
     
-        
+    @torch.no_grad()    
     def __call__(self, list_text):
         """This function is complete garbage, it should be completely rewritten
         the sole reason as to why this function exists is becouse tokenizers have a max input length

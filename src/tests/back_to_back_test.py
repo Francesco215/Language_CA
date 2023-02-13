@@ -1,11 +1,6 @@
-from src.decoder import Loss
-from src.graphAN import GraphAttentionNetwork
-from src import Encoder, Decoder, TransformerBlock
+from src import Encoder, Decoder, TransformerBlock, Tokenizer, batch_graphs, random_graph_maker, Wiki, GraphAttentionNetwork, Loss
 
 import torch,unittest
-
-from src.data_loader import Tokenizer, Wiki
-from src.graph_initialization import batch_graphs, random_graph_maker
 
 class Back_to_BackTest(unittest.TestCase):
 
@@ -15,7 +10,7 @@ class Back_to_BackTest(unittest.TestCase):
         dK=50
         dV=50
         heads=4
-        tokenizer=Tokenizer()
+        tokenizer=Tokenizer("bert-base-cased",max_length=50)
 
         vocab_size=tokenizer.vocab_size
 

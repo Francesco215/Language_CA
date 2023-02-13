@@ -101,6 +101,7 @@ def attention_message(K:torch.Tensor,
 
     assert edge_index.dim()==2, "edge_index must be a 2-dimentional tensor"
     assert edge_index.shape[0]==2, "edge_index must have 2 rows"
+    assert edge_index.dtype==torch.long, "edge_index must be a long tensor"
 
     receivers,senders=edge_index
     N,h,d=K.shape   

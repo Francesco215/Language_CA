@@ -8,7 +8,6 @@ from .transformerMP import TransformerBlock
 from .data_loader import Tokenizer
 
 
-
 class GraphAttentionNetwork(nn.Module):
     """
         The entire assembly for the graph attention network, it takes in a graph and returns a graph
@@ -23,12 +22,18 @@ class GraphAttentionNetwork(nn.Module):
         ):
         
         super().__init__()
-        
-        self.tokenizer=tokenizer
-        self.encoder = encoder
-        self.decoder = decoder
 
+        assert     isinstance(tokenizer,  Tokenizer), "tokenizer must be an instance of the Tokenizer class"
+        assert     isinstance(encoder,    Encoder), "encoder must be an instance of the Encoder class"
+        assert     isinstance(decoder,    Decoder), "decoder must be an instance of the Decoder class"
+        assert not isinstance(transformer,TransformerBlock), "transformer cannot be an instance of the TransformerBlock class"
+
+        self.tokenizer=tokenizer
+        
+        self.encoder = encoder
         self.embedding_dim=encoder.embedding_dim
+        
+        self.decoder = decoder
 
         self.transformer_blocks=[transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)]
 
@@ -41,6 +46,8 @@ class GraphAttentionNetwork(nn.Module):
 
         Args:
             x (torch.Tensor): Tokenized graph
+                if x.dtype==torch.int64: x is a list of tokenized text
+                else: x is a list of embeddings
             edge_index (torch.Tensor): Adjacency matrix of the graph
             iterations (int, optional): Number of times the tranformers are applied to the graph.
                 Defaults to 1.
@@ -49,13 +56,15 @@ class GraphAttentionNetwork(nn.Module):
             torch.Tensor: The predicted token for each node of the graph
         """
 
-        x=self.encoder(x)
-        
-        for transformer in self.transformer_blocks:
-            x=transformer(x, edge_index)
+        if (x.dtype==torch.long): x=self.encoder(x)
+
+        for _ in range(iterations):
+            for transformer in self.transformer_blocks:
+                x=transformer(x, edge_index)
         
         return x
 
+    @torch.no_grad()
     def inference(self, x , edge_index, iterations:int=1):
         x=self.__call__(x,edge_index,iterations)
         x=self.decoder(x)
