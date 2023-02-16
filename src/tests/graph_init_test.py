@@ -2,11 +2,11 @@ import unittest
 
 import torch
 
-from src.graph_initialization import linear_graph_maker, random_graph_maker, batch_graphs
+from src.graph_initialization import linear_bidirectional_graph_maker, random_graph_maker, batch_graphs
 class graph_init_test(unittest.TestCase):
-    def test_linear_graph(self):
+    def test_linear_bidirectional_graph(self):
         n_nodes=4
-        graph_maker=linear_graph_maker(window_width=1)
+        graph_maker=linear_bidirectional_graph_maker(window_width=1)
 
         edges=graph_maker(n_nodes)
 
@@ -14,11 +14,22 @@ class graph_init_test(unittest.TestCase):
 
         self.assertEqual(edges.shape,(2,expected_n_edges))
 
-        expected_output= torch.tensor([[0, 1, 2, 1, 2, 3, 0, 1, 2, 3],
-                                       [1, 2, 3, 0, 1, 2, 0, 1, 2, 3]])
+        expected_output= torch.tensor([[0, 0, 1, 1, 1, 2, 2, 2, 3, 3],
+                                       [0, 1, 0, 1, 2, 1, 2, 3, 2, 3]])
 
         assertion=(edges==expected_output).all()
         self.assertTrue(assertion)
+
+    def test_linear_bidirectional_graph_larger_window(self):
+        n_nodes=12
+        for window_width in range(n_nodes+1):
+            graph_maker=linear_bidirectional_graph_maker(window_width)
+
+            edges=graph_maker(n_nodes)
+
+            expected_n_edges=n_nodes*(2*window_width+1)-(window_width+1)*window_width
+
+            self.assertEqual(edges.shape,(2,expected_n_edges))
 
 
     def test_random_graph(self):

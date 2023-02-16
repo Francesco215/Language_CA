@@ -1,17 +1,17 @@
 import torch
 from transformers import AutoTokenizer
-class linear_graph_maker:
-    
+
+class graph_maker:
     def __init__(self, window_width:int=1):
-        #TODO: implement window_width
 
         assert type(window_width)==int, "n_nodes must be an integer"
         assert window_width>=0, "n_nodes must be non-negative"
-        
+
         self.window_width=window_width
 
+
     @torch.no_grad()
-    def __call__(self, n_nodes:int):
+    def __call__(self, n_nodes):
         """Makes a linear graph of n_nodes nodes.
 
         Args:
@@ -24,18 +24,57 @@ class linear_graph_maker:
         assert type(n_nodes)==int, "n_nodes must be an integer"
         assert n_nodes>1, "n_nodes must be greater than 1"
 
-        
-        forward=[[i, i + 1] for i in range(n_nodes - 1)]
-        backward=[[i + 1, i] for i in range(n_nodes - 1)]
-        self_loop=[[i, i] for i in range(n_nodes)]
-        edges=forward + backward + self_loop
-        
-        edges = torch.tensor(edges, dtype=torch.long).t().contiguous()
-        
+        pass
+    
+class linear_unidirectional_graph_maker(graph_maker):
+
+    @torch.no_grad()
+    def __call__(self, n_nodes):
+        """Makes a graph of n_nodes nodes, where each node attends to the window_width previous nodes.
+
+        Args:
+            n_nodes (int): the number of nodes.
+
+        Returns:
+            torch.Tensor: a 2xM tensor where M is the number of edges. The first row
+                contains the source nodes and the second row contains the target nodes. #TODO:check this
+        """
+        super().__call__(n_nodes)
+
+        edges=[]
+        for i in range(n_nodes):
+            for j in range(max(0,i-self.window_width),i+1):
+                edges.append([j,i])
+
+        edges=torch.tensor(edges, dtype=torch.long).t().contiguous()
+        return edges
+
+class linear_bidirectional_graph_maker(graph_maker):
+
+    @torch.no_grad()
+    def __call__(self, n_nodes:int):
+        """Makes a linear graph of n_nodes nodes.
+
+        Args:
+            n_nodes (int): the number of nodes.
+
+        Returns:
+            torch.Tensor: a 2xM tensor where M is the number of edges. The first row
+                contains the source nodes and the second row contains the target nodes. #TODO:check this
+        """
+        edges=super().__call__(n_nodes)
+
+        edges=[]
+        for i in range(n_nodes):
+            for j in range(max(0,i-self.window_width),i+1):
+                edges.append([j,i])
+                if i!=j: edges.append([i,j])
+
+        edges=torch.tensor(edges, dtype=torch.long).t().contiguous()
         return edges
 
 
-class random_graph_maker(linear_graph_maker):
+class random_graph_maker(linear_bidirectional_graph_maker):
     """makes a random graph on n_nodes nodes.
     The graph is completely random, meaning that the probability of an edge
     between two nodes is the same for all nodes.
@@ -66,6 +105,7 @@ class random_graph_maker(linear_graph_maker):
 
         return edges
 
+
 @torch.no_grad()
 def batch_graphs(nodes_list:list, edges_list:list):
     """Given a list of nodes and a list of edges, returns a batch of graphs.
@@ -81,9 +121,9 @@ def batch_graphs(nodes_list:list, edges_list:list):
     shift=0
 
     for i in range(len(nodes_list)):
-        edges_list[i]+=shift
-        shift+=nodes_list[i].shape[0]
-    
+        edges_list[i] += shift
+        shift += nodes_list[i].shape[0]
+        
     nodes=torch.cat(nodes_list,dim=0)
     edges=torch.cat(edges_list,dim=1)
 

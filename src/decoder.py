@@ -57,3 +57,4 @@ class Loss(nn.Module):
 
         x=self.decoder(x)
         return self.loss(x,y)
+

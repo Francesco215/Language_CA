@@ -15,7 +15,7 @@ class Wiki(Dataset):
         """   
         #parameters     
         assert isinstance(tokenizer, Tokenizer), "tokenizer must be an instance of the Tokenizer class"
-        assert isinstance(graph_maker, linear_graph_maker), "graph_maker must be an instance of the GraphMaker class"
+        assert isinstance(graph_maker, linear_bidirectional_graph_maker), "graph_maker must be an instance of the GraphMaker class"
 
         self.dataset=dataset
         self.tokenizer=tokenizer
@@ -23,7 +23,7 @@ class Wiki(Dataset):
         self.transform=transform
 
     def __len__(self):
-        return self.dataset.nom_rows
+        return len(self.dataset)
 
     @torch.no_grad()
     def __getitem__(self,idx):
