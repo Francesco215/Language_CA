@@ -1,4 +1,4 @@
-from src.transformerMP import TransformerBlock, attention_message
+from src.transformerMP import attention_message
 
 
 import torch
@@ -22,7 +22,7 @@ class attention_message_test(unittest.TestCase):
         att=attention_message(K,Q,V,edge_index)
         self.assertEqual(V.shape,att.shape)
 
-from src.transformerMP import aggregate_heads, make_heads
+from src.transformerMP import AttentionBlock, aggregate_heads, make_heads
 class transformer_test(unittest.TestCase):
     def test_head_aggregator(self):
         embedding_dim=17
@@ -60,7 +60,7 @@ class transformer_test(unittest.TestCase):
         n_edges=133
         heads=3
 
-        block=TransformerBlock(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        block=AttentionBlock(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
         x=torch.rand((n_nodes,embedding_dim))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=block(x,edge_index)
@@ -74,7 +74,7 @@ class transformer_test(unittest.TestCase):
         n_edges=133
         heads=3
 
-        block=TransformerBlock(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        block=AttentionBlock(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
         x=torch.rand((n_nodes,embedding_dim))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=block(x,edge_index)
@@ -82,7 +82,7 @@ class transformer_test(unittest.TestCase):
         self.assertEqual(out.shape,x.shape)
 
     
-from src.GPT2 import TransformerBlockGPT2, transform_heads, interact_heads
+from src.GPT2 import AttentionBlockGPT2, transform_heads, interact_heads
 
 class GPT2_transformer_test(unittest.TestCase):
     def test_transform_heads(self):
@@ -116,7 +116,7 @@ class GPT2_transformer_test(unittest.TestCase):
         n_edges=133
         heads=3
 
-        block=TransformerBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        block=AttentionBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
         x=torch.rand((n_nodes,embedding_dim))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=block(x,edge_index)
@@ -130,7 +130,7 @@ class GPT2_transformer_test(unittest.TestCase):
         n_edges=133
         heads=3
 
-        block=TransformerBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        block=AttentionBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
         x=torch.rand((n_nodes,embedding_dim))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=block(x,edge_index)

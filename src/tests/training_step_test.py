@@ -1,4 +1,4 @@
-from src import Encoder, Decoder, TransformerBlock, Tokenizer, random_graph_maker, Wiki, GraphAttentionNetwork, Loss
+from src import Encoder, Decoder, AttentionBlock, Tokenizer, random_graph_maker, Wiki, GraphAttentionNetwork, Loss
 
 import torch,unittest
 
@@ -26,7 +26,7 @@ class Back_to_BackTest(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
 
         model=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,transformer_layers,dK,dV,heads)

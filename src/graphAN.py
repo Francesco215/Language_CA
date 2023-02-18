@@ -4,7 +4,7 @@ from torch import nn
 
 from .encoder import Encoder
 from .decoder import Decoder
-from .transformerMP import TransformerBlock
+from .transformerMP import AttentionBlock
 from .data_loader import Tokenizer
 
 
@@ -16,7 +16,7 @@ class GraphAttentionNetwork(nn.Module):
         tokenizer:Tokenizer,
         encoder:Encoder,
         decoder:Decoder,
-        transformer:TransformerBlock,
+        transformer:AttentionBlock,
         transformer_layers:int=4,
         dK=1024, dV=1024, heads=8,
         ):
@@ -26,7 +26,7 @@ class GraphAttentionNetwork(nn.Module):
         assert     isinstance(tokenizer,  Tokenizer), "tokenizer must be an instance of the Tokenizer class"
         assert     isinstance(encoder,    Encoder), "encoder must be an instance of the Encoder class"
         assert     isinstance(decoder,    Decoder), "decoder must be an instance of the Decoder class"
-        assert not isinstance(transformer,TransformerBlock), "transformer cannot be an instance of the TransformerBlock class"
+        assert not isinstance(transformer,AttentionBlock), "transformer cannot be an instance of the TransformerBlock class"
 
         self.tokenizer=tokenizer
         

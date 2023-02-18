@@ -4,7 +4,7 @@ from math import sqrt
 import einops
 
 
-class TransformerBlock(nn.Module):
+class AttentionBlock(nn.Module):
     """
     This class is a message passing layer that uses the transformer architecture to calculate the messages.
     The transformer architecture is based on the paper "Attention is all you need" by Vaswani et al. (2017).
@@ -17,6 +17,7 @@ class TransformerBlock(nn.Module):
         self.d_Embedding=d_Embedding
         self.dK=dK
         self.dV=dV
+        self.dQ=dK
         self.heads=heads
         self.dropout=dropout
         self.device=device
@@ -28,9 +29,6 @@ class TransformerBlock(nn.Module):
 
         # Create the layer that aggregates the heads and outputs the final embedding with a linear layer
         self.feedforward=aggregate_heads(dV, d_Embedding, heads, device)
-
-        # Activation function
-        self.activation=nn.ReLU()
 
         # Dropout layer
         self.dropout_layer=nn.Dropout(dropout)
@@ -56,20 +54,22 @@ class TransformerBlock(nn.Module):
         """
 
         #calculate keys, values and queries for each head
+        #This can be optimized by doing something like this:
+        #K,V,Q=torch.split(self.f(x),[self.dK,self.dV,self.dK],dim=-1)
         K = self.key(x)
         V = self.value(x)
         Q = self.query(x)
 
         #calculate the multi-head attention and activation function
-        out = attention_message(K,Q,V,edge_index,self.dropout)
+        x = attention_message(K,Q,V,edge_index,self.dropout)
 
         #now we merge the output of the heads and apply the final linear layer
-        out=self.feedforward(out)
-        out=self.dropout_layer(out)
+        x=self.feedforward(x) #+ x TODO: check if this is what should be done
+        x=self.dropout_layer(x)
 
         #There is no add and normalize here!
 
-        return x + out
+        return x
 
 
 
@@ -108,7 +108,7 @@ def attention_message(K:torch.Tensor,
     att=(Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
 
     #softmax    
-    att = torch.exp(att) #could be done in-plase using the function att.exp_()
+    att = torch.exp(att) #could be done in-plase using the function att.exp_() if memory is a bootleneck
     att = normalize_strength(att, receivers, N, h)
 
     #Dropout

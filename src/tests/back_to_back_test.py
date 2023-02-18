@@ -1,4 +1,4 @@
-from src import Encoder, Decoder, TransformerBlock, Tokenizer, batch_graphs, random_graph_maker, Wiki, GraphAttentionNetwork, Loss
+from src import Encoder, Decoder, AttentionBlock, Tokenizer, batch_graphs, random_graph_maker, Wiki, GraphAttentionNetwork, Loss
 
 import torch,unittest
 
@@ -15,7 +15,7 @@ class Back_to_BackTest(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
@@ -39,7 +39,7 @@ class Back_to_BackTest(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
@@ -62,7 +62,7 @@ class Back_to_BackTest(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
         loss=Loss(decoder)
 
@@ -103,7 +103,7 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
@@ -136,7 +136,7 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
-        transformer=TransformerBlock
+        transformer=AttentionBlock
         decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
