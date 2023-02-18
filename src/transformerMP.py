@@ -9,15 +9,16 @@ class TransformerBlock(nn.Module):
     This class is a message passing layer that uses the transformer architecture to calculate the messages.
     The transformer architecture is based on the paper "Attention is all you need" by Vaswani et al. (2017).
     """
-    #TODO: Implement the dropout
-    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, device='cpu'):
+    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.1, device='cpu'):
 
         super().__init__()
+
         # Save the parameters
         self.d_Embedding=d_Embedding
         self.dK=dK
         self.dV=dV
         self.heads=heads
+        self.dropout=dropout
         self.device=device
 
         # Create the layers for the attention that make the keys, queries and values for each head
@@ -26,19 +27,21 @@ class TransformerBlock(nn.Module):
         self.value = make_heads(d_Embedding, dV, heads, device)
 
         # Create the layer that aggregates the heads and outputs the final embedding with a linear layer
-        self.head_aggregator=aggregate_heads(dV, d_Embedding, heads, device)
+        self.feedforward=aggregate_heads(dV, d_Embedding, heads, device)
 
-        # Activation function and feedforward layer
+        # Activation function
         self.activation=nn.ReLU()
-        self.feedforward=nn.Linear(d_Embedding, d_Embedding,device=device)
+
+        # Dropout layer
+        self.dropout_layer=nn.Dropout(dropout)
         
-        # Calculate the number of parameters = # attention parameters + # feedforward parameters
-        self.n_parameters=d_Embedding*heads*2*(dK+dV) + d_Embedding**2 
+        # Calculate the number of parameters
+        self.n_parameters=self.key.n_parameters*2 + self.value.n_parameters + self.feedforward.n_parameters 
 
     def forward(self, x, edge_index):
         """Here the forward is different than in the figure 1 of attention is all you need.
            The output of the attention is summed to the input x only at the end of the forward and
-           there is no normalization of the outpur.
+           there is no normalization of the output.
            There are a few reason to do so:
               1) When the system reaches stability, we want the output of the transformer block to be zero (or close to zero)
               2) We don't want the positioning encoding to go away. If we normalize the output of the attention, we will lose the positional encoding.
@@ -58,17 +61,11 @@ class TransformerBlock(nn.Module):
         Q = self.query(x)
 
         #calculate the multi-head attention and activation function
-        out = attention_message(K,Q,V,edge_index)
-        out = self.activation(out)
+        out = attention_message(K,Q,V,edge_index,self.dropout)
 
         #now we merge the output of the heads and apply the final linear layer
-        out=self.head_aggregator(out)
-        out=self.activation(out)
-
-        #There is no add and normalize here!
-
-        out = self.feedforward(out)
-        out = self.activation(out)
+        out=self.feedforward(out)
+        out=self.dropout_layer(out)
 
         #There is no add and normalize here!
 
@@ -80,7 +77,8 @@ class TransformerBlock(nn.Module):
 def attention_message(K:torch.Tensor,
                       Q:torch.Tensor,
                       V:torch.Tensor,
-                      edge_index:torch.Tensor
+                      edge_index:torch.Tensor,
+                      att_dropout=0.1
                       ):
     """This function calculates the attention message for each node in the graph.
     It's hard to read, but it's the only way I found to make it fast and parallelizable.
@@ -112,6 +110,9 @@ def attention_message(K:torch.Tensor,
     #softmax    
     att = torch.exp(att) #could be done in-plase using the function att.exp_()
     att = normalize_strength(att, receivers, N, h)
+
+    #Dropout
+    att=attention_dropout(att, att_dropout)
 
     #softmax*V
     att = einops.einsum(att,V[senders],' ... , ... c -> ... c')
@@ -151,6 +152,27 @@ def normalize_strength(strength,receivers,n_nodes,heads):
 
     return strength / strengths_sum[receivers]
 
+def attention_dropout(attention,dropout=0.1):
+    """This function drops some connections of the attention tensor.
+       It's implemented like in the GPT-2 paper, where the connections are dropped after nomalization.
+       
+       There is room for improvement here.
+       Here it's better to return an attention matrix with less indices. This way you do p_drop less operations
+    Args:
+        attention (torch.Tensor): attention tensor of shape (M, h)
+        dropout (float, optional): dropout rate. Defaults to 0.1.
+
+    Returns:
+        torch.Tensor: attention tensor with some connections dropped
+    """
+
+    p_drop=1-dropout
+    
+    drop_out_indices=torch.bernoulli(torch.ones_like(attention, device=attention.device)*p_drop)
+
+    return attention*drop_out_indices
+
+
 
 
 #Utilis function to make the code more readable. they are just to make the generation of K,Q,V
@@ -159,17 +181,22 @@ class make_heads(nn.Linear):
 
     def __init__(self, in_features, out_features, heads=8, device='cpu'):
         super().__init__(in_features, out_features*heads, device=device)
+        
         self.out_features = out_features #this overwrites the out_features of the nn.Linear class but shouldn't matter
         self.heads = heads
+        self.n_parameters=self.weight.shape[0]*self.weight.shape[1]
 
     def forward(self,x):
         return super().forward(x).view(-1,self.heads,self.out_features)
 
 class aggregate_heads(nn.Linear):
-    
-        def __init__(self, in_features, out_features, heads=8, device='cpu'):
-            super().__init__(in_features*heads, out_features, device=device)
-            self.x_dim=heads*in_features
 
-        def forward(self,x):
-            return super().forward(x.view(-1,self.x_dim))
+    def __init__(self, in_features, out_features, heads=8, device='cpu'):
+        super().__init__(in_features*heads, out_features, device=device)
+        
+        self.x_dim=heads*in_features
+        self.n_parameters=self.weight.shape[0]*self.weight.shape[1]
+
+
+    def forward(self,x):
+        return super().forward(x.view(-1,self.x_dim))

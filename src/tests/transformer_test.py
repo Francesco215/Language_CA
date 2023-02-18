@@ -1,11 +1,9 @@
 from src.transformerMP import TransformerBlock, attention_message
 
+
 import torch
 import unittest
 
-
-embedding_dim=100
-n_nodes=130
 
 class attention_message_test(unittest.TestCase):
     def test_attention_message(self):
@@ -84,3 +82,57 @@ class transformer_test(unittest.TestCase):
         self.assertEqual(out.shape,x.shape)
 
     
+from src.GPT2 import TransformerBlockGPT2, transform_heads, interact_heads
+
+class GPT2_transformer_test(unittest.TestCase):
+    def test_transform_heads(self):
+        embedding_dim=24
+        embedding_dim_V=21
+        n_nodes=13
+        heads=3
+
+        value = transform_heads(embedding_dim, embedding_dim_V, heads)
+        x=torch.rand((n_nodes,embedding_dim))
+        out=value(x)
+        self.assertEqual(out.shape,(n_nodes,heads,embedding_dim_V//heads))
+
+    def test_interact_heads(self):
+        embedding_dim=24
+        embedding_dim_V=21
+        n_nodes=13
+        heads=3
+
+        value = interact_heads(embedding_dim_V, embedding_dim)
+        x=torch.rand((n_nodes,heads,embedding_dim_V//heads))
+        out=value(x)
+        self.assertEqual(out.shape,(n_nodes,embedding_dim))
+
+
+    def test_GPT2_transformer_forward_type(self):
+        embedding_dim=24
+        embedding_dim_K=18
+        embedding_dim_V=21
+        n_nodes=13
+        n_edges=133
+        heads=3
+
+        block=TransformerBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        x=torch.rand((n_nodes,embedding_dim))
+        edge_index=torch.randint(0,n_nodes,(2,n_edges))
+        out=block(x,edge_index)
+        self.assertEqual(out.dtype,x.dtype)
+
+    def test_GPT2_transformer_forward(self):
+        embedding_dim=24
+        embedding_dim_K=18
+        embedding_dim_V=21
+        n_nodes=13
+        n_edges=133
+        heads=3
+
+        block=TransformerBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
+        x=torch.rand((n_nodes,embedding_dim))
+        edge_index=torch.randint(0,n_nodes,(2,n_edges))
+        out=block(x,edge_index)
+
+        self.assertEqual(out.shape,x.shape)
