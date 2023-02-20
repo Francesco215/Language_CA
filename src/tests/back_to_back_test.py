@@ -14,9 +14,9 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
 
@@ -38,9 +38,9 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
 
@@ -61,9 +61,9 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
         loss=Loss(decoder)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
@@ -102,9 +102,9 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
 
@@ -135,15 +135,41 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
 
         network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
 
         nodes,edge_index=data[0:2]
         nodes,edge_index=batch_graphs(nodes,edge_index)
         n_nodes=len(nodes)
+        out=network(nodes,edge_index)
+        out=decoder(out)
+        self.assertEqual(out.shape,(n_nodes,vocab_size))
+
+
+class GPT2BacktoBack(unittest.TestCase):
+    def test_flow(self):
+        hidden_dim=200
+        embedding_dim=50
+        dK=50
+        dV=50
+        heads=4
+        tokenizer=Tokenizer("bert-base-cased",max_length=50)
+
+        vocab_size=tokenizer.vocab_size
+
+        encoder=Encoder(embedding_dim,vocab_size)
+        transformer=AttentionBlock
+        decoder=Decoder(embedding_dim,vocab_size)
+
+        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+
+        n_nodes=40
+        n_edges=302
+        nodes=torch.randint(0,vocab_size,(n_nodes,))
+        edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=network(nodes,edge_index)
         out=decoder(out)
         self.assertEqual(out.shape,(n_nodes,vocab_size))

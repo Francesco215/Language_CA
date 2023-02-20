@@ -61,10 +61,11 @@ class AttentionBlock(nn.Module):
         Q = self.query(x)
 
         #calculate the multi-head attention and activation function
+        #TODO: check if residual should be added before or after the linear layer or at all
         x = attention_message(K,Q,V,edge_index,self.dropout)
 
         #now we merge the output of the heads and apply the final linear layer
-        x=self.feedforward(x) #+ x TODO: check if this is what should be done
+        x=self.feedforward(x) 
         x=self.dropout_layer(x)
 
         #There is no add and normalize here!

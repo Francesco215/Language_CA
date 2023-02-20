@@ -109,6 +109,8 @@ class random_graph_maker(linear_bidirectional_graph_maker):
 @torch.no_grad()
 def batch_graphs(nodes_list:list, edges_list:list):
     """Given a list of nodes and a list of edges, returns a batch of graphs.
+
+    TODO: This screws up positional encoding. Fix it.
     Args:
         nodes_list (list[torch.Tensor]): a list of nodes
         edges_list (list[torch.Tensor]): a list of edges

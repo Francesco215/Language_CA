@@ -16,7 +16,7 @@ class EncoderTest(unittest.TestCase):
         sequence_length=130
         vocab_size=100
         
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
 
         x=torch.randint(0,vocab_size-1,(sequence_length,))
         encoded=encoder(x)
@@ -26,7 +26,7 @@ class EncoderTest(unittest.TestCase):
         sequence_length=130
         vocab_size=100
         
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
 
         x=torch.randint(0,vocab_size*2,(sequence_length,))
         self.assertRaises(IndexError, encoder, x)
@@ -36,7 +36,7 @@ class EncoderTest(unittest.TestCase):
         sequence_length=130
         vocab_size=100
         batch_size=10
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
 
         x=torch.randint(0,vocab_size-1,(batch_size,sequence_length))
         encoded=encoder(x)
@@ -47,7 +47,7 @@ class EncoderTest(unittest.TestCase):
         vocab_size=100
         batch_size=10
 
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
 
         x=torch.randint(0,vocab_size*2,(batch_size,sequence_length))
         self.assertRaises(IndexError, encoder, x)
@@ -56,7 +56,7 @@ class EncoderTest(unittest.TestCase):
     def test_encoder_shape_graph(self):
         sequence_length=130
         vocab_size=100
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
         x=torch.randint(0,vocab_size,(sequence_length,))
         edges=graph_initialization.random_graph_maker(window_width=1,avg_n_edges=5)(sequence_length)
         encoded=encoder(x)
@@ -65,7 +65,7 @@ class EncoderTest(unittest.TestCase):
     def test_encoded_type(self):
         sequence_length=130
         vocab_size=100
-        encoder=Encoder(hidden_dim, embedding_dim, base_freq, vocab_size)
+        encoder=Encoder(embedding_dim, base_freq, vocab_size)
         x=torch.randint(0,vocab_size,(sequence_length,))
         edges=graph_initialization.random_graph_maker(window_width=1,avg_n_edges=5)(sequence_length)
         encoded=encoder(x)

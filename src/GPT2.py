@@ -1,4 +1,3 @@
-
 import torch
 from torch import nn
 
@@ -7,6 +6,8 @@ from transformers import GPT2Tokenizer
 class GPT2(nn.Module):
     
     def __init__(self,
+                 encoder,
+                 decoder,
                  tokenizer=GPT2Tokenizer.from_pretrained('gpt2'),
                  n_blocks=12,
                  d_Embedding=768,
@@ -15,14 +16,14 @@ class GPT2(nn.Module):
                  heads=8,
                  intermediate_size=3072,
                  dropout=0.1,
-                 max_position_encoding=1024,
-                 embedding_dropout=0.1,
                  device='cpu'
                  ):
         super().__init__()
         
         # Save the parameters
         self.tokenizer=tokenizer
+        self.encoder=encoder
+        self.decoder=decoder
         self.n_blocks=n_blocks
         self.d_Embedding=d_Embedding
         self.dK=dK
@@ -30,18 +31,87 @@ class GPT2(nn.Module):
         self.heads=heads
         self.intermediate_size=intermediate_size
         self.dropout=dropout,
-        self.max_position_encoding=max_position_encoding,
-        self.embedding_dropout=embedding_dropout,
+        self.device=device
+
+
+        # Initialize the transformer blocks
+        self.transformer_blocks=nn.ModuleList([GPT2_Block(d_Embedding, dK, dV, heads, intermediate_size, dropout, device) for _ in range(n_blocks)])    
+
+        # Calculate the number of parameters
+        self.n_parameters=encoder.n_parameters + decoder.n_parameters + self.transformer_blocks[0].n_parameters
+
+    def forward(self, x, edge_index):
+        #Encoding
+        x=self.encoder(x)
+        
+        #Transformer blocks
+        for block in self.transformer_blocks:
+            x=block(x, edge_index)
+
+        #Decoding
+        x= self.decode(x)
+        return x
+
+    def load_from_original(self, pretrained_model):
+        # Load the embedding layer
+        self.encoder.load_from_original(pretrained_model.transformer)
+
+        # Load the transformer blocks
+        transformer_heads=pretrained_model.transformer.h
+        for i in range(self.n_blocks):
+            self.transformer_blocks[i].load_from_original(transformer_heads[i])
+
+        # Load the language model head
+        self.decoder.load_from_original(pretrained_model.lm_head)
+
+
+class GPT2_Encoder(nn.Module):
+
+    def __init__(self,tokenizer, d_Embedding=768, max_position_encoding=1024, dropout=0.1, device='cpu'):
+        super().__init__()
+
+        # Save the parameters
+        self.tokenizer=tokenizer
+        self.d_Embedding=d_Embedding
+        self.max_position_encoding=max_position_encoding
         self.device=device
 
         # Initialize the embedding layer
         self.embedding=nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
         self.positional_encoding=nn.Embedding(max_position_encoding, d_Embedding, device=device)
-        self.embedding_dropout=nn.Dropout(dropout)
 
-        # Initialize the transformer blocks
-        self.blocks=nn.ModuleList([GPT2_BLock(d_Embedding, dK, dV, heads, intermediate_size, dropout, device) for _ in range(n_blocks)])
-        
+        self.dropout=nn.Dropout(dropout)
+
+        # Calculate the number of parameters
+        self.n_parameters=tokenizer.vocab_size*d_Embedding + max_position_encoding*d_Embedding
+
+    def forward(self, x):
+        #tokenize if necessary
+        if type(x)==str: x=self.tokenizer.encode(x)
+
+        #Embedding
+        indices=torch.arange(x.shape[0], device=self.device)
+        x = self.embedding(x) + self.positional_encoding(indices)
+        x = self.dropout(x)
+        return x
+    
+    def load_from_original(self, trasformer):
+        # Extract the submodules
+        weight_token_embedding=trasformer.wte
+        weight_positional_embedding=trasformer.wpe
+
+        # Load the embedding layer
+        self.embedding.weight=weight_token_embedding.weight
+        self.positional_encoding.weight=weight_positional_embedding.weight
+
+class GPT2_LM_Head(nn.Module):
+
+    def __init__(self, d_Embedding=768, tokenizer=GPT2Tokenizer.from_pretrained('gpt2'), device='cpu') -> None:
+        super().__init__()
+
+        self.d_Embedding=d_Embedding
+        self.tokenizer=tokenizer
+        self.device=device
 
         # Initialize the language model head
         self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
@@ -49,41 +119,20 @@ class GPT2(nn.Module):
         self.activation_head=nn.Softmax(dim=-1)
 
         # Calculate the number of parameters
-        self.n_parameters=self.blocks[0].n_parameters*n_blocks + 2*d_Embedding*tokenizer.vocab_size + max_position_encoding*d_Embedding
+        self.n_parameters=d_Embedding*tokenizer.vocab_size
 
-    def forward(self, x, edge_index):
-        #Embedding
-        indices=torch.arange(x.shape[0], device=self.device)
-        x = self.embedding(x) + self.positional_encoding(indices)
-        x=self.embedding_dropout(x)
-        
-        #Blocks
-        for block in self.blocks:
-            x=block(x, edge_index)
-
-        #Language model head
+    def forward(self, x):
         x=self.layer_norm(x)
         x=self.language_model_head(x)
         x=self.activation_head(x)
         return x
-
-    def load_from_original(self, weight_token_embedding, weight_positional_embedding, transformer_heads, language_model_head):
-        # Load the embedding layer
-        self.embedding.weight=weight_token_embedding.weight
-        self.embedding.bias=weight_token_embedding.bias
-        self.positional_encoding.weight=weight_positional_embedding.weight
-
-        # Load the transformer blocks
-        for i in range(self.n_blocks):
-            self.blocks[i].load_from_original(transformer_heads[i])
-
+    
+    def load_from_original(self, language_model_head):
         # Load the language model head
         self.language_model_head.weight=language_model_head.weight
         self.language_model_head.bias=language_model_head.bias
 
-
-
-class GPT2_BLock(nn.Module):
+class GPT2_Block(nn.Module):
 
     def __init__(self, d_Embedding=768, dK=768, dV=768, heads=8,intermediate_size=3072, dropout=0.1, device='cpu'):
         super().__init__()
@@ -123,10 +172,10 @@ class GPT2_BLock(nn.Module):
     
     def load_from_original(self, head):
         # Load the transformer block
-        self.attention_block.load_from_original(head.attn.c_attn,head.attn.c_proj)
+        self.attention_block.load_from_original(head.attn)
 
         # Load the MLP
-        self.MLP.load_from_original(head.mlp.c_fc, head.mlp.c_proj)
+        self.MLP.load_from_original(head.mlp)
         
 
 
@@ -154,21 +203,24 @@ class AttentionBlockGPT2(AttentionBlock):
         self.n_parameters=self.key.n_parameters*2 + self.value.n_parameters + self.feedforward.n_parameters 
 
 
-    def load_from_original(self, c_attn, c_proj):
+    def load_from_original(self, attn):
+        c_attn=attn.c_attn      
         w, b = c_attn.weight, c_attn.bias
 
         query_weight, key_weight, value_weight = torch.split(w, w.shape[-1]//3, dim=-1)
         query_bias,   key_bias,   value_bias   = torch.split(b, b.shape[-1]//3, dim=-1)
 
-        self.key.weight=key_weight
-        self.key.bias=key_bias
+        self.key.weight=nn.Parameter(key_weight)
+        self.key.bias=nn.Parameter(key_bias)
 
-        self.query.weight=query_weight
-        self.query.bias=query_bias
+        self.query.weight=nn.Parameter(query_weight)
+        self.query.bias=nn.Parameter(query_bias)
 
-        self.value.weight=value_weight
-        self.value.bias=value_bias
+        self.value.weight=nn.Parameter(value_weight)
+        self.value.bias=nn.Parameter(value_bias)
 
+
+        c_proj=attn.c_proj
         self.feedforward.weight=c_proj.weight
         self.feedforward.bias=c_proj.bias
 
@@ -217,7 +269,7 @@ class GPT2MLP(nn.Module):
         self.feedforward1=nn.Linear(d_Embedding, intermediate_size, device=device)
         self.feedforward2=nn.Linear(intermediate_size, d_Embedding, device=device)
 
-        self.dropout=nn.Dropout(dropout, device=device)
+        self.dropout=nn.Dropout(dropout)
         self.activation=NewGELUActivation()
 
         self.n_parameters=2*d_Embedding*intermediate_size
@@ -232,7 +284,10 @@ class GPT2MLP(nn.Module):
         return x
 
 
-    def load_from_original(self,c_fc,c_proj):
+    def load_from_original(self,mlp):
+        c_fc=mlp.c_fc
+        c_proj=mlp.c_proj
+
         self.feedforward1.weight=c_fc.weight
         self.feedforward1.bias=c_fc.bias
 

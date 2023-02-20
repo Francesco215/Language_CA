@@ -5,28 +5,25 @@ from torch import nn
 class Decoder(nn.Module):
 
     def __init__(self,
-        hidden_dim: int = 2048,
         embedding_dim:int = 512,
         vocab_size: int = 28996, #defaults to the bert-base dictionary size
         ):
 
         super().__init__()
 
-        self.layers=nn.Sequential(
-            nn.Linear(embedding_dim,hidden_dim),
-            nn.ReLU(),
-            nn.Linear(hidden_dim,vocab_size),
-            nn.Softmax(dim=-1)
-        )
+
+        self.layer=nn.Linear(embedding_dim,vocab_size)
+        self.activation=nn.Softmax(dim=1)
 
         self.vocab_size=vocab_size
         self.embedding_dim=embedding_dim
-        self.hidden_dim=hidden_dim
 
-        self.n_parameters=hidden_dim*embedding_dim + vocab_size*hidden_dim
+        self.n_parameters=vocab_size*embedding_dim
 
     def forward(self,x):
-        return self.layers(x)
+        x=self.layer(x)
+        x=self.activation(x)
+        return x
 
 
 
