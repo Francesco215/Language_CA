@@ -3,3 +3,5 @@
 .vscode
 
 *.pyc
+
+src/modelling_GPT2.py

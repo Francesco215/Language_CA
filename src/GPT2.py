@@ -2,45 +2,135 @@
 import torch
 from torch import nn
 
-from .transformerMP import AttentionBlock
+from transformers import GPT2Tokenizer
+
+class GPT2(nn.Module):
+    
+    def __init__(self,
+                 tokenizer=GPT2Tokenizer.from_pretrained('gpt2'),
+                 n_blocks=12,
+                 d_Embedding=768,
+                 dK=768,
+                 dV=768,
+                 heads=8,
+                 intermediate_size=3072,
+                 dropout=0.1,
+                 max_position_encoding=1024,
+                 embedding_dropout=0.1,
+                 device='cpu'
+                 ):
+        super().__init__()
+        
+        # Save the parameters
+        self.tokenizer=tokenizer
+        self.n_blocks=n_blocks
+        self.d_Embedding=d_Embedding
+        self.dK=dK
+        self.dV=dV
+        self.heads=heads
+        self.intermediate_size=intermediate_size
+        self.dropout=dropout,
+        self.max_position_encoding=max_position_encoding,
+        self.embedding_dropout=embedding_dropout,
+        self.device=device
+
+        # Initialize the embedding layer
+        self.embedding=nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
+        self.positional_encoding=nn.Embedding(max_position_encoding, d_Embedding, device=device)
+        self.embedding_dropout=nn.Dropout(dropout)
+
+        # Initialize the transformer blocks
+        self.blocks=nn.ModuleList([GPT2_BLock(d_Embedding, dK, dV, heads, intermediate_size, dropout, device) for _ in range(n_blocks)])
+        
+
+        # Initialize the language model head
+        self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
+        self.language_model_head=nn.Linear(d_Embedding, tokenizer.vocab_size, bias=False, device=device)
+        self.activation_head=nn.Softmax(dim=-1)
+
+        # Calculate the number of parameters
+        self.n_parameters=self.blocks[0].n_parameters*n_blocks + 2*d_Embedding*tokenizer.vocab_size + max_position_encoding*d_Embedding
+
+    def forward(self, x, edge_index):
+        #Embedding
+        indices=torch.arange(x.shape[0], device=self.device)
+        x = self.embedding(x) + self.positional_encoding(indices)
+        x=self.embedding_dropout(x)
+        
+        #Blocks
+        for block in self.blocks:
+            x=block(x, edge_index)
+
+        #Language model head
+        x=self.layer_norm(x)
+        x=self.language_model_head(x)
+        x=self.activation_head(x)
+        return x
+
+    def load_from_original(self, weight_token_embedding, weight_positional_embedding, transformer_heads, language_model_head):
+        # Load the embedding layer
+        self.embedding.weight=weight_token_embedding.weight
+        self.embedding.bias=weight_token_embedding.bias
+        self.positional_encoding.weight=weight_positional_embedding.weight
+
+        # Load the transformer blocks
+        for i in range(self.n_blocks):
+            self.blocks[i].load_from_original(transformer_heads[i])
+
+        # Load the language model head
+        self.language_model_head.weight=language_model_head.weight
+        self.language_model_head.bias=language_model_head.bias
+
+
 
 class GPT2_BLock(nn.Module):
 
-    def __init__(self, tranformer_block, MLP, device='cpu'):
+    def __init__(self, d_Embedding=768, dK=768, dV=768, heads=8,intermediate_size=3072, dropout=0.1, device='cpu'):
         super().__init__()
 
-        assert isinstance(tranformer_block, AttentionBlock), "tranformer_block must be an instance of TransformerBlock"
-        assert isinstance(MLP, GPT2MLP), "MLP must be an instance of GPT2MLP"
-
         # Save the parameters
-        self.transformer_block=tranformer_block
-        self.MLP=MLP
+        self.d_Embedding=d_Embedding
+        self.dK=dK
+        self.dV=dV
+        self.heads=heads
+        self.intermediate_size=intermediate_size
+        self.dropout=dropout
         self.device=device
-        self.d_embedding=self.transformer_block.d_Embedding
+
+        # Initialize the transformer block and the MLP
+        self.attention_block=AttentionBlockGPT2(d_Embedding, dK, dV, heads, dropout, device)
+        self.MLP=GPT2MLP(d_Embedding, intermediate_size, dropout, device)
 
         # Layer normalization
-        self.layer_norm1 = nn.LayerNorm(self.d_Embedding, eps = 1e-5, elementwise_affine=True)
-        self.layer_norm2 = nn.LayerNorm(self.d_Embedding, eps = 1e-5, elementwise_affine=True)
+        self.layer_norm1 = nn.LayerNorm(self.d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
+        self.layer_norm2 = nn.LayerNorm(self.d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
 
         # Calculate the number of parameters
-        self.n_parameters=self.transformer_block.n_parameters + self.MLP.n_parameters
+        self.n_parameters=self.attention_block.n_parameters + self.MLP.n_parameters
 
-    def forward(self,x, edge_index):
+    def forward(self, x, edge_index):
         #✔
         #Attention
         residual=x
         x=self.layer_norm1(x)
-        x=residual + self.transformer_block(x, edge_index)
+        x=residual + self.attention_block(x, edge_index)
         
         #MLP
         residual=x
         x=self.layer_norm2(x)
         x= residual + self.MLP(x)
         return x
+    
+    def load_from_original(self, head):
+        # Load the transformer block
+        self.attention_block.load_from_original(head.attn.c_attn,head.attn.c_proj)
+
+        # Load the MLP
+        self.MLP.load_from_original(head.mlp.c_fc, head.mlp.c_proj)
         
 
 
-
+from .transformerMP import AttentionBlock
 class AttentionBlockGPT2(AttentionBlock):
     """
     This class is a message passing layer that uses the transformer architecture to calculate the messages.
@@ -64,7 +154,7 @@ class AttentionBlockGPT2(AttentionBlock):
         self.n_parameters=self.key.n_parameters*2 + self.value.n_parameters + self.feedforward.n_parameters 
 
 
-    def load_from_original(self, c_attn):
+    def load_from_original(self, c_attn, c_proj):
         w, b = c_attn.weight, c_attn.bias
 
         query_weight, key_weight, value_weight = torch.split(w, w.shape[-1]//3, dim=-1)
@@ -78,6 +168,9 @@ class AttentionBlockGPT2(AttentionBlock):
 
         self.value.weight=value_weight
         self.value.bias=value_bias
+
+        self.feedforward.weight=c_proj.weight
+        self.feedforward.bias=c_proj.bias
 
 
 
@@ -118,13 +211,13 @@ class GPT2MLP(nn.Module):
     #✔
     #souce: https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
     #line 334
-    def __init__(self, d_Embedding=768, intermediate_size=3072, dropout=0.1):
+    def __init__(self, d_Embedding=768, intermediate_size=3072, dropout=0.1, device='cpu'):
         super().__init__()
         
-        self.feedforward1=nn.Linear(d_Embedding, intermediate_size)
-        self.feedforward2=nn.Linear(intermediate_size, d_Embedding)
+        self.feedforward1=nn.Linear(d_Embedding, intermediate_size, device=device)
+        self.feedforward2=nn.Linear(intermediate_size, d_Embedding, device=device)
 
-        self.dropout=nn.Dropout(dropout)
+        self.dropout=nn.Dropout(dropout, device=device)
         self.activation=NewGELUActivation()
 
         self.n_parameters=2*d_Embedding*intermediate_size

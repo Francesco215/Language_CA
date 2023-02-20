@@ -35,7 +35,7 @@ class GraphAttentionNetwork(nn.Module):
         
         self.decoder = decoder
 
-        self.transformer_blocks=[transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)]
+        self.transformer_blocks=nn.ModuleList([transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)])
 
         #self.transformer = nn.Sequential(*transformer_blocks)
 
