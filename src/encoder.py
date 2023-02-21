@@ -2,11 +2,7 @@ import torch
 from torch import nn
 
 class Encoder(nn.Module):
-    """Layer to turn tokens into word embeddings, it also supports positional embeddings
-
-    Args:
-        nn (_type_): _description_
-    """
+    """Layer to turn tokens into word embeddings, it also supports positional embeddings"""
     def __init__(self,
         embedding_dim:int = 512,
         base_freq: float = 1e-5,
@@ -63,7 +59,7 @@ import einops
 def positional_encoding(shape:torch.tensor,base_freq:float=1e-5)->torch.Tensor:
     """This function gives the positional encoding, it's slightly different then the one defined in
         the paper "Attention is all you need"
-
+        TODO: test everything
     Args:
         shape (torch.tensor): shape=(b,l,c) or (l,c) b=batch, l=sequence lenght, c=channels
         base_freq (float, optional): The base fequency of th sinusoidal funcion. Defaults to 1e-5.

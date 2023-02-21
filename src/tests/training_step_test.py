@@ -8,7 +8,7 @@ class Back_to_BackTest(unittest.TestCase):
         dummy_dataset=[
             {'text':"This is a test"},
             {'text':"This is another test but with different length"},
-            {'text':"This is the last test string, i promise no more strings"}
+            {'text':"This is the last test string. I promise, no more strings"}
         ]
 
         tokenizer=Tokenizer(max_length=50)
@@ -25,9 +25,9 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(hidden_dim,embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim,vocab_size=vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(hidden_dim,embedding_dim,vocab_size)
+        decoder=Decoder(embedding_dim,vocab_size)
 
         model=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,transformer_layers,dK,dV,heads)
 

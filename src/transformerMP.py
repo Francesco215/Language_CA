@@ -109,7 +109,7 @@ def attention_message(K:torch.Tensor,
     att=(Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
 
     #softmax    
-    att = torch.exp(att) #could be done in-plase using the function att.exp_() if memory is a bootleneck
+    att = torch.exp(att+3-att.max()) #could be done in-plase using the function att.exp_() if memory is a bootleneck
     att = normalize_strength(att, receivers, N, h)
 
     #Dropout
@@ -149,7 +149,7 @@ def normalize_strength(strength,receivers,n_nodes,heads):
     assert type(n_nodes)==type(heads)==int, "n_nodes and heads must be integers"
 
     strengths_sum = torch.zeros([n_nodes,heads],device=strength.device)
-    strengths_sum.index_add_(0, receivers, strength)
+    strengths_sum=strengths_sum.index_add(0, receivers, strength)
 
     return strength / strengths_sum[receivers]
 

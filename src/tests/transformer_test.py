@@ -21,6 +21,8 @@ class attention_message_test(unittest.TestCase):
 
         att=attention_message(K,Q,V,edge_index)
         self.assertEqual(V.shape,att.shape)
+        self.assertFalse(att.isnan().any())
+        self.assertFalse(att.isinf().any())
 
 from src.transformerMP import AttentionBlock, aggregate_heads, make_heads
 class transformer_test(unittest.TestCase):

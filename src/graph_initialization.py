@@ -1,7 +1,7 @@
 import torch
 from transformers import AutoTokenizer
 
-class graph_maker:
+class Graph_maker:
     def __init__(self, window_width:int=1):
 
         assert type(window_width)==int, "n_nodes must be an integer"
@@ -26,7 +26,7 @@ class graph_maker:
 
         pass
     
-class linear_unidirectional_graph_maker(graph_maker):
+class linear_unidirectional_graph_maker(Graph_maker):
 
     @torch.no_grad()
     def __call__(self, n_nodes):
@@ -49,7 +49,7 @@ class linear_unidirectional_graph_maker(graph_maker):
         edges=torch.tensor(edges, dtype=torch.long).t().contiguous()
         return edges
 
-class linear_bidirectional_graph_maker(graph_maker):
+class linear_bidirectional_graph_maker(Graph_maker):
 
     @torch.no_grad()
     def __call__(self, n_nodes:int):

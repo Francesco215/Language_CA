@@ -93,7 +93,8 @@ class select_index_test(unittest.TestCase):
         strength=normalize_strength(strength,receivers,n_nodes,heads)
         
         nodes=torch.zeros([n_nodes,heads])
-        nodes=nodes.index_add_(0,receivers,strength)
+        #after this commit where i wrote this comment, for some reason using index_add inplace gives an error 🤔?
+        nodes=nodes.index_add(0,receivers,strength)
 
         assertion=torch.allclose(nodes,torch.ones_like(nodes))
         self.assertTrue(assertion)

@@ -14,8 +14,8 @@ class Wiki(Dataset):
                 Defaults to None.
         """   
         #parameters     
-        assert isinstance(tokenizer, Tokenizer), "tokenizer must be an instance of the Tokenizer class"
-        assert isinstance(graph_maker, linear_bidirectional_graph_maker), "graph_maker must be an instance of the GraphMaker class"
+        #assert isinstance(tokenizer, Tokenizer), "tokenizer must be an instance of the Tokenizer class"
+        assert isinstance(graph_maker, Graph_maker), "graph_maker must be an instance of the GraphMaker class"
 
         self.dataset=dataset
         self.tokenizer=tokenizer
@@ -54,15 +54,24 @@ class Tokenizer:
                  max_length=512
         ):
 
-        if tokenizer!="bert-base-cased":
+        if tokenizer!="bert-base-cased" and tokenizer!="gpt2":
             raise Warning("The tokenizer is bert-base-cased, using a different tokenizer may cause problems.\n Read the TODO in the Tokenizer class in src/data_loader.py")
 
+        self.tokenizer_name=tokenizer
         self.tokenizer=AutoTokenizer.from_pretrained(tokenizer)
         self.vocab_size=self.tokenizer.vocab_size
         self.max_length=max_length
     
-    @torch.no_grad()    
-    def __call__(self, list_text):
+    @torch.no_grad()
+    def __call__(self,text):
+        if self.tokenizer_name=="bert-base-cased":
+            return self.bert_call(text)
+        if self.tokenizer_name=="gpt2":
+            return self.gpt2_call(text)
+
+        raise NotImplementedError("The tokenizer is not implemented")
+
+    def bert_call(self, list_text):
         """This function is complete garbage, it should be completely rewritten
         the sole reason as to why this function exists is becouse tokenizers have a max input length
         
@@ -96,6 +105,12 @@ class Tokenizer:
             return out[0]
 
         return out
+    
+    def gpt2_call(self, list_text):
+
+        assert type(list_text)==str, "The input must be a string"
+        
+        return self.tokenizer.encode(list_text, return_tensors="pt").view(-1)
 
     def decode(self, token_ids):
         return self.tokenizer.decode(token_ids)

@@ -1,14 +1,13 @@
 import torch
 from torch import nn
 
-from transformers import GPT2Tokenizer
-
+from src import Tokenizer
 class GPT2(nn.Module):
     
     def __init__(self,
                  encoder,
                  decoder,
-                 tokenizer=GPT2Tokenizer.from_pretrained('gpt2'),
+                 tokenizer=Tokenizer('gpt2'),
                  n_blocks=12,
                  d_Embedding=768,
                  dK=768,
@@ -19,7 +18,11 @@ class GPT2(nn.Module):
                  device='cpu'
                  ):
         super().__init__()
-        
+
+        assert isinstance(encoder, GPT2_Encoder)
+        assert isinstance(decoder, GPT2_LM_Head)
+        assert isinstance(tokenizer, Tokenizer)
+
         # Save the parameters
         self.tokenizer=tokenizer
         self.encoder=encoder
@@ -49,7 +52,7 @@ class GPT2(nn.Module):
             x=block(x, edge_index)
 
         #Decoding
-        x= self.decode(x)
+        x=self.decoder(x)
         return x
 
     def load_from_original(self, pretrained_model):
@@ -67,7 +70,7 @@ class GPT2(nn.Module):
 
 class GPT2_Encoder(nn.Module):
 
-    def __init__(self,tokenizer, d_Embedding=768, max_position_encoding=1024, dropout=0.1, device='cpu'):
+    def __init__(self,d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.1, device='cpu'):
         super().__init__()
 
         # Save the parameters
@@ -100,13 +103,16 @@ class GPT2_Encoder(nn.Module):
         weight_token_embedding=trasformer.wte
         weight_positional_embedding=trasformer.wpe
 
+        assert self.embedding.weight.shape==weight_token_embedding.weight.shape
+        assert self.positional_encoding.weight.shape==weight_positional_embedding.weight.shape
+
         # Load the embedding layer
         self.embedding.weight=weight_token_embedding.weight
         self.positional_encoding.weight=weight_positional_embedding.weight
 
 class GPT2_LM_Head(nn.Module):
 
-    def __init__(self, d_Embedding=768, tokenizer=GPT2Tokenizer.from_pretrained('gpt2'), device='cpu') -> None:
+    def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
         super().__init__()
 
         self.d_Embedding=d_Embedding
@@ -128,6 +134,9 @@ class GPT2_LM_Head(nn.Module):
         return x
     
     def load_from_original(self, language_model_head):
+        assert self.language_model_head.weight.shape==language_model_head.weight.shape
+        assert self.language_model_head.bias.shape==language_model_head.bias.shape
+
         # Load the language model head
         self.language_model_head.weight=language_model_head.weight
         self.language_model_head.bias=language_model_head.bias
@@ -210,17 +219,25 @@ class AttentionBlockGPT2(AttentionBlock):
         query_weight, key_weight, value_weight = torch.split(w, w.shape[-1]//3, dim=-1)
         query_bias,   key_bias,   value_bias   = torch.split(b, b.shape[-1]//3, dim=-1)
 
+        assert self.key.weight.shape==key_weight.shape
+        assert self.key.bias.shape==key_bias.shape
         self.key.weight=nn.Parameter(key_weight)
         self.key.bias=nn.Parameter(key_bias)
 
+        assert self.query.weight.shape==query_weight.shape
+        assert self.query.bias.shape==query_bias.shape
         self.query.weight=nn.Parameter(query_weight)
         self.query.bias=nn.Parameter(query_bias)
 
+        assert self.value.weight.shape==value_weight.shape
+        assert self.value.bias.shape==value_bias.shape
         self.value.weight=nn.Parameter(value_weight)
         self.value.bias=nn.Parameter(value_bias)
 
-
         c_proj=attn.c_proj
+        
+        assert self.feedforward.weight.shape==c_proj.weight.shape
+        assert self.feedforward.bias.shape==c_proj.bias.shape
         self.feedforward.weight=c_proj.weight
         self.feedforward.bias=c_proj.bias
 
@@ -288,12 +305,15 @@ class GPT2MLP(nn.Module):
         c_fc=mlp.c_fc
         c_proj=mlp.c_proj
 
-        self.feedforward1.weight=c_fc.weight
-        self.feedforward1.bias=c_fc.bias
+        assert self.feedforward1.weight.shape==c_fc.weight.t().shape
+        assert self.feedforward1.bias.shape  ==c_fc.bias.shape
+        self.feedforward1.weight=nn.Parameter(c_fc.weight.t()) #it's the only way to make it work. Fuck who made this.
+        self.feedforward1.bias  =nn.Parameter(c_fc.bias)
 
-        self.feedforward2.weight=c_proj.weight
-        self.feedforward2.bias=c_proj.bias
-
+        assert self.feedforward2.weight.shape==c_proj.weight.t().shape
+        assert self.feedforward2.bias.shape  ==c_proj.bias.shape
+        self.feedforward2.weight=nn.Parameter(c_proj.weight.t())
+        self.feedforward2.bias  =nn.Parameter(c_proj.bias)
 
 import math
 class NewGELUActivation(nn.Module):
