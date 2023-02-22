@@ -135,11 +135,9 @@ class GPT2_LM_Head(nn.Module):
     
     def load_from_original(self, language_model_head):
         assert self.language_model_head.weight.shape==language_model_head.weight.shape
-        assert self.language_model_head.bias.shape==language_model_head.bias.shape
 
         # Load the language model head
         self.language_model_head.weight=language_model_head.weight
-        self.language_model_head.bias=language_model_head.bias
 
 class GPT2_Block(nn.Module):
 
@@ -216,31 +214,18 @@ class AttentionBlockGPT2(AttentionBlock):
         c_attn=attn.c_attn      
         w, b = c_attn.weight, c_attn.bias
 
-        query_weight, key_weight, value_weight = torch.split(w, w.shape[-1]//3, dim=-1)
-        query_bias,   key_bias,   value_bias   = torch.split(b, b.shape[-1]//3, dim=-1)
+        query=Conv1D(self.d_Embedding,self.d_Embedding)
+        key  =Conv1D(self.d_Embedding,self.d_Embedding)
+        value=Conv1D(self.d_Embedding,self.d_Embedding)
 
-        assert self.key.weight.shape==key_weight.shape
-        assert self.key.bias.shape==key_bias.shape
-        self.key.weight=nn.Parameter(key_weight)
-        self.key.bias=nn.Parameter(key_bias)
+        query.weight, key.weight, value.weight = [nn.Parameter(par) for par in torch.split(w, w.shape[-1]//3, dim=-1)]
+        query.bias,   key.bias,   value.bias   = [nn.Parameter(par) for par in torch.split(b, b.shape[-1]//3, dim=-1)]
 
-        assert self.query.weight.shape==query_weight.shape
-        assert self.query.bias.shape==query_bias.shape
-        self.query.weight=nn.Parameter(query_weight)
-        self.query.bias=nn.Parameter(query_bias)
+        Conv1D_to_Linear(query, self.query)
+        Conv1D_to_Linear(key,   self.key)
+        Conv1D_to_Linear(value, self.value)
 
-        assert self.value.weight.shape==value_weight.shape
-        assert self.value.bias.shape==value_bias.shape
-        self.value.weight=nn.Parameter(value_weight)
-        self.value.bias=nn.Parameter(value_bias)
-
-        c_proj=attn.c_proj
-        
-        assert self.feedforward.weight.shape==c_proj.weight.shape
-        assert self.feedforward.bias.shape==c_proj.bias.shape
-        self.feedforward.weight=c_proj.weight
-        self.feedforward.bias=c_proj.bias
-
+        Conv1D_to_Linear(attn.c_proj, self.feedforward)
 
 
 #Utilis function to make the code more readable. they are just to make the generation of K,Q,V
@@ -305,15 +290,31 @@ class GPT2MLP(nn.Module):
         c_fc=mlp.c_fc
         c_proj=mlp.c_proj
 
-        assert self.feedforward1.weight.shape==c_fc.weight.t().shape
-        assert self.feedforward1.bias.shape  ==c_fc.bias.shape
-        self.feedforward1.weight=nn.Parameter(c_fc.weight.t()) #it's the only way to make it work. Fuck who made this.
-        self.feedforward1.bias  =nn.Parameter(c_fc.bias)
+        Conv1D_to_Linear(c_fc,self.feedforward1)
+        Conv1D_to_Linear(c_proj,self.feedforward2)
 
-        assert self.feedforward2.weight.shape==c_proj.weight.t().shape
-        assert self.feedforward2.bias.shape  ==c_proj.bias.shape
-        self.feedforward2.weight=nn.Parameter(c_proj.weight.t())
-        self.feedforward2.bias  =nn.Parameter(c_proj.bias)
+
+from transformers.modeling_utils import Conv1D
+def Conv1D_to_Linear(conv:Conv1D,lin:nn.Linear):
+    """This is to convert the Conv1D layers that appear in the hugging face source code of GPT2
+    to nn.Linear layers present in my implementation
+
+    Args:
+        conv (Conv1D): Conv1D layers
+        lin (nn.Linear): Linear layer
+    """
+
+    assert isinstance(conv,Conv1D), 'conv must be of type transformers.modeling_utils.Conv1D'
+    assert isinstance(lin,nn.Linear), 'lin must be of type torch.nn.Linear'
+
+    weight = conv.weight.t()
+    bias   = conv.bias
+
+    assert lin.weight.shape==weight.shape, 'the two weight shapes are incompatible'
+    assert lin.bias.shape  ==bias.shape,   'the two bias shapes are incompatible'
+
+    lin.weight = nn.Parameter(weight)
+    lin.bias   = nn.Parameter(bias)
 
 import math
 class NewGELUActivation(nn.Module):

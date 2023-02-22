@@ -54,6 +54,9 @@ class Back_to_BackTest(unittest.TestCase):
                 losses.append(loss.item())
                 loss.backward()
 
+                self.assertFalse(torch.isnan(loss).any())
+                self.assertFalse(torch.isinf(loss).any())
+
                 optimizer.step()
 
         self.assertEqual(len(losses),len(data)*n_epochs)

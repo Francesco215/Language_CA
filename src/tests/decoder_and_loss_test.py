@@ -10,7 +10,7 @@ class DecoderTest(unittest.TestCase):
         vocab_size = 523
         sequence_length = 10
 
-        x = torch.rand(sequence_length, embedding_dim)
+        x = torch.randn(sequence_length, embedding_dim)
         decoder = Decoder(embedding_dim, vocab_size)
         y = decoder(x)
         self.assertEqual(y.shape, (sequence_length, vocab_size))
@@ -23,7 +23,7 @@ class LossTest(unittest.TestCase):
         sequence_length = 10
 
         y=torch.randint(0,vocab_size,(sequence_length,))
-        x = torch.rand(sequence_length, embedding_dim)
+        x = torch.randn(sequence_length, embedding_dim)
         decoder=Decoder(embedding_dim, vocab_size)
         loss = Loss(decoder)
         y_hat = loss(x, y)

@@ -40,3 +40,6 @@ class GPT2_loading_parameters(unittest.TestCase):
         out=model(x,edge_index)
 
         self.assertEqual(out.shape,(len(x),tokenizer.vocab_size))
+        self.assertFalse(out.isnan().any())
+        self.assertFalse(out.isinf().any())
+

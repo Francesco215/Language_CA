@@ -151,7 +151,11 @@ def normalize_strength(strength,receivers,n_nodes,heads):
     strengths_sum = torch.zeros([n_nodes,heads],device=strength.device)
     strengths_sum=strengths_sum.index_add(0, receivers, strength)
 
-    return strength / strengths_sum[receivers]
+    strength = strength / strengths_sum[receivers]
+
+    strength[strength.isnan()]=0
+
+    return strength
 
 def attention_dropout(attention,dropout=0.1):
     """This function drops some connections of the attention tensor.
