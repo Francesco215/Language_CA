@@ -111,6 +111,7 @@ class GPT2_Encoder(nn.Module):
         self.positional_encoding.weight=weight_positional_embedding.weight
 
 class GPT2_LM_Head(nn.Module):
+    #✔️
 
     def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
         super().__init__()

@@ -62,7 +62,7 @@ class AttentionBlock(nn.Module):
 
         #calculate the multi-head attention and activation function
         #TODO: check if residual should be added before or after the linear layer or at all
-        x = attention_message(K,Q,V,edge_index,self.dropout)
+        x, _ = attention_message(K,Q,V,edge_index,self.dropout)
 
         #now we merge the output of the heads and apply the final linear layer
         x=self.feedforward(x) 
@@ -110,16 +110,16 @@ def attention_message(K:torch.Tensor,
 
     #softmax    
     att = torch.exp(att+3-att.max()) #could be done in-plase using the function att.exp_() if memory is a bootleneck
-    att = normalize_strength(att, receivers, N, h)
+    attention = normalize_strength(att, receivers, N, h)
 
     #Dropout
-    att=attention_dropout(att, att_dropout)
+    att=attention_dropout(attention, att_dropout)
 
     #softmax*V
     att = einops.einsum(att,V[senders],' ... , ... c -> ... c')
     out=torch.zeros_like(V,device=V.device)
 
-    return out.index_add(0,receivers,att) #could be done in-place using the function out.index_add_()
+    return out.index_add(0,receivers,att), attention #could be done in-place using the function out.index_add_()
 
 
 def normalize_strength(strength,receivers,n_nodes,heads):
