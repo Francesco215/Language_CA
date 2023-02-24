@@ -23,9 +23,7 @@ class AttentionBlock(nn.Module):
         self.device=device
 
         # Create the layers for the attention that make the keys, queries and values for each head
-        self.key   = make_heads(d_Embedding, dK, heads, device)
-        self.query = make_heads(d_Embedding, dK, heads, device)
-        self.value = make_heads(d_Embedding, dV, heads, device)
+        self.make_QKV=make_QKV(d_Embedding,dK,dV,heads,device)
 
         # Create the layer that aggregates the heads and outputs the final embedding with a linear layer
         self.feedforward=aggregate_heads(dV, d_Embedding, heads, device)
@@ -34,7 +32,7 @@ class AttentionBlock(nn.Module):
         self.dropout_layer=nn.Dropout(dropout)
         
         # Calculate the number of parameters
-        self.n_parameters=self.key.n_parameters*2 + self.value.n_parameters + self.feedforward.n_parameters 
+        self.n_parameters=self.make_QKV.n_parameters + self.feedforward.n_parameters 
 
     def forward(self, x, edge_index):
         """Here the forward is different than in the figure 1 of attention is all you need.
@@ -55,10 +53,7 @@ class AttentionBlock(nn.Module):
 
         #calculate keys, values and queries for each head
         #This can be optimized by doing something like this:
-        #Q,K,V=torch.split(self.f(x),[self.dK,self.dV,self.dK],dim=-1)
-        Q = self.query(x)
-        K = self.key(x)
-        V = self.value(x)
+        Q,K,V=self.make_QKV(x)
 
         #calculate the multi-head attention and activation function
         #TODO: check if residual should be added before or after the linear layer or at all
@@ -109,8 +104,7 @@ def attention_message(Q:torch.Tensor,
     att=(Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
 
     #softmax    
-    att = torch.exp(att+3-att.max()) #could be done in-plase using the function att.exp_() if memory is a bootleneck
-    attention = normalize_strength(att, receivers, N, h)
+    attention=softmax(att,receivers,N,h)
 
     #Dropout
     #att=attention_dropout(attention, att_dropout)
@@ -121,6 +115,14 @@ def attention_message(Q:torch.Tensor,
 
     return out.index_add(0,receivers,att), attention #could be done in-place using the function out.index_add_()
 
+
+def softmax(att,receivers,n_nodes,heads):
+    #TODO: make this parallel!
+    for i in range(n_nodes):
+        idx=receivers==i
+        att[idx] = att[idx] - att[idx].max(dim=0).values
+    att=torch.exp(att) #could be done in-plase using the function att.exp_() if memory is a bootleneck
+    return normalize_strength(att, receivers, n_nodes, heads)
 
 def normalize_strength(strength,receivers,n_nodes,heads):
     """ If you think defining a whole function for 3 lines of code is overkill, try to understand it.
@@ -182,24 +184,35 @@ def attention_dropout(attention,dropout=0.1):
 
 #Utilis function to make the code more readable. they are just to make the generation of K,Q,V
 #with multi-head and going back to the embedding much easier to read
-class make_heads(nn.Linear):
+class make_QKV(nn.Linear):
+    def __init__(self, d_Embedding, dK, dV, heads, device='cpu'):
+        out_features=(2*dK+dV)*heads
+        super().__init__(d_Embedding, out_features, device=device)
 
-    def __init__(self, in_features, out_features, heads=8, device='cpu'):
-        super().__init__(in_features, out_features*heads, device=device)
-        
-        self.out_features = out_features #this overwrites the out_features of the nn.Linear class but shouldn't matter
-        self.heads = heads
+        self.d_Embedding=d_Embedding
+        self.dK=dK
+        self.dV=dV
+        self.heads=heads
+
+        self.split_shape=(dK*heads,dK*heads,dV*heads)
+
         self.n_parameters=self.weight.shape[0]*self.weight.shape[1]
 
     def forward(self,x):
-        return super().forward(x).view(-1,self.heads,self.out_features)
+        
+        Q,K,V=super().forward(x).split(self.split_shape,dim=-1)
 
+        Q=Q.view(-1,self.heads,self.dK)
+        K=K.view(-1,self.heads,self.dK)
+        V=V.view(-1,self.heads,self.dV)
+
+        return Q, K, V
 class aggregate_heads(nn.Linear):
 
-    def __init__(self, in_features, out_features, heads=8, device='cpu'):
-        super().__init__(in_features*heads, out_features, device=device)
+    def __init__(self, dK, d_Embedding, heads, device='cpu'):
+        super().__init__(dK*heads, d_Embedding, device=device)
         
-        self.x_dim=heads*in_features
+        self.x_dim=heads*dK
         self.n_parameters=self.weight.shape[0]*self.weight.shape[1]
 
 

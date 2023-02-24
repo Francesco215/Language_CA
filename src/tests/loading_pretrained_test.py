@@ -108,7 +108,7 @@ class GPT2_loading_parameters(unittest.TestCase):
 
         sequence_length=17
         batch_size=1
-        n_heads=13
+        n_heads=12
         d_Embedding=64*n_heads
         
 
@@ -121,9 +121,9 @@ class GPT2_loading_parameters(unittest.TestCase):
 
         for i in range(model.n_blocks):
 
-            Q=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
-            K=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
-            V=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
+            Q=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])*50
+            K=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])*50
+            V=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])*20
             out_pretrained,att_pretrained=pretrained.transformer.h[i].attn._attn(Q,K,V)
             att_pretrained=att_pretrained.view(n_heads,sequence_length,sequence_length)
             
@@ -151,7 +151,7 @@ class GPT2_loading_parameters(unittest.TestCase):
 
         sequence_length=17
         batch_size=1
-        n_heads=13
+        n_heads=12
         d_Embedding=64*n_heads
         
 
@@ -181,6 +181,70 @@ class GPT2_loading_parameters(unittest.TestCase):
             self.assertTrue(
                 torch.allclose(out_pretrained,out,1e-3,1e-3)
             )
+
+    def test_make_QKV_GPT2(self):
+        tokenizer = Tokenizer('gpt2')
+
+
+        Encoder=GPT2_Encoder()
+        LM_Head=GPT2_LM_Head()
+        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        model.load_from_original(pretrained)
+
+        
+
+        sequence_length=17
+        batch_size=1
+        n_heads=12
+        d_Embedding=64*n_heads
+
+        graph_maker=linear_unidirectional_graph_maker(40)
+        edge_index=graph_maker(sequence_length)
+        senders,recievers=edge_index
+
+        def split_heads(tensor, num_heads, attn_head_size):
+            """
+            Splits hidden_size dim into attn_head_size and num_heads
+            """
+            new_shape = tensor.size()[:-1] + (num_heads, attn_head_size)
+            tensor = tensor.view(new_shape)
+            return tensor.permute(0, 2, 1, 3)  # (batch, head, seq_length, head_features)
+
+        def original_c_attn(x,i=0):
+            query, key, value = pretrained.transformer.h[i].attn.c_attn(x).split(d_Embedding, dim=2)
+
+            dim=d_Embedding//n_heads
+            query = split_heads(query, n_heads, dim)
+            key = split_heads(key, n_heads, dim)
+            value = split_heads(value, n_heads, dim)
+
+            return query,key,value
+       
+        for i in range(model.n_blocks):
+            x=torch.randn([1,sequence_length,d_Embedding])
+            out_pretrained=original_c_attn(x,i)
+
+            out_pretrained_reshaped=[
+                thing.view([n_heads,sequence_length,d_Embedding//n_heads]).permute(1,0,2) 
+                for thing in out_pretrained]
+
+            x=x.view(x.shape[1:])
+            out=model.transformer_blocks[i].attention_block.make_QKV(x)
+            for thing, thing_pretrained in zip(out,out_pretrained_reshaped):
+                self.assertTrue(torch.allclose(thing,thing_pretrained,1e-3,1e-3))
+
+            Qp,Kp,Vp=out_pretrained
+            Q, K, V =out
+
+            out_pretrained,att_pretrained=pretrained.transformer.h[i].attn._attn(Qp,Kp,Vp)
+            out_pretrained_reshaped=out_pretrained.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+
+            out,att=attention_message(Q,K,V,edge_index)
+            
+            self.assertTrue(torch.allclose(out,out_pretrained_reshaped,1e-3,1e-3))
+
+
 
 
     def test_attention_is_the_same(self):

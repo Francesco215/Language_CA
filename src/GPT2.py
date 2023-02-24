@@ -10,9 +10,9 @@ class GPT2(nn.Module):
                  tokenizer=Tokenizer('gpt2'),
                  n_blocks=12,
                  d_Embedding=768,
-                 dK=768,
-                 dV=768,
-                 heads=8,
+                 dK=64,
+                 dV=64,
+                 heads=12,
                  intermediate_size=3072,
                  dropout=0.1,
                  device='cpu'
@@ -59,8 +59,10 @@ class GPT2(nn.Module):
         # Load the embedding layer
         self.encoder.load_from_original(pretrained_model.transformer)
 
-        # Load the transformer blocks
+        # Take the transformer blocks
         transformer_heads=pretrained_model.transformer.h
+        assert len(transformer_heads)==self.n_blocks, f"n_blocks must be equal to the number of trasnformer heads"
+        # Load the transformer blocks
         for i in range(self.n_blocks):
             self.transformer_blocks[i].load_from_original(transformer_heads[i])
 
@@ -142,7 +144,7 @@ class GPT2_LM_Head(nn.Module):
 
 class GPT2_Block(nn.Module):
 
-    def __init__(self, d_Embedding=768, dK=768, dV=768, heads=8,intermediate_size=3072, dropout=0.1, device='cpu'):
+    def __init__(self, d_Embedding=768, dK=64, dV=64, heads=12,intermediate_size=3072, dropout=0.1, device='cpu'):
         super().__init__()
 
         # Save the parameters
@@ -193,39 +195,9 @@ class AttentionBlockGPT2(AttentionBlock):
     This class is a message passing layer that uses the transformer architecture to calculate the messages.
     The transformer architecture is based on the GPT-2 paper "Language Models are Unupervised Multitask Learners".
     """
-    def __init__(self, d_Embedding=768, dK=768, dV=768, heads=8, dropout=0.1, device='cpu'):
-
-        assert d_Embedding%heads==0, "d_Embedding must be divisible by heads"
-
-        super().__init__(d_Embedding, dK, dV, heads, dropout, device)
-
-        # Create the layers for the attention that make the keys, queries and values for each head
-        self.key   = transform_heads(d_Embedding, dK, heads, device)
-        self.query = transform_heads(d_Embedding, dK, heads, device)
-        self.value = transform_heads(d_Embedding, dV, heads, device)
-
-        # Create the layer that aggregates the heads and outputs the final embedding with a linear layer
-        self.feedforward=interact_heads(dV, d_Embedding, device)
-
-        # Calculate the number of parameters
-        self.n_parameters=self.key.n_parameters*2 + self.value.n_parameters + self.feedforward.n_parameters 
-
-
     def load_from_original(self, attn):
-        c_attn=attn.c_attn      
-        w, b = c_attn.weight, c_attn.bias
 
-        query=Conv1D(self.d_Embedding,self.d_Embedding)
-        key  =Conv1D(self.d_Embedding,self.d_Embedding)
-        value=Conv1D(self.d_Embedding,self.d_Embedding)
-
-        query.weight, key.weight, value.weight = [nn.Parameter(par) for par in torch.split(w, w.shape[-1]//3, dim=-1)]
-        query.bias,   key.bias,   value.bias   = [nn.Parameter(par) for par in torch.split(b, b.shape[-1]//3, dim=-1)]
-
-        Conv1D_to_Linear(query, self.query)
-        Conv1D_to_Linear(key,   self.key)
-        Conv1D_to_Linear(value, self.value)
-
+        Conv1D_to_Linear(attn.c_attn,self.make_QKV)        
         Conv1D_to_Linear(attn.c_proj, self.feedforward)
 
 
@@ -311,7 +283,7 @@ def Conv1D_to_Linear(conv:Conv1D,lin:nn.Linear):
     weight = conv.weight.t()
     bias   = conv.bias
 
-    assert lin.weight.shape==weight.shape, 'the two weight shapes are incompatible'
+    assert lin.weight.shape==weight.shape, f'The two weight shapes are incompatible.\n\tConvolutional layer shape = {weight.shape}\n\tLinear layer shape = {lin.weight.shape}'
     assert lin.bias.shape  ==bias.shape,   'the two bias shapes are incompatible'
 
     lin.weight = nn.Parameter(weight)

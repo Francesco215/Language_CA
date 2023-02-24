@@ -43,7 +43,7 @@ class attention_message_test(unittest.TestCase):
         self.assertFalse(att.isinf().any())
 
 
-from src.transformerMP import AttentionBlock, aggregate_heads, make_heads
+from src.transformerMP import AttentionBlock, aggregate_heads, make_QKV
 class transformer_test(unittest.TestCase):
     def test_head_aggregator(self):
         embedding_dim=17
@@ -63,12 +63,10 @@ class transformer_test(unittest.TestCase):
         n_nodes=13
         heads=3
 
-        key=make_heads(embedding_dim,embedding_dim_K,heads)
-        value=make_heads(embedding_dim,embedding_dim_V,heads)
+        QKV_maker=make_QKV(embedding_dim,embedding_dim_K,embedding_dim_V,heads)
 
         x=torch.randn((n_nodes,embedding_dim))
-        K=key(x)
-        V=value(x)
+        Q,K,V=QKV_maker(x)
 
         self.assertEqual(K.shape,(n_nodes,heads,embedding_dim_K))
         self.assertEqual(V.shape,(n_nodes,heads,embedding_dim_V))
