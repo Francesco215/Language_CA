@@ -19,7 +19,7 @@ class attention_message_test(unittest.TestCase):
 
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
 
-        att,_=attention_message(K,Q,V,edge_index)
+        att,_=attention_message(Q,K,V,edge_index)
         self.assertEqual(V.shape,att.shape)
         self.assertFalse(att.isnan().any())
         self.assertFalse(att.isinf().any())
@@ -37,7 +37,7 @@ class attention_message_test(unittest.TestCase):
 
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
 
-        att,_=attention_message(K,Q,V,edge_index)
+        att,_=attention_message(Q,K,V,edge_index)
         self.assertEqual(V.shape,att.shape)
         self.assertFalse(att.isnan().any())
         self.assertFalse(att.isinf().any())

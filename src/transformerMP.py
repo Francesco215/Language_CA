@@ -55,14 +55,14 @@ class AttentionBlock(nn.Module):
 
         #calculate keys, values and queries for each head
         #This can be optimized by doing something like this:
-        #K,V,Q=torch.split(self.f(x),[self.dK,self.dV,self.dK],dim=-1)
+        #Q,K,V=torch.split(self.f(x),[self.dK,self.dV,self.dK],dim=-1)
+        Q = self.query(x)
         K = self.key(x)
         V = self.value(x)
-        Q = self.query(x)
 
         #calculate the multi-head attention and activation function
         #TODO: check if residual should be added before or after the linear layer or at all
-        x, _ = attention_message(K,Q,V,edge_index,self.dropout)
+        x, _ = attention_message(Q,K,V,edge_index,self.dropout)
 
         #now we merge the output of the heads and apply the final linear layer
         x=self.feedforward(x) 
@@ -75,11 +75,11 @@ class AttentionBlock(nn.Module):
 
 
 
-def attention_message(K:torch.Tensor,
-                      Q:torch.Tensor,
+def attention_message(Q:torch.Tensor,
+                      K:torch.Tensor,
                       V:torch.Tensor,
                       edge_index:torch.Tensor,
-                      att_dropout=0.1
+                      att_dropout=0.0
                       ):
     """This function calculates the attention message for each node in the graph.
     It's hard to read, but it's the only way I found to make it fast and parallelizable.
