@@ -130,7 +130,7 @@ class GPT2_loading_parameters(unittest.TestCase):
             Q=Q.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             K=K.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             V=V.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
-            out,att=attention_message(Q,K,V,edge_index,0)
+            out,att=attention_message(Q,K,V,edge_index)
             att=att.permute(1,0)
 
             for j in range(att_pretrained.shape[-1]):
@@ -139,8 +139,48 @@ class GPT2_loading_parameters(unittest.TestCase):
                     torch.allclose(att_pretrained[:,j:,j],att[:,senders==j],1e-3,1e-3)
                 )
 
+    def test_attention_GPT2_out(self):
+        tokenizer = Tokenizer('gpt2')
 
-            #self.assertTrue(torch.allclose(out,torch.ones_like(out)*1.111,atol=1e-2))
+
+        Encoder=GPT2_Encoder()
+        LM_Head=GPT2_LM_Head()
+        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        model.load_from_original(pretrained)
+
+        sequence_length=17
+        batch_size=1
+        n_heads=13
+        d_Embedding=64*n_heads
+        
+
+
+        graph_maker=linear_unidirectional_graph_maker(40)
+        edge_index=graph_maker(sequence_length)
+        senders,recievers=edge_index
+
+        
+
+        for i in range(model.n_blocks):
+
+            Q=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
+            K=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
+            V=torch.randn([batch_size,n_heads,sequence_length,d_Embedding//n_heads])
+            out_pretrained,att_pretrained=pretrained.transformer.h[i].attn._attn(Q,K,V)
+            att_pretrained=att_pretrained.view(n_heads,sequence_length,sequence_length)
+            out_pretrained=out_pretrained.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+
+            Q=Q.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+            K=K.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+            V=V.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+            out,att=attention_message(Q,K,V,edge_index)
+            att=att.permute(1,0)
+
+
+            self.assertTrue(
+                torch.allclose(out_pretrained,out,1e-3,1e-3)
+            )
 
 
     def test_attention_is_the_same(self):

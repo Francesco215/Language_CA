@@ -113,10 +113,10 @@ def attention_message(Q:torch.Tensor,
     attention = normalize_strength(att, receivers, N, h)
 
     #Dropout
-    att=attention_dropout(attention, att_dropout)
+    #att=attention_dropout(attention, att_dropout)
 
     #softmax*V
-    att = einops.einsum(att,V[senders],' ... , ... c -> ... c')
+    att = einops.einsum(attention,V[senders],' ... , ... c -> ... c')
     out=torch.zeros_like(V,device=V.device)
 
     return out.index_add(0,receivers,att), attention #could be done in-place using the function out.index_add_()
