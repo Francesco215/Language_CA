@@ -117,10 +117,9 @@ def attention_message(Q:torch.Tensor,
 
 
 def softmax(att,receivers,n_nodes,heads):
-    #TODO: make this parallel!
-    for i in range(n_nodes):
-        idx=receivers==i
-        att[idx] = att[idx] - att[idx].max(dim=0).values
+    translation=torch.zeros(n_nodes,heads)
+    translation=translation.scatter_reduce(0, receivers.repeat(heads,1).t(), att, reduce='amax', include_self=False)
+    att=att-translation[receivers]
     att=torch.exp(att) #could be done in-plase using the function att.exp_() if memory is a bootleneck
     return normalize_strength(att, receivers, n_nodes, heads)
 

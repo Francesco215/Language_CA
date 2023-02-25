@@ -98,3 +98,28 @@ class select_index_test(unittest.TestCase):
 
         assertion=torch.allclose(nodes,torch.ones_like(nodes))
         self.assertTrue(assertion)
+
+from src.graph_initialization import random_graph_maker
+class max_index_test(unittest.TestCase):
+    #if this test fails, the softmax used won't work properly
+    def test_max_reduction(self):
+        sequence_length=23
+        heads=7
+        graph_maker=random_graph_maker(2,5)
+        senders,receivers=graph_maker(sequence_length)
+        attention=torch.randn((receivers.shape[0],heads))
+
+        new_attention_baseline=torch.empty_like(attention)
+        for i in range(sequence_length):
+            idx=receivers==i
+            new_attention_baseline[idx]=attention[idx]-attention[idx].max(dim=0).values
+
+
+        translation=torch.zeros(sequence_length,heads)
+
+        translation=translation.scatter_reduce(0, receivers.repeat(heads,1).t(), attention, reduce='amax', include_self=False)
+
+        new_attention=attention-translation[receivers]
+
+        self.assertTrue(torch.allclose(new_attention,new_attention_baseline,1e-3,1e-3))
+        

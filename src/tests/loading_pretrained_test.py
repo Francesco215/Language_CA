@@ -182,6 +182,7 @@ class GPT2_loading_parameters(unittest.TestCase):
                 torch.allclose(out_pretrained,out,1e-3,1e-3)
             )
 
+
     def test_make_QKV_GPT2(self):
         tokenizer = Tokenizer('gpt2')
 
@@ -210,6 +211,14 @@ class GPT2_loading_parameters(unittest.TestCase):
             new_shape = tensor.size()[:-1] + (num_heads, attn_head_size)
             tensor = tensor.view(new_shape)
             return tensor.permute(0, 2, 1, 3)  # (batch, head, seq_length, head_features)
+        
+        def merge_heads(tensor, num_heads, attn_head_size):
+            """
+            Merges attn_head_size dim and num_attn_heads dim into hidden_size
+            """
+            tensor = tensor.permute(0, 2, 1, 3).contiguous()
+            new_shape = tensor.size()[:-2] + (num_heads * attn_head_size,)
+            return tensor.view(new_shape)
 
         def original_c_attn(x,i=0):
             query, key, value = pretrained.transformer.h[i].attn.c_attn(x).split(d_Embedding, dim=2)
@@ -244,12 +253,16 @@ class GPT2_loading_parameters(unittest.TestCase):
             
             self.assertTrue(torch.allclose(out,out_pretrained_reshaped,1e-3,1e-3))
 
+            out_pretrained = merge_heads(out_pretrained, n_heads, d_Embedding//n_heads)
+            out_pretrained = pretrained.transformer.h[i].attn.c_proj(out_pretrained)
 
+            out=model.transformer_blocks[i].attention_block.feedforward(out)
+
+            self.assertTrue(torch.allclose(out,out_pretrained,1e-3,1e-3))
 
 
     def test_attention_is_the_same(self):
         tokenizer = Tokenizer('gpt2')
-
         Encoder=GPT2_Encoder()
         LM_Head=GPT2_LM_Head()
         model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
@@ -257,21 +270,44 @@ class GPT2_loading_parameters(unittest.TestCase):
         model.load_from_original(pretrained)
 
         sequence_length=17
-        d_Embedding=model.d_Embedding
+        batch_size=1
+        n_heads=12
+        d_Embedding=64*n_heads
 
         graph_maker=linear_unidirectional_graph_maker(40)
         edge_index=graph_maker(sequence_length)
+        senders,recievers=edge_index
 
         for i in range(model.n_blocks):
             x=torch.randn([1,sequence_length,d_Embedding])
-            target=pretrained.transformer.h[i].attn(x)
+            target,_=pretrained.transformer.h[i].attn(x)
             x.view(size=(sequence_length,d_Embedding))
             output=model.transformer_blocks[i].attention_block(x,edge_index)
 
-            out=target/output
-            
-            where=torch.isclose(out,torch.ones_like(x)*1.111,atol=1e-2)
+            self.assertTrue(torch.allclose(output,target.view(sequence_length,d_Embedding),1e-3,1e-3))
 
-            out=out[where]
 
-            self.assertTrue(torch.allclose(out,torch.ones_like(out)*1.111,atol=1e-2))
+    def test_attention_block_is_equal(self):
+        tokenizer = Tokenizer('gpt2')
+        Encoder=GPT2_Encoder()
+        LM_Head=GPT2_LM_Head()
+        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        model.load_from_original(pretrained)
+
+        sequence_length=17
+        batch_size=1
+        n_heads=12
+        d_Embedding=64*n_heads
+
+        graph_maker=linear_unidirectional_graph_maker(40)
+        edge_index=graph_maker(sequence_length)
+        senders,recievers=edge_index
+        for i in range(model.n_blocks):
+            x=torch.randn([1,sequence_length,d_Embedding])
+            target=pretrained.transformer.h[i](x)
+            target=target[0].view(sequence_length,d_Embedding)
+            x.view(size=(sequence_length,d_Embedding))
+            output=model.transformer_blocks[i](x,edge_index)
+
+            self.assertTrue(torch.allclose(output,target,1e-3,1e-3))
