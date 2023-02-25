@@ -67,7 +67,7 @@ class GPT2(nn.Module):
             self.transformer_blocks[i].load_from_original(transformer_heads[i])
 
         # Load the language model head
-        self.decoder.load_from_original(pretrained_model.lm_head)
+        self.decoder.load_from_original(pretrained_model.transformer.ln_f, pretrained_model.lm_head)
 
 
 class GPT2_Encoder(nn.Module):
@@ -136,7 +136,9 @@ class GPT2_LM_Head(nn.Module):
         x=self.activation_head(x)
         return x
     
-    def load_from_original(self, language_model_head):
+    def load_from_original(self, ln_f, language_model_head):
+        self.layer_norm=ln_f
+
         assert self.language_model_head.weight.shape==language_model_head.weight.shape
 
         # Load the language model head
@@ -173,14 +175,18 @@ class GPT2_Block(nn.Module):
         residual=x
         x=self.layer_norm1(x)
         x=residual + self.attention_block(x, edge_index)
-        
+
         #MLP
         residual=x
         x=self.layer_norm2(x)
         x= residual + self.MLP(x)
         return x
-    
+   
     def load_from_original(self, head):
+        # Copy LayerNorm layers
+        self.layer_norm1=head.ln_1
+        self.layer_norm2=head.ln_2
+
         # Load the transformer block
         self.attention_block.load_from_original(head.attn)
 

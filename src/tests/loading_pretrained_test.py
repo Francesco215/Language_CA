@@ -311,3 +311,48 @@ class GPT2_loading_parameters(unittest.TestCase):
             output=model.transformer_blocks[i](x,edge_index)
 
             self.assertTrue(torch.allclose(output,target,1e-3,1e-3))
+
+    def test_all_attention_block_are_equal(self):
+
+        tokenizer = Tokenizer('gpt2')
+        Encoder=GPT2_Encoder()
+        LM_Head=GPT2_LM_Head()
+        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        model.load_from_original(pretrained)
+
+        sequence_length=17
+        batch_size=1
+        n_heads=12
+        d_Embedding=64*n_heads
+
+        graph_maker=linear_unidirectional_graph_maker(40)
+        edge_index=graph_maker(sequence_length)
+
+        x=torch.randn([1,sequence_length,d_Embedding])
+        out_pretrained=pretrained.transformer.h(x)
+        x.view(size=(sequence_length,d_Embedding))
+        for i in range(model.n_blocks):
+            x=model.transformer_blocks[i](x,edge_index)
+        #x=model.decoder.layer_norm(x)
+
+        self.assertTrue(torch.allclose(x,out_pretrained,1e-3,1e-3))
+
+
+
+    def test_all_GPT2(self):
+        tokenizer = Tokenizer('gpt2')
+        Encoder=GPT2_Encoder()
+        LM_Head=GPT2_LM_Head()
+        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        model.load_from_original(pretrained)
+
+
+
+        x = tokenizer("Hello world! good i saw you")
+        edge_index=graph_maker(x.shape[0])
+
+        graph_maker=linear_unidirectional_graph_maker(40)
+        senders,recievers=edge_index
+
