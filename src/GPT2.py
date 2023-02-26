@@ -14,7 +14,7 @@ class GPT2(nn.Module):
                  dV=64,
                  heads=12,
                  intermediate_size=3072,
-                 dropout=0.1,
+                 dropout=0.0,
                  device='cpu'
                  ):
         super().__init__()
@@ -72,7 +72,7 @@ class GPT2(nn.Module):
 
 class GPT2_Encoder(nn.Module):
 
-    def __init__(self,d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.1, device='cpu'):
+    def __init__(self,d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.0, device='cpu'):
         super().__init__()
 
         # Save the parameters
@@ -133,7 +133,7 @@ class GPT2_LM_Head(nn.Module):
     def forward(self, x):
         x=self.layer_norm(x)
         x=self.language_model_head(x)
-        x=self.activation_head(x)
+       # x=self.activation_head(x)
         return x
     
     def load_from_original(self, ln_f, language_model_head):
@@ -146,7 +146,7 @@ class GPT2_LM_Head(nn.Module):
 
 class GPT2_Block(nn.Module):
 
-    def __init__(self, d_Embedding=768, dK=64, dV=64, heads=12,intermediate_size=3072, dropout=0.1, device='cpu'):
+    def __init__(self, d_Embedding=768, dK=64, dV=64, heads=12,intermediate_size=3072, dropout=0.0, device='cpu'):
         super().__init__()
 
         # Save the parameters
@@ -244,7 +244,7 @@ class GPT2MLP(nn.Module):
     #✔
     #souce: https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
     #line 334
-    def __init__(self, d_Embedding=768, intermediate_size=3072, dropout=0.1, device='cpu'):
+    def __init__(self, d_Embedding=768, intermediate_size=3072, dropout=0.0, device='cpu'):
         super().__init__()
         
         self.feedforward1=nn.Linear(d_Embedding, intermediate_size, device=device)

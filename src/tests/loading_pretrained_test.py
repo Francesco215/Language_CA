@@ -329,14 +329,13 @@ class GPT2_loading_parameters(unittest.TestCase):
         graph_maker=linear_unidirectional_graph_maker(40)
         edge_index=graph_maker(sequence_length)
 
-        x=torch.randn([1,sequence_length,d_Embedding])
-        out_pretrained=pretrained.transformer.h(x)
-        x.view(size=(sequence_length,d_Embedding))
+        x_p=torch.randn([1,sequence_length,d_Embedding])
+        x=x_p.view(size=(sequence_length,d_Embedding)).clone()
         for i in range(model.n_blocks):
+            x_p=pretrained.transformer.h[i](x_p)[0]
             x=model.transformer_blocks[i](x,edge_index)
-        #x=model.decoder.layer_norm(x)
 
-        self.assertTrue(torch.allclose(x,out_pretrained,1e-3,1e-3))
+        self.assertTrue(torch.allclose(x,x_p,1e-3,1e-3))
 
 
 
@@ -345,14 +344,18 @@ class GPT2_loading_parameters(unittest.TestCase):
         Encoder=GPT2_Encoder()
         LM_Head=GPT2_LM_Head()
         model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+        graph_maker=linear_unidirectional_graph_maker(40)
 
         model.load_from_original(pretrained)
 
-
-
-        x = tokenizer("Hello world! good i saw you")
+        x = tokenizer("Legolas and Gimli advanced on the orcs, raising their weapons with a harrowing war cry.")
+        
         edge_index=graph_maker(x.shape[0])
-
-        graph_maker=linear_unidirectional_graph_maker(40)
         senders,recievers=edge_index
+
+        x_p=pretrained(x)[0] #logtis
+        x=model(x,edge_index) #logits
+
+        self.assertTrue(torch.allclose(x,x_p,1e-3,1e-3))
+    
 
