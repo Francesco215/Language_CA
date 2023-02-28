@@ -3,5 +3,6 @@
 .vscode
 
 *.pyc
+*toml
 
 src/modelling_GPT2.py

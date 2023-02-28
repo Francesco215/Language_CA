@@ -27,11 +27,10 @@ class Back_to_BackTest(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size=vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
 
-        model=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,transformer_layers,dK,dV,heads)
+        model=GraphAttentionNetwork(tokenizer,encoder,transformer,transformer_layers,dK,dV,heads)
 
-        loss_function=Loss(decoder)
+        loss_function=Loss(model.decoder)
         lr=1e-2
         gamma=0.99
 

@@ -16,16 +16,15 @@ class Back_to_BackTest(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
 
-        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+        network=GraphAttentionNetwork(tokenizer,encoder,transformer,2,dK,dV,heads)
 
         n_nodes=40
         n_edges=302
         nodes=torch.randint(0,vocab_size,(n_nodes,))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
         out=network(nodes,edge_index)
-        out=decoder(out)
+        out=network.decoder(out)
         self.assertEqual(out.shape,(n_nodes,vocab_size))
 
     def test_inference(self):  
@@ -40,9 +39,8 @@ class Back_to_BackTest(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
 
-        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+        network=GraphAttentionNetwork(tokenizer,encoder,transformer,2,dK,dV,heads)
 
         n_nodes=40
         n_edges=302
@@ -63,10 +61,9 @@ class Back_to_BackTest(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
-        loss=Loss(decoder)
 
-        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+        network=GraphAttentionNetwork(tokenizer,encoder,transformer,2,dK,dV,heads)
+        loss=Loss(network.decoder)
 
         n_nodes=40
         n_edges=302
@@ -104,14 +101,13 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
 
-        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+        network=GraphAttentionNetwork(tokenizer,encoder,transformer,2,dK,dV,heads)
 
         nodes,edge_index=data[0]
         n_nodes=len(nodes)
         out=network(nodes,edge_index)
-        out=decoder(out)
+        out=network.decoder(out)
         self.assertEqual(out.shape,(n_nodes,vocab_size))
 
     def test_flow_single_batched_datapoint(self):  
@@ -137,15 +133,14 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         encoder=Encoder(embedding_dim,vocab_size)
         transformer=AttentionBlock
-        decoder=Decoder(embedding_dim,vocab_size)
 
-        network=GraphAttentionNetwork(tokenizer,encoder,decoder,transformer,2,dK,dV,heads)
+        network=GraphAttentionNetwork(tokenizer,encoder,transformer,2,dK,dV,heads)
 
         nodes,edge_index=data[0:2]
         nodes,edge_index=batch_graphs(nodes,edge_index)
         n_nodes=len(nodes)
         out=network(nodes,edge_index)
-        out=decoder(out)
+        out=network.decoder(out)
         self.assertEqual(out.shape,(n_nodes,vocab_size))
 
 from src.GPT2 import GPT2,GPT2_Encoder,GPT2_LM_Head

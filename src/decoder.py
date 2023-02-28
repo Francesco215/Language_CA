@@ -1,29 +1,25 @@
 import torch
 from torch import nn
 
+from src.encoder import Encoder
+import torch.nn.functional as F
 
 class Decoder(nn.Module):
+    #Adapted from https://stackoverflow.com/questions/57929299/how-to-share-weights-between-modules-in-pytorch
 
-    def __init__(self,
-        embedding_dim:int = 512,
-        vocab_size: int = 28996, #defaults to the bert-base dictionary size
-        ):
-
+    def __init__(self,encoder: Encoder):
         super().__init__()
+        self.encoder = encoder.embedding
+        self.embedding_dim=encoder.embedding_dim
+        self.vocab_size=encoder.vocab_size
+        self.n_parameters=encoder.n_parameters
 
+    def forward(self, input: torch.Tensor) -> torch.Tensor:
+        return F.linear(input, self.encoder.weight)
 
-        self.layer=nn.Linear(embedding_dim,vocab_size)
-        self.activation=nn.Softmax(dim=1)
-
-        self.vocab_size=vocab_size
-        self.embedding_dim=embedding_dim
-
-        self.n_parameters=vocab_size*embedding_dim
-
-    def forward(self,x):
-        x=self.layer(x)
-        x=self.activation(x)
-        return x
+    @property
+    def weight(self) -> torch.Tensor:
+        return self.encoder.weight
 
 
 

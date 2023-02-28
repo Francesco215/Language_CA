@@ -15,7 +15,6 @@ class GraphAttentionNetwork(nn.Module):
     def __init__(self, 
         tokenizer:Tokenizer,
         encoder:Encoder,
-        decoder:Decoder,
         transformer:AttentionBlock,
         transformer_layers:int=4,
         dK=1024, dV=1024, heads=8,
@@ -25,7 +24,6 @@ class GraphAttentionNetwork(nn.Module):
 
         assert     isinstance(tokenizer,  Tokenizer), "tokenizer must be an instance of the Tokenizer class"
         assert     isinstance(encoder,    Encoder), "encoder must be an instance of the Encoder class"
-        assert     isinstance(decoder,    Decoder), "decoder must be an instance of the Decoder class"
         assert not isinstance(transformer,AttentionBlock), "transformer cannot be an instance of the TransformerBlock class"
 
         self.tokenizer=tokenizer
@@ -33,13 +31,13 @@ class GraphAttentionNetwork(nn.Module):
         self.encoder = encoder
         self.embedding_dim=encoder.embedding_dim
         
-        self.decoder = decoder
+        self.decoder = Decoder(self.encoder)
 
         self.transformer_blocks=nn.ModuleList([transformer(self.embedding_dim, dK, dV, heads) for _ in range(transformer_layers)])
 
         #self.transformer = nn.Sequential(*transformer_blocks)
 
-        self.n_parameters=encoder.n_parameters + decoder.n_parameters + self.transformer_blocks[0].n_parameters*transformer_layers
+        self.n_parameters=encoder.n_parameters + self.decoder.n_parameters + self.transformer_blocks[0].n_parameters*transformer_layers
 
     def forward(self, x, edge_index,iterations:int=1):
         """It takes in a graph and returns a graph
