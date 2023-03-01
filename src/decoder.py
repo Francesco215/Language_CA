@@ -10,9 +10,10 @@ class Decoder(nn.Module):
     def __init__(self,encoder: Encoder):
         super().__init__()
         self.encoder = encoder.embedding
-        self.embedding_dim=encoder.embedding_dim
+        self.d_Embedding=encoder.d_Embedding
         self.vocab_size=encoder.vocab_size
         self.n_parameters=encoder.n_parameters
+        self.device=encoder.device
 
     def forward(self, input: torch.Tensor) -> torch.Tensor:
         return F.linear(input, self.encoder.weight)
@@ -44,7 +45,7 @@ class Loss(nn.Module):
             torch.Tensor: the loss scalar, has the shape (1,). dtype: torch.float
         """
         assert x.shape[0]==y.shape[0], "x and y must have the same number of nodes"
-        assert x.shape[1]==self.decoder.embedding_dim, "x must have the same number of channels as the embedding dimension"
+        assert x.shape[1]==self.decoder.d_Embedding, "x must have the same number of channels as the embedding dimension"
         assert y.max()<=self.decoder.vocab_size, "y must have the same number of channels as the vocabulary size"
         assert y.dtype==torch.long, "y must be of type torch.long"
 

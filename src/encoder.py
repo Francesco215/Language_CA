@@ -6,19 +6,19 @@ class Encoder(nn.Module):
     """Layer to turn tokens into word embeddings, it also supports positional embeddings"""
 
     def __init__(self,
-                 embedding_dim: int = 512,
+                 d_Embedding: int = 512,
                  base_freq: float = 1e-5,
                  vocab_size: int = 28996,  # defaults to the bert-base dictionary size,
-                 dropout: float = 0.1
+                 dropout: float = 0.1,
+                 device: str = 'cpu'
                  ):
         """We first turn tokens into embedding via the self.emb function which turns each token,
         which is a scalar, into n_embedding dimentional vector.
-        The input vector has size (N,L) where N is the batch size, L is the sequence lenght, which is the
-        total number of tokens in the batch.
+        The input vector has size where L is the sequence lenght.
          
 
         Args:
-            embedding_dim (int):The size of the embedding vector.
+            d_embedding (int):The size of the embedding vector.
             base_freq (float, optional): The base frequency of sinusoidal
                 functions for the positional encoding. (default: 1e-4)
             vocab_size (int, optional): The size of the dictionary of the tokenizer.
@@ -28,16 +28,17 @@ class Encoder(nn.Module):
         """
         super().__init__()
 
-        #the embedding layer turns each token into a vector of size embedding_dim
-        self.embedding = nn.Embedding(vocab_size, embedding_dim)
+        #the embedding layer turns each token into a vector of size d_Embedding
+        self.embedding = nn.Embedding(vocab_size, d_Embedding,device=device)
         self.dropout = nn.Dropout(dropout)
 
         self.vocab_size = vocab_size
         self.base_freq = base_freq
-        self.embedding_dim = embedding_dim
+        self.d_Embedding = d_Embedding
+        self.device=device
 
         #the number of parameters is the number of tokens times the embedding dimention
-        self.n_parameters = vocab_size * embedding_dim
+        self.n_parameters = vocab_size * d_Embedding
 
     def forward(self, x):
         x = self.embedding(x)

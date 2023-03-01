@@ -103,10 +103,10 @@ class transformer_test(unittest.TestCase):
         self.assertFalse(out.isinf().any())
 
     
-from src.GPT2 import AttentionBlockGPT2, transform_heads, interact_heads
+from src.GPT2 import AttentionBlockGPT2
 
 class GPT2_transformer_test(unittest.TestCase):
-    def test_transform_heads(self):
+    """def test_transform_heads(self):
         embedding_dim=24
         embedding_dim_V=21
         n_nodes=13
@@ -130,8 +130,7 @@ class GPT2_transformer_test(unittest.TestCase):
         out=value(x)
         self.assertEqual(out.shape,(n_nodes,embedding_dim))
         self.assertFalse(out.isnan().any())
-        self.assertFalse(out.isinf().any())
-
+        self.assertFalse(out.isinf().any())"""
 
     def test_GPT2_transformer_forward_type(self):
         embedding_dim=24

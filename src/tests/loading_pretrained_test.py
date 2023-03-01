@@ -4,9 +4,11 @@ from src import Tokenizer
 from torch import nn
 
 
-from src.GPT2 import GPT2, GPT2_Encoder, GPT2_LM_Head, Conv1D_to_Linear
+from src.GPT2 import GPT2, GPT2_Block, GPT2_Encoder, GPT2_LM_Head, Conv1D_to_Linear
 from src import linear_unidirectional_graph_maker
 from transformers.modeling_utils import Conv1D
+
+from src.graphAN import BlockGenerator
 
 class GPT2_loading_functions(unittest.TestCase):
     def test_Conv1D_to_Linear(self):
@@ -36,9 +38,10 @@ class GPT2_loading_functions(unittest.TestCase):
     def test_loading(self):
         tokenizer = Tokenizer('gpt2')
 
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer)
+        encoder=GPT2_Encoder()
+        decoder=GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator,decoder)
 
         model.load_from_original(pretrained)
         
@@ -53,9 +56,10 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_loading_and_call(self):
         tokenizer = Tokenizer('gpt2')
 
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer)
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -65,7 +69,7 @@ class GPT2_loading_parameters(unittest.TestCase):
         graph_maker=linear_unidirectional_graph_maker(5)
         edge_index=graph_maker(x.shape[0])
 
-        out=model(x,edge_index)
+        out=model.calculate_final_embedding(x,edge_index)
 
         self.assertEqual(out.shape,(len(x),tokenizer.vocab_size))
         self.assertFalse(out.isnan().any())
@@ -74,11 +78,10 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_MLP_is_the_same(self):
         tokenizer = Tokenizer('gpt2')
 
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
-
-        model.load_from_original(pretrained)
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         sequence_length=17
         d_Embedding=model.d_Embedding
@@ -99,10 +102,10 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_GPT2_QKV(self):
         tokenizer = Tokenizer('gpt2')
 
-
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -142,10 +145,10 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_GPT2_out(self):
         tokenizer = Tokenizer('gpt2')
 
-
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -186,10 +189,10 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_make_QKV_GPT2(self):
         tokenizer = Tokenizer('gpt2')
 
-
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -263,9 +266,11 @@ class GPT2_loading_parameters(unittest.TestCase):
 
     def test_attention_is_the_same(self):
         tokenizer = Tokenizer('gpt2')
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -289,9 +294,11 @@ class GPT2_loading_parameters(unittest.TestCase):
 
     def test_attention_block_is_equal(self):
         tokenizer = Tokenizer('gpt2')
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -313,11 +320,12 @@ class GPT2_loading_parameters(unittest.TestCase):
             self.assertTrue(torch.allclose(output,target,1e-3,1e-3))
 
     def test_all_attention_block_are_equal(self):
-
         tokenizer = Tokenizer('gpt2')
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
 
         model.load_from_original(pretrained)
 
@@ -341,9 +349,11 @@ class GPT2_loading_parameters(unittest.TestCase):
 
     def test_all_GPT2(self):
         tokenizer = Tokenizer('gpt2')
-        Encoder=GPT2_Encoder()
-        LM_Head=GPT2_LM_Head()
-        model=GPT2(Encoder, LM_Head, tokenizer,dropout=0)
+
+        encoder = GPT2_Encoder()
+        decoder = GPT2_LM_Head()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
         graph_maker=linear_unidirectional_graph_maker(40)
 
         model.load_from_original(pretrained)
@@ -354,7 +364,7 @@ class GPT2_loading_parameters(unittest.TestCase):
         senders,recievers=edge_index
 
         x_p=pretrained(x)[0] #logtis
-        x=model(x,edge_index) #logits
+        x=model.calculate_final_embedding(x,edge_index) #logits
 
         self.assertTrue(torch.allclose(x,x_p,1e-3,1e-3))
     

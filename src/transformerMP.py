@@ -183,26 +183,6 @@ def normalize_strength(strength, receivers, n_nodes, heads):
     return strength
 
 
-def attention_dropout(attention, dropout=0.1):
-    """This function drops some connections of the attention tensor.
-       It's implemented like in the GPT-2 paper, where the connections are dropped after nomalization.
-
-       There is room for improvement here.
-       Here it's better to return an attention matrix with less indices. This way you do p_drop less operations
-    Args:
-        attention (torch.Tensor): attention tensor of shape (M, h)
-        dropout (float, optional): dropout rate. Defaults to 0.1.
-
-    Returns:
-        torch.Tensor: attention tensor with some connections dropped
-    """
-
-    p_drop = 1-dropout
-
-    drop_out_indices = torch.bernoulli(torch.ones_like(attention, device=attention.device)*p_drop)
-
-    return attention*drop_out_indices
-
 
 # Utilis function to make the code more readable. they are just to make the generation of K,Q,V
 # with multi-head and going back to the embedding much easier to read
@@ -241,3 +221,23 @@ class aggregate_heads(nn.Linear):
 
     def forward(self, x):
         return super().forward(x.view(-1, self.x_dim))
+
+
+
+class Block_Generator:
+    def __init__(self, block, *args, **kwargs):
+        """Generates a block of the graph attention network
+
+        Args:
+            block : class initializer
+        """
+        #assert isinstance(block, type), "block must be a class initializer (not an instance)"
+        self.block = block
+
+        self.args = args
+        self.kwargs = kwargs
+
+    def __call__(self):
+        out = self.block(*self.args, **self.kwargs)
+        assert isinstance(out, AttentionBlock), "block must be a subclass of AttentionBlock"
+        return out

@@ -1,60 +1,11 @@
 import torch
 from torch import nn
 
-from src import Tokenizer
-class GPT2(nn.Module):
+from src import Tokenizer, GraphAttentionNetwork
+
+#GPT2_Block(d_Embedding, dK, dV, heads, intermediate_size, dropout, device)
+class GPT2(GraphAttentionNetwork):
     
-    def __init__(self,
-                 encoder,
-                 decoder,
-                 tokenizer=Tokenizer('gpt2'),
-                 n_blocks=12,
-                 d_Embedding=768,
-                 dK=64,
-                 dV=64,
-                 heads=12,
-                 intermediate_size=3072,
-                 dropout=0.0,
-                 device='cpu'
-                 ):
-        super().__init__()
-
-        assert isinstance(encoder, GPT2_Encoder)
-        assert isinstance(decoder, GPT2_LM_Head)
-        assert isinstance(tokenizer, Tokenizer)
-
-        # Save the parameters
-        self.tokenizer=tokenizer
-        self.encoder=encoder
-        self.decoder=decoder
-        self.n_blocks=n_blocks
-        self.d_Embedding=d_Embedding
-        self.dK=dK
-        self.dV=dV
-        self.heads=heads
-        self.intermediate_size=intermediate_size
-        self.dropout=dropout,
-        self.device=device
-
-
-        # Initialize the transformer blocks
-        self.transformer_blocks=nn.ModuleList([GPT2_Block(d_Embedding, dK, dV, heads, intermediate_size, dropout, device) for _ in range(n_blocks)])    
-
-        # Calculate the number of parameters
-        self.n_parameters=encoder.n_parameters + decoder.n_parameters + self.transformer_blocks[0].n_parameters
-
-    def forward(self, x, edge_index):
-        #Encoding
-        x=self.encoder(x)
-        
-        #Transformer blocks
-        for block in self.transformer_blocks:
-            x=block(x, edge_index)
-
-        #Decoding
-        x=self.decoder(x)
-        return x
-
     def load_from_original(self, pretrained_model):
         # Load the embedding layer
         self.encoder.load_from_original(pretrained_model.transformer)
@@ -70,6 +21,9 @@ class GPT2(nn.Module):
         self.decoder.load_from_original(pretrained_model.transformer.ln_f, pretrained_model.lm_head)
 
 
+
+
+
 class GPT2_Encoder(nn.Module):
 
     def __init__(self,d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.0, device='cpu'):
@@ -80,6 +34,7 @@ class GPT2_Encoder(nn.Module):
         self.d_Embedding=d_Embedding
         self.max_position_encoding=max_position_encoding
         self.device=device
+        self.vocab_size=tokenizer.vocab_size
 
         # Initialize the embedding layer
         self.embedding=nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
@@ -112,9 +67,10 @@ class GPT2_Encoder(nn.Module):
         self.embedding.weight=weight_token_embedding.weight
         self.positional_encoding.weight=weight_positional_embedding.weight
 
-class GPT2_LM_Head(nn.Module):
-    #✔️
 
+
+
+class GPT2_LM_Head(nn.Module):
     def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
         super().__init__()
 
@@ -125,7 +81,6 @@ class GPT2_LM_Head(nn.Module):
         # Initialize the language model head
         self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
         self.language_model_head=nn.Linear(d_Embedding, tokenizer.vocab_size, bias=False, device=device)
-        self.activation_head=nn.Softmax(dim=-1)
 
         # Calculate the number of parameters
         self.n_parameters=d_Embedding*tokenizer.vocab_size
@@ -133,7 +88,7 @@ class GPT2_LM_Head(nn.Module):
     def forward(self, x):
         x=self.layer_norm(x)
         x=self.language_model_head(x)
-       # x=self.activation_head(x)
+
         return x
     
     def load_from_original(self, ln_f, language_model_head):
@@ -170,7 +125,6 @@ class GPT2_Block(nn.Module):
         self.n_parameters=self.attention_block.n_parameters + self.MLP.n_parameters
 
     def forward(self, x, edge_index):
-        #✔
         #Attention
         residual=x
         x=self.layer_norm1(x)
@@ -204,46 +158,12 @@ class AttentionBlockGPT2(AttentionBlock):
     def load_from_original(self, attn):
 
         Conv1D_to_Linear(attn.c_attn,self.make_QKV)        
-        Conv1D_to_Linear(attn.c_proj, self.feedforward)
-
-
-#Utilis function to make the code more readable. they are just to make the generation of K,Q,V
-#with multi-head and going back to the embedding much easier to read
-class transform_heads(nn.Linear):
-
-    def __init__(self, in_features, out_features, heads, device='cpu'):
-
-        assert out_features%heads==0, "out_features must be divisible by heads"
-        
-        super().__init__(in_features, out_features, device=device)
-        
-        self.out_features = out_features #this overwrites the out_features of the nn.Linear class but shouldn't matter
-        self.heads = heads
-        self.n_parameters = self.weight.shape[0]*self.weight.shape[1]
-
-    def forward(self,x):
-        return super().forward(x).view(-1,self.heads,self.out_features//self.heads)
-
-class interact_heads(nn.Linear):
-    
-    def __init__(self, in_features, out_features, device='cpu'):
-        
-        super().__init__(in_features, out_features, device=device)
-        
-        self.n_parameters=self.weight.shape[0]*self.weight.shape[1]
-
-
-    def forward(self,x):
-        return super().forward(x.view(-1,self.in_features))
-    
+        Conv1D_to_Linear(attn.c_proj, self.feedforward)    
 
 
 
 
 class GPT2MLP(nn.Module):
-    #✔
-    #souce: https://github.com/huggingface/transformers/blob/main/src/transformers/models/gpt2/modeling_gpt2.py
-    #line 334
     def __init__(self, d_Embedding=768, intermediate_size=3072, dropout=0.0, device='cpu'):
         super().__init__()
         
@@ -256,7 +176,6 @@ class GPT2MLP(nn.Module):
         self.n_parameters=2*d_Embedding*intermediate_size
 
     def forward(self,x):
-        #✔
         x=self.feedforward1(x)
         x=self.activation(x)
         x=self.feedforward2(x)
@@ -271,6 +190,10 @@ class GPT2MLP(nn.Module):
 
         Conv1D_to_Linear(c_fc,self.feedforward1)
         Conv1D_to_Linear(c_proj,self.feedforward2)
+
+
+
+
 
 
 from transformers.modeling_utils import Conv1D
