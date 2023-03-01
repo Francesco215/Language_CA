@@ -2,6 +2,8 @@ from src import Encoder, Decoder, AttentionBlock, Tokenizer, batch_graphs, rando
 
 import torch,unittest
 
+from src.encoder import GPT2Encoder
+from src.decoder import GPT2Decoder
 class Back_to_BackTest(unittest.TestCase):
 
     def test_flow(self):
@@ -141,7 +143,7 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
         out=network.decoder(out)
         self.assertEqual(out.shape,(n_nodes,vocab_size))
 
-from src.GPT2 import GPT2,GPT2_Encoder,GPT2_LM_Head, GPT2_Block
+from src.GPT2 import GPT2, GPT2_Block
 
 class GPT2BacktoBack(unittest.TestCase):
     def test_flow(self):
@@ -155,8 +157,8 @@ class GPT2BacktoBack(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=GPT2_Encoder(embedding_dim,tokenizer)
-        decoder=GPT2_LM_Head(embedding_dim,tokenizer)
+        encoder=GPT2Encoder(embedding_dim,tokenizer)
+        decoder=GPT2Decoder(embedding_dim,tokenizer)
         block_generator=BlockGenerator(GPT2_Block,embedding_dim, dK, dV, heads, intermediate_size, dropout)
         network= GPT2(tokenizer,encoder,block_generator,decoder,12)
 
@@ -187,8 +189,8 @@ class GPT2BacktoBack(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder = GPT2_Encoder(embedding_dim, tokenizer)
-        decoder = GPT2_LM_Head(embedding_dim, tokenizer)
+        encoder = GPT2Encoder(embedding_dim, tokenizer)
+        decoder = GPT2Decoder(embedding_dim, tokenizer)
         block_generator = BlockGenerator(GPT2_Block, embedding_dim, dK, dV, heads, intermediate_size, dropout)
         network = GPT2(tokenizer, encoder, block_generator, decoder, 12)
 

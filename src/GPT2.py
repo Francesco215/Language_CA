@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src import Tokenizer, GraphAttentionNetwork
+from src import  GraphAttentionNetwork
 
 #GPT2_Block(d_Embedding, dK, dV, heads, intermediate_size, dropout, device)
 class GPT2(GraphAttentionNetwork):
@@ -23,81 +23,6 @@ class GPT2(GraphAttentionNetwork):
 
 
 
-
-class GPT2_Encoder(nn.Module):
-
-    def __init__(self,d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.0, device='cpu'):
-        super().__init__()
-
-        # Save the parameters
-        self.tokenizer=tokenizer
-        self.d_Embedding=d_Embedding
-        self.max_position_encoding=max_position_encoding
-        self.device=device
-        self.vocab_size=tokenizer.vocab_size
-
-        # Initialize the embedding layer
-        self.embedding=nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
-        self.positional_encoding=nn.Embedding(max_position_encoding, d_Embedding, device=device)
-
-        self.dropout=nn.Dropout(dropout)
-
-        # Calculate the number of parameters
-        self.n_parameters=tokenizer.vocab_size*d_Embedding + max_position_encoding*d_Embedding
-
-    def forward(self, x):
-        #tokenize if necessary
-        if type(x)==str: x=self.tokenizer.encode(x)
-
-        #Embedding
-        indices=torch.arange(x.shape[0], device=self.device)
-        x = self.embedding(x) + self.positional_encoding(indices)
-        x = self.dropout(x)
-        return x
-    
-    def load_from_original(self, trasformer):
-        # Extract the submodules
-        weight_token_embedding=trasformer.wte
-        weight_positional_embedding=trasformer.wpe
-
-        assert self.embedding.weight.shape==weight_token_embedding.weight.shape
-        assert self.positional_encoding.weight.shape==weight_positional_embedding.weight.shape
-
-        # Load the embedding layer
-        self.embedding.weight=weight_token_embedding.weight
-        self.positional_encoding.weight=weight_positional_embedding.weight
-
-
-
-
-class GPT2_LM_Head(nn.Module):
-    def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
-        super().__init__()
-
-        self.d_Embedding=d_Embedding
-        self.tokenizer=tokenizer
-        self.device=device
-
-        # Initialize the language model head
-        self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
-        self.language_model_head=nn.Linear(d_Embedding, tokenizer.vocab_size, bias=False, device=device)
-
-        # Calculate the number of parameters
-        self.n_parameters=d_Embedding*tokenizer.vocab_size
-
-    def forward(self, x):
-        x=self.layer_norm(x)
-        x=self.language_model_head(x)
-
-        return x
-    
-    def load_from_original(self, ln_f, language_model_head):
-        self.layer_norm=ln_f
-
-        assert self.language_model_head.weight.shape==language_model_head.weight.shape
-
-        # Load the language model head
-        self.language_model_head.weight=language_model_head.weight
 
 class GPT2_Block(nn.Module):
 

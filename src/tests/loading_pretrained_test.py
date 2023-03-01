@@ -4,9 +4,11 @@ from src import Tokenizer
 from torch import nn
 
 
-from src.GPT2 import GPT2, GPT2_Block, GPT2_Encoder, GPT2_LM_Head, Conv1D_to_Linear
+from src.GPT2 import GPT2, GPT2_Block, Conv1D_to_Linear
 from src import linear_unidirectional_graph_maker
 from transformers.modeling_utils import Conv1D
+from src.encoder import GPT2Encoder
+from src.decoder import GPT2Decoder
 
 from src.graphAN import BlockGenerator
 
@@ -38,8 +40,8 @@ class GPT2_loading_functions(unittest.TestCase):
     def test_loading(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder=GPT2_Encoder()
-        decoder=GPT2_LM_Head()
+        encoder=GPT2Encoder()
+        decoder=GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator,decoder)
 
@@ -56,8 +58,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_loading_and_call(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -78,8 +80,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_MLP_is_the_same(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -102,8 +104,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_GPT2_QKV(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -145,8 +147,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_GPT2_out(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -189,8 +191,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_make_QKV_GPT2(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -267,8 +269,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_is_the_same(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -295,8 +297,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_attention_block_is_equal(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -322,8 +324,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_all_attention_block_are_equal(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
 
@@ -350,8 +352,8 @@ class GPT2_loading_parameters(unittest.TestCase):
     def test_all_GPT2(self):
         tokenizer = Tokenizer('gpt2')
 
-        encoder = GPT2_Encoder()
-        decoder = GPT2_LM_Head()
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
         block_generator = BlockGenerator(GPT2_Block)
         model = GPT2(tokenizer, encoder, block_generator, decoder)
         graph_maker=linear_unidirectional_graph_maker(40)

@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 
+from src.data_loader import Tokenizer
 
 class Encoder(nn.Module):
     """Layer to turn tokens into word embeddings, it also supports positional embeddings"""
@@ -83,3 +84,49 @@ def positional_encoding(shape:torch.tensor,base_freq:float=1e-5)->torch.Tensor:
     return torch.sin(elements)
 
 
+class GPT2Encoder(nn.Module):
+
+    def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.0, device='cpu'):
+        super().__init__()
+
+        # Save the parameters
+        self.tokenizer = tokenizer
+        self.d_Embedding = d_Embedding
+        self.max_position_encoding = max_position_encoding
+        self.device = device
+        self.vocab_size = tokenizer.vocab_size
+
+        # Initialize the embedding layer
+        self.embedding = nn.Embedding(
+            tokenizer.vocab_size, d_Embedding, device=device)
+        self.positional_encoding = nn.Embedding(
+            max_position_encoding, d_Embedding, device=device)
+
+        self.dropout = nn.Dropout(dropout)
+
+        # Calculate the number of parameters
+        self.n_parameters = tokenizer.vocab_size * \
+            d_Embedding + max_position_encoding*d_Embedding
+
+    def forward(self, x):
+        #tokenize if necessary
+        if type(x) == str:
+            x = self.tokenizer.encode(x)
+
+        #Embedding
+        indices = torch.arange(x.shape[0], device=self.device)
+        x = self.embedding(x) + self.positional_encoding(indices)
+        x = self.dropout(x)
+        return x
+
+    def load_from_original(self, trasformer):
+        # Extract the submodules
+        weight_token_embedding = trasformer.wte
+        weight_positional_embedding = trasformer.wpe
+
+        assert self.embedding.weight.shape == weight_token_embedding.weight.shape
+        assert self.positional_encoding.weight.shape == weight_positional_embedding.weight.shape
+
+        # Load the embedding layer
+        self.embedding.weight = weight_token_embedding.weight
+        self.positional_encoding.weight = weight_positional_embedding.weight

@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from src.data_loader import Tokenizer
 
 from src.encoder import Encoder
 import torch.nn.functional as F
@@ -52,3 +53,33 @@ class Loss(nn.Module):
         x=self.decoder(x)
         return self.loss(x,y)
 
+
+
+class GPT2Decoder(nn.Module):
+    def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
+        super().__init__()
+
+        self.d_Embedding=d_Embedding
+        self.tokenizer=tokenizer
+        self.device=device
+
+        # Initialize the language model head
+        self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
+        self.language_model_head=nn.Linear(d_Embedding, tokenizer.vocab_size, bias=False, device=device)
+
+        # Calculate the number of parameters
+        self.n_parameters=d_Embedding*tokenizer.vocab_size
+
+    def forward(self, x):
+        x=self.layer_norm(x)
+        x=self.language_model_head(x)
+
+        return x
+    
+    def load_from_original(self, ln_f, language_model_head):
+        self.layer_norm=ln_f
+
+        assert self.language_model_head.weight.shape==language_model_head.weight.shape
+
+        # Load the language model head
+        self.language_model_head.weight=language_model_head.weight
