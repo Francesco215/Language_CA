@@ -131,10 +131,12 @@ def softmax(att, receivers, n_nodes, heads):
     """
 
     # Create the translation tensor to avoid numerical instabilities
-    translation = torch.zeros(n_nodes, heads)
+    translation = torch.zeros(n_nodes, heads, device=receivers.device)
 
     # take the maximum value of the attention going to each node
     translation = translation.scatter_reduce(0, receivers.repeat(heads, 1).t(), att, reduce='amax', include_self=False)
+    #TODO: check if this is faster 
+    #translation.scatter_reduce(0, receivers.repeat(heads, 1).t(), att, reduce='amax',include_self=False)
 
     # subtract the maximum value from the attention of each edge going to that node
     att = att-translation[receivers]
@@ -224,7 +226,7 @@ class aggregate_heads(nn.Linear):
 
 
 
-class Block_Generator:
+class BlockGenerator:
     def __init__(self, block, *args, **kwargs):
         """Generates a block of the graph attention network
 

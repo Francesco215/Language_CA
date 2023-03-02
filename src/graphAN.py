@@ -34,7 +34,7 @@ class GraphAttentionNetwork(nn.Module):
         encoder:Encoder,
         block_generator:BlockGenerator,
         decoder:Decoder=None,
-        n_blocks:int=12
+        n_blocks:int=12,
         ):
         
         super().__init__()
@@ -47,6 +47,7 @@ class GraphAttentionNetwork(nn.Module):
         self.encoder = encoder
         self.d_Embedding=encoder.d_Embedding
         self.n_blocks=n_blocks
+        self.device=encoder.device
 
         if decoder is None:        
             self.decoder = Decoder(self.encoder)

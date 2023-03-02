@@ -97,10 +97,8 @@ class GPT2Encoder(nn.Module):
         self.vocab_size = tokenizer.vocab_size
 
         # Initialize the embedding layer
-        self.embedding = nn.Embedding(
-            tokenizer.vocab_size, d_Embedding, device=device)
-        self.positional_encoding = nn.Embedding(
-            max_position_encoding, d_Embedding, device=device)
+        self.embedding = nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
+        self.positional_encoding = nn.Embedding(max_position_encoding, d_Embedding, device=device)
 
         self.dropout = nn.Dropout(dropout)
 

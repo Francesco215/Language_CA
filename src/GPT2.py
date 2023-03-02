@@ -8,6 +8,7 @@ class GPT2(GraphAttentionNetwork):
     
     def load_from_original(self, pretrained_model):
         # Load the embedding layer
+        pretrained_model.to(self.device)
         self.encoder.load_from_original(pretrained_model.transformer)
 
         # Take the transformer blocks

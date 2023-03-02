@@ -2,7 +2,7 @@ import torch
 from transformers import AutoTokenizer
 
 class Graph_maker:
-    def __init__(self, window_width:int=1):
+    def __init__(self, window_width:int=1, device='cpu'):
 
         assert type(window_width)==int, "n_nodes must be an integer"
         assert window_width>=0, "n_nodes must be non-negative"
@@ -46,7 +46,7 @@ class linear_unidirectional_graph_maker(Graph_maker):
             for j in range(max(0,i-self.window_width),i+1):
                 edges.append([j,i])
 
-        edges=torch.tensor(edges, dtype=torch.long).t().contiguous()
+        edges=torch.tensor(edges, dtype=torch.long, device=self.device).t().contiguous()
         return edges
 
 class linear_bidirectional_graph_maker(Graph_maker):
@@ -70,7 +70,7 @@ class linear_bidirectional_graph_maker(Graph_maker):
                 edges.append([j,i])
                 if i!=j: edges.append([i,j])
 
-        edges=torch.tensor(edges, dtype=torch.long).t().contiguous()
+        edges=torch.tensor(edges, dtype=torch.long, device=self.device).t().contiguous()
         return edges
 
 
@@ -88,8 +88,8 @@ class random_graph_maker(linear_bidirectional_graph_maker):
             contains the source nodes and the second row contains the target nodes. #TODO:check this
     """
 
-    def __init__(self, window_width:int=1, avg_n_edges:int=5):
-        super().__init__(window_width)
+    def __init__(self, window_width:int=1, avg_n_edges:int=5,device='cpu'):
+        super().__init__(window_width, device)
         self.avg_n_edges=avg_n_edges
 
     @torch.no_grad()
@@ -98,10 +98,10 @@ class random_graph_maker(linear_bidirectional_graph_maker):
         edges=super().__call__(n_nodes).t()
 
         #this part makes non-symmetric the random edges    
-        rand_edges=torch.randint(0,n_nodes,(self.avg_n_edges*n_nodes, 2))
+        rand_edges=torch.randint(0,n_nodes,(self.avg_n_edges*n_nodes, 2), device=self.device)
 
         edges=torch.cat((edges,rand_edges),dim=0)
-        edges=torch.unique(edges,dim=0).t().contiguous()
+        edges=torch.unique(edges, dim=0).t().contiguous()
 
         return edges
 
