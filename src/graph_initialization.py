@@ -8,6 +8,7 @@ class Graph_maker:
         assert window_width>=0, "n_nodes must be non-negative"
 
         self.window_width=window_width
+        self.device=device
 
 
     @torch.no_grad()

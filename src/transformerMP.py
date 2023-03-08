@@ -73,7 +73,8 @@ def attention_message(Q: torch.Tensor,
                       K: torch.Tensor,
                       V: torch.Tensor,
                       edge_index: torch.Tensor,
-                      att_dropout=0.0
+                      att_dropout=0.0,
+                      split_size=2**15
                       ):
     """This function calculates the attention message for each node in the graph.
     It's hard to read, but it's the only way I found to make it fast and parallelizable.
@@ -99,21 +100,24 @@ def attention_message(Q: torch.Tensor,
     senders, receivers = edge_index
     n_nodes, heads, d = K.shape
 
-    # Q.K^T
-    att = (Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
+    # Q.K^T this is the line of code that uses a lot of memory
+    att = []
+    for s, r in zip(senders.split(split_size), receivers.split(split_size)):
+        att.append((Q[r]*K[s]).sum(dim=-1)/sqrt(d))
+
+    att = torch.cat(att, dim=0)
 
     # softmax
     attention = softmax(att, receivers, n_nodes, heads)
 
-    # Dropout
-    #att=attention_dropout(attention, att_dropout)
-
     # softmax*V
-    att = einops.einsum(attention, V[senders], ' ... , ... c -> ... c')
     out = torch.zeros_like(V, device=V.device)
+    for s, r, a in zip(senders.split(split_size), receivers.split(split_size), attention.split(split_size)):
+        att = einops.einsum(a, V[s], ' ... , ... c -> ... c')
+        # could be done in-place using the function out.index_add_()
+        out = out.index_add(0, r, att)
 
-    # could be done in-place using the function out.index_add_()
-    return out.index_add(0, receivers, att), attention
+    return out, attention
 
 
 def softmax(att, receivers, n_nodes, heads):
