@@ -10,7 +10,7 @@ class AttentionBlock(nn.Module):
     The transformer architecture is based on the paper "Attention is all you need" by Vaswani et al. (2017).
     """
 
-    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, device='cpu'):
+    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, device='cpu', split_size=2**15):
 
         super().__init__()
 
@@ -22,6 +22,7 @@ class AttentionBlock(nn.Module):
         self.heads = heads
         self.dropout = dropout
         self.device = device
+        self.split_size = split_size
 
         # Create the layers for the attention that make the keys, queries and values for each head
         self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, device)
@@ -58,7 +59,7 @@ class AttentionBlock(nn.Module):
 
         # calculate the multi-head attention and activation function
         # TODO: check if residual should be added before or after the linear layer or at all
-        x, _ = attention_message(Q, K, V, edge_index, self.dropout)
+        x, _ = attention_message(Q, K, V, edge_index, self.dropout, self.split_size)
 
         # now we merge the output of the heads and apply the final linear layer
         x = self.feedforward(x)

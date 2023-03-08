@@ -27,7 +27,7 @@ class GPT2(GraphAttentionNetwork):
 
 class GPT2_Block(nn.Module):
 
-    def __init__(self, d_Embedding=768, dK=64, dV=64, heads=12,intermediate_size=3072, dropout=0.0, device='cpu'):
+    def __init__(self, d_Embedding=768, dK=64, dV=64, heads=12,intermediate_size=3072, dropout=0.0, device='cpu', split_size=2**15):
         super().__init__()
 
         # Save the parameters
@@ -38,9 +38,10 @@ class GPT2_Block(nn.Module):
         self.intermediate_size=intermediate_size
         self.dropout=dropout
         self.device=device
-
+        self.split_size=split_size
+        
         # Initialize the transformer block and the MLP
-        self.attention_block=AttentionBlockGPT2(d_Embedding, dK, dV, heads, dropout, device)
+        self.attention_block=AttentionBlockGPT2(d_Embedding, dK, dV, heads, dropout, device, split_size)
         self.MLP=GPT2MLP(d_Embedding, intermediate_size, dropout, device)
 
         # Layer normalization
