@@ -42,7 +42,7 @@ class AttentionMessage(torch.autograd.Function):
         n_nodes, heads, d = K.shape
 
         # Q.K^T / sqrt(d)
-        att=overlaps(Q, K, edge_index, split_size)
+        att=overlaps(Q, K, edge_index, split_size)/sqrt(d)
         
         # softmax
         attention = softmax(att, receivers, n_nodes, heads)
@@ -61,19 +61,21 @@ class AttentionMessage(torch.autograd.Function):
     def backward(ctx, grad_out, grad_attention):
 
         out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
+
+        senders, receivers = edge_index
+        n_nodes, heads, d = K.shape
+
         split_size=split_size.item()
 
         grad_Q = grad_K = grad_V = None
 
-        if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
-            grad_out_V_overlap = attention * overlaps(grad_out, V, edge_index, split_size)
 
-        if ctx.needs_input_grad[0]:
-            grad_Q = compute_grad_Q(grad_out, out, attention, K, edge_index, grad_out_V_overlap, split_size)
-        if ctx.needs_input_grad[1]:
-            grad_K = compute_grad_K(attention, Q, edge_index, grad_out_V_overlap, split_size)
-        if ctx.needs_input_grad[2]:
-            grad_V = compute_grad_V(grad_out, attention, edge_index, split_size)
+        att_overlap=attention*overlaps(grad_out, V, edge_index, split_size)
+        out_grad_overlap = (out*grad_out).sum(dim=-1)
+
+        grad_Q = compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, split_size)/sqrt(d)
+        grad_K = compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, split_size)/sqrt(d)
+        grad_V = compute_grad_V(grad_out, attention, edge_index, split_size)
 
 
         return grad_Q, grad_K, grad_V, None, None
@@ -102,7 +104,7 @@ def overlaps(Q, K, edge_index, split_size=2**15):
 
     att = []
     for s, r in zip(senders.split(split_size), receivers.split(split_size)):
-        att.append((Q[r]*K[s]).sum(dim=-1)/sqrt(d))
+        att.append((Q[r]*K[s]).sum(dim=-1))
 
     att = torch.cat(att, dim=0)
 
@@ -218,7 +220,7 @@ def mult_att(attention, V, senders, receivers, split_size=2**15):
 
 
 
-def compute_grad_Q(grad_out, out, attention, K, edge_index, grad_out_V_overlap, split_size):
+def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, split_size):
     """ This function calculates the gradient of the output with respect to the queries.
 
     Args:
@@ -236,17 +238,16 @@ def compute_grad_Q(grad_out, out, attention, K, edge_index, grad_out_V_overlap, 
 
     senders, receivers = edge_index
 
-    out = (grad_out*out).sum(dim=-1)
-    temp= mult_att(attention, K, senders, receivers, split_size)
-    out = einops.einsum(out, temp, ' ... , ... c -> ... c') 
-
-    out = mult_att(grad_out_V_overlap, K, senders, receivers, split_size) -out
+    out = mult_att(att_overlap, K, senders, receivers, split_size)
+    
+    att_K=mult_att(attention, K, senders, receivers, split_size)
+    out = out - einops.einsum(out_grad_overlap, att_K, '... , ... c -> ... c')
 
     return  out
 
 
 
-def compute_grad_K(attention, Q, edge_index, grad_out_V_overlap, split_size):
+def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, split_size):
     """ This function calculates the gradient of the output with respect to the keys.
 
     Args:
@@ -263,9 +264,12 @@ def compute_grad_K(attention, Q, edge_index, grad_out_V_overlap, split_size):
 
     senders, receivers = edge_index
     
-    attention = (1-attention)*grad_out_V_overlap
+    out = mult_att(att_overlap, Q, receivers, senders, split_size)
 
-    return mult_att(attention, Q, senders, receivers, split_size)
+    Q = einops.einsum(out_grad_overlap, Q, ' ... , ... c -> ... c')
+    out = out - mult_att(attention, Q , receivers, senders, split_size)
+
+    return out
 
 
 
@@ -286,5 +290,5 @@ def compute_grad_V(grad_out, attention, edge_index, split_size):
     return mult_att(attention, grad_out, receivers, senders, split_size)
 
 
-#and now define the attention_message function
+
 attention_message=AttentionMessage.apply

@@ -1,7 +1,17 @@
 import torch
 import unittest
+from src.attention import attention_message
+from .test_utils import og_attention_message
+class attention_message_utils(unittest.TestCase):
+    def og_attention_test(self):
+        embedding_dim=17
+        embedding_dim_V=21
+        n_nodes=13
+        n_edges=133
+        heads=3
 
 
+        mh_att=torch.nn.MultiheadAttention(embedding_dim,heads)
 class attention_message_test(unittest.TestCase):
     def test_attention_message(self):
         embedding_dim=17
@@ -10,16 +20,27 @@ class attention_message_test(unittest.TestCase):
         n_edges=133
         heads=3
 
-        Q= torch.randn([n_nodes,heads,embedding_dim])
-        K= torch.randn([n_nodes,heads,embedding_dim])
-        V= torch.randn([n_nodes,heads,embedding_dim_V])
+        Q = torch.randn([n_nodes,heads,embedding_dim])
+        K = torch.randn([n_nodes,heads,embedding_dim])
+        V = torch.randn([n_nodes,heads,embedding_dim_V])
 
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
 
-        att,_=attention_message(Q,K,V,edge_index)
-        self.assertEqual(V.shape,att.shape)
-        self.assertFalse(att.isnan().any())
-        self.assertFalse(att.isinf().any())
+        x,att=attention_message(Q,K,V,edge_index)
+        self.assertEqual(V.shape,x.shape)
+        self.assertFalse(x.isnan().any())
+        self.assertFalse(x.isinf().any())
+
+        x_1,att_1=og_attention_message(Q,K,V,edge_index)
+        self.assertEqual(V.shape,x.shape)
+        self.assertFalse(x.isnan().any())
+        self.assertFalse(x.isinf().any())
+
+        senders,receivers=edge_index
+        for i in range(n_edges):
+            self.assertTrue(torch.allclose(att_1[senders[i],receivers[i]],att[i],1e-3,1e-3))
+
+        #self.assertTrue(torch.isclose(x,x_1,1e-3,1e-3).all())
 
     def test_attention_message_high_variance(self):
         embedding_dim=17
@@ -39,8 +60,7 @@ class attention_message_test(unittest.TestCase):
         self.assertFalse(att.isnan().any())
         self.assertFalse(att.isinf().any())
 
-from src.attention import attention_message
-from .test_utils import og_attention_message
+
 class attention_message_gradient_test(unittest.TestCase):
 
     def test_attention_message_Q_gradient(self):
