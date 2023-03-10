@@ -2,9 +2,13 @@ import torch
 import einops
 
 from math import sqrt
+from torch.autograd.function import once_differentiable
 
 
-class attention_message(torch.autograd.Function):
+class AttentionMessage(torch.autograd.Function):
+    """This class implements the attention message function.
+    It is a torch.autograd.Function that is used to calculate the attention message and its gradient.
+    """
 
     @staticmethod
     def forward(ctx,
@@ -15,7 +19,6 @@ class attention_message(torch.autograd.Function):
                 split_size=2**15
                 ):
         """This function calculates the attention message for each node in the graph.
-        It's hard to read, but it's the only way I found to make it fast and parallelizable.
 
         Args:
             K (torch.Tensor): Key tensor of shape (N, h, dK)
@@ -26,10 +29,10 @@ class attention_message(torch.autograd.Function):
         Returns:
             torch.Tensor: Multi-head attention message of shape (N, h, dV)
         """
-        assert K.dim() == Q.dim() == V.dim() == 3, "K,Q,V must be 3-dimentional tensors"
-        assert K.shape[0] == Q.shape[0] == V.shape[0], "K,Q,V must have the same first dimension"
-        assert K.shape[1] == Q.shape[1] == V.shape[1], "K,Q,V must have the same second dimension"
-        assert K.shape[2] == Q.shape[2], "K,Q must have the same third dimension"
+        assert K.dim() == Q.dim() == V.dim() == 3, "K, Q, V must be tensors of rank 3"
+        assert K.shape[0] == Q.shape[0] == V.shape[0], "K, Q, V must have the same first dimension"
+        assert K.shape[1] == Q.shape[1] == V.shape[1], "K, Q, V must have the same second dimension"
+        assert K.shape[2] == Q.shape[2], "K and Q must have the same third dimension"
 
         assert edge_index.dim() == 2, "edge_index must be a 2-dimentional tensor"
         assert edge_index.shape[0] == 2, "edge_index must have 2 rows"
@@ -44,26 +47,33 @@ class attention_message(torch.autograd.Function):
         # softmax
         attention = softmax(att, receivers, n_nodes, heads)
 
-
-
         # softmax*V
         out = mult_att(attention, V, senders, receivers, split_size)
        
         # save the tensors for the backward
+        split_size=torch.tensor([split_size])
         ctx.save_for_backward(out,attention, Q, K, V, edge_index, split_size)
 
         return out, attention
 
+    #@once_differentiable #TODO: check if this is correct, () could be missing
     @staticmethod
     def backward(ctx, grad_out, grad_attention):
-        out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
-        senders, receivers = edge_index
-        n_nodes, heads, d = K.shape
 
-        # softmax*V
-        grad_Q = compute_grad_Q(grad_out, out, attention, K, V, edge_index, split_size)
-        grad_K = compute_grad_K(grad_out, attention, Q, V, edge_index, split_size)
-        grad_V = compute_grad_V(grad_out, attention, edge_index, split_size)
+        out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
+        split_size=split_size.item()
+
+        grad_Q = grad_K = grad_V = None
+
+        if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
+            grad_out_V_overlap = attention * overlaps(grad_out, V, edge_index, split_size)
+
+        if ctx.needs_input_grad[0]:
+            grad_Q = compute_grad_Q(grad_out, out, attention, K, edge_index, grad_out_V_overlap, split_size)
+        if ctx.needs_input_grad[1]:
+            grad_K = compute_grad_K(attention, Q, edge_index, grad_out_V_overlap, split_size)
+        if ctx.needs_input_grad[2]:
+            grad_V = compute_grad_V(grad_out, attention, edge_index, split_size)
 
 
         return grad_Q, grad_K, grad_V, None, None
@@ -85,6 +95,10 @@ def overlaps(Q, K, edge_index, split_size=2**15):
     """
     senders, receivers = edge_index
     n_nodes, heads, d = K.shape
+
+    # split the tensors to avoid memory issues
+    # in an ideal world with infinite memory we would just write this:
+    # return (Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
 
     att = []
     for s, r in zip(senders.split(split_size), receivers.split(split_size)):
@@ -183,6 +197,13 @@ def mult_att(attention, V, senders, receivers, split_size=2**15):
     """
 
     out = torch.zeros_like(V, device=V.device)
+
+    # split the tensors to avoid memory issues
+    # in an ideal world with infinite memory we would just write this:
+    # attention = einops.einsum(attention, V[senders], ' ... , ... c -> ... c')
+    # out=out.index_add(0,receivers,attention)
+    # return out
+
     for s, r, a in zip(senders.split(split_size), receivers.split(split_size), attention.split(split_size)):
         att = einops.einsum(a, V[s], ' ... , ... c -> ... c')
         # could be done in-place using the function out.index_add_()
@@ -197,7 +218,7 @@ def mult_att(attention, V, senders, receivers, split_size=2**15):
 
 
 
-def compute_grad_Q(grad_out, out, attention, K, V, edge_index, split_size):
+def compute_grad_Q(grad_out, out, attention, K, edge_index, grad_out_V_overlap, split_size):
     """ This function calculates the gradient of the output with respect to the queries.
 
     Args:
@@ -215,18 +236,17 @@ def compute_grad_Q(grad_out, out, attention, K, V, edge_index, split_size):
 
     senders, receivers = edge_index
 
-    ovl= overlaps(grad_out, V, edge_index, split_size)
-    out1= mult_att(attention*ovl, K, senders, receivers, split_size)
+    out = (grad_out*out).sum(dim=-1)
+    temp= mult_att(attention, K, senders, receivers, split_size)
+    out = einops.einsum(out, temp, ' ... , ... c -> ... c') 
 
-    dot= (grad_out*out).sum(dim=-1)
+    out = mult_att(grad_out_V_overlap, K, senders, receivers, split_size) -out
 
-    T_j= mult_att(attention,K, senders, receivers, split_size)
-
-    return  out1 - einops.einsum(dot, T_j, ' ... , ... c -> ... c')
-
+    return  out
 
 
-def compute_grad_K(grad_out, attention, Q, V, edge_index, split_size):
+
+def compute_grad_K(attention, Q, edge_index, grad_out_V_overlap, split_size):
     """ This function calculates the gradient of the output with respect to the keys.
 
     Args:
@@ -243,10 +263,9 @@ def compute_grad_K(grad_out, attention, Q, V, edge_index, split_size):
 
     senders, receivers = edge_index
     
-    overlap = overlaps(grad_out, V, edge_index, split_size)
-    attention=attention*(1-attention)*overlap
+    attention = (1-attention)*grad_out_V_overlap
 
-    return mult_att(attention, Q, receivers, senders, split_size)
+    return mult_att(attention, Q, senders, receivers, split_size)
 
 
 
@@ -265,3 +284,7 @@ def compute_grad_V(grad_out, attention, edge_index, split_size):
     senders, receivers = edge_index
     
     return mult_att(attention, grad_out, receivers, senders, split_size)
+
+
+#and now define the attention_message function
+attention_message=AttentionMessage.apply
