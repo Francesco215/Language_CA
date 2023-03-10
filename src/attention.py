@@ -59,23 +59,26 @@ class AttentionMessage(torch.autograd.Function):
     #@once_differentiable #TODO: check if this is correct, () could be missing
     @staticmethod
     def backward(ctx, grad_out, grad_attention):
-
-        out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
-
-        senders, receivers = edge_index
-        n_nodes, heads, d = K.shape
-
-        split_size=split_size.item()
-
         grad_Q = grad_K = grad_V = None
 
+        if ctx.needs_input_grad[0] or ctx.needs_input_grad[1] or ctx.needs_input_grad[2]:
+            out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
 
-        att_overlap=attention*overlaps(grad_out, V, edge_index, split_size)
-        out_grad_overlap = (out*grad_out).sum(dim=-1)
+            senders, receivers = edge_index
+            n_nodes, heads, d = K.shape
 
-        grad_Q = compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, split_size)/sqrt(d)
-        grad_K = compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, split_size)/sqrt(d)
-        grad_V = compute_grad_V(grad_out, attention, edge_index, split_size)
+            split_size=split_size.item()
+
+        if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
+            att_overlap=attention*overlaps(grad_out, V, edge_index, split_size)
+            out_grad_overlap = (out*grad_out).sum(dim=-1)
+
+        if ctx.needs_input_grad[0]:
+            grad_Q = compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receivers, split_size)/sqrt(d)
+        if ctx.needs_input_grad[1]:
+            grad_K = compute_grad_K(attention, Q, att_overlap, out_grad_overlap, senders, receivers, split_size)/sqrt(d)
+        if ctx.needs_input_grad[2]:
+            grad_V = compute_grad_V(grad_out, attention, senders, receivers, split_size)
 
 
         return grad_Q, grad_K, grad_V, None, None
@@ -220,7 +223,7 @@ def mult_att(attention, V, senders, receivers, split_size=2**15):
 
 
 
-def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, split_size):
+def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receivers, split_size):
     """ This function calculates the gradient of the output with respect to the queries.
 
     Args:
@@ -236,8 +239,6 @@ def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, spli
         torch.Tensor: The gradient of the output with respect to the queries of shape (N, h, dK)
     """
 
-    senders, receivers = edge_index
-
     out = mult_att(att_overlap, K, senders, receivers, split_size)
     
     att_K=mult_att(attention, K, senders, receivers, split_size)
@@ -247,7 +248,7 @@ def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, edge_index, spli
 
 
 
-def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, split_size):
+def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, senders, receivers, split_size):
     """ This function calculates the gradient of the output with respect to the keys.
 
     Args:
@@ -261,8 +262,6 @@ def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, spli
     Returns:
         torch.Tensor: The gradient of the output with respect to the keys of shape (N, h, dK)
     """
-
-    senders, receivers = edge_index
     
     out = mult_att(att_overlap, Q, receivers, senders, split_size)
 
@@ -273,7 +272,7 @@ def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, edge_index, spli
 
 
 
-def compute_grad_V(grad_out, attention, edge_index, split_size):
+def compute_grad_V(grad_out, attention, senders, receivers, split_size):
     """ This function calculates the gradient of the output with respect to the values.
 
     Args:
@@ -285,7 +284,6 @@ def compute_grad_V(grad_out, attention, edge_index, split_size):
     Returns:
         torch.Tensor: The gradient of the output with respect to the values of shape (N, h, dV)
     """
-    senders, receivers = edge_index
     
     return mult_att(attention, grad_out, receivers, senders, split_size)
 

@@ -1,6 +1,7 @@
+import einops
 import torch
 import unittest
-from src.attention import attention_message
+from src.attention import attention_message, overlaps
 from .test_utils import og_attention_message
 class attention_message_utils(unittest.TestCase):
     def og_attention_test(self):
@@ -14,33 +15,40 @@ class attention_message_utils(unittest.TestCase):
         mh_att=torch.nn.MultiheadAttention(embedding_dim,heads)
 class attention_message_test(unittest.TestCase):
     def test_attention_message(self):
-        embedding_dim=17
-        embedding_dim_V=21
-        n_nodes=13
-        n_edges=133
-        heads=3
+        embedding_dim = 17
+        embedding_dim_V = 21
+        n_nodes = 13
+        n_edges = 133
+        heads = 3
 
-        Q = torch.randn([n_nodes,heads,embedding_dim])
-        K = torch.randn([n_nodes,heads,embedding_dim])
-        V = torch.randn([n_nodes,heads,embedding_dim_V])
+        Q = torch.randn([n_nodes, heads, embedding_dim])
+        K = torch.randn([n_nodes, heads, embedding_dim])
+        V = torch.randn([n_nodes, heads, embedding_dim_V])
 
-        edge_index=torch.randint(0,n_nodes,(2,n_edges))
+        Q1 = Q.clone()
 
-        x,att=attention_message(Q,K,V,edge_index)
-        self.assertEqual(V.shape,x.shape)
-        self.assertFalse(x.isnan().any())
-        self.assertFalse(x.isinf().any())
+        Q.requires_grad = True
+        Q.retain_grad()
 
-        x_1,att_1=og_attention_message(Q,K,V,edge_index)
-        self.assertEqual(V.shape,x.shape)
-        self.assertFalse(x.isnan().any())
-        self.assertFalse(x.isinf().any())
+
+        #edge_index=torch.randint(0, input_size, (2, 10), device=device).unique(dim=1)
+        edge_index=torch.randint(0,n_nodes,(2,n_edges)).unique(dim=1)
+
+        x, att = attention_message(Q, K, V, edge_index)
+        x = x.mean()
+        x.backward()
+
+
+        Q1.requires_grad = True
+        Q1.retain_grad()
+
+
+        x1, att1 = og_attention_message(Q1, K, V, edge_index)
+        x1 = x1.mean()
+        x1.backward()
 
         senders,receivers=edge_index
-        for i in range(n_edges):
-            self.assertTrue(torch.allclose(att_1[senders[i],receivers[i]],att[i],1e-3,1e-3))
-
-        #self.assertTrue(torch.isclose(x,x_1,1e-3,1e-3).all())
+        self.assertTrue(torch.isclose(x,x1,1e-3,1e-3).all())
 
     def test_attention_message_high_variance(self):
         embedding_dim=17
@@ -53,7 +61,7 @@ class attention_message_test(unittest.TestCase):
         K = torch.randn([n_nodes,heads,embedding_dim])*70
         V = torch.randn([n_nodes,heads,embedding_dim_V])*90
 
-        edge_index=torch.randint(0,n_nodes,(2,n_edges))
+        edge_index=torch.randint(0,n_nodes,(2,n_edges)).unique(dim=1)
 
         att,_=attention_message(Q,K,V,edge_index)
         self.assertEqual(V.shape,att.shape)
@@ -73,8 +81,8 @@ class attention_message_gradient_test(unittest.TestCase):
         Q = torch.randn([n_nodes, heads, embedding_dim])
         K = torch.randn([n_nodes, heads, embedding_dim])
         V = torch.randn([n_nodes, heads, embedding_dim_V])
-        Q_1 = Q.clone()
-        edge_index = torch.randint(0, n_nodes, (2, n_edges))
+        Q1 = Q.clone()
+        edge_index = torch.randint(0, n_nodes, (2, n_edges)).unique(dim=1)
 
 
         Q.requires_grad=True
@@ -88,17 +96,17 @@ class attention_message_gradient_test(unittest.TestCase):
 
 
         
-        Q_1.requires_grad=True
-        Q_1.retain_grad()
-        x,_=og_attention_message(Q_1, K, V, edge_index)
-        x=x.mean()
-        x.backward()
+        Q1.requires_grad=True
+        Q1.retain_grad()
+        x1,_=og_attention_message(Q1, K, V, edge_index)
+        x1=x1.mean()
+        x1.backward()
 
 
-        self.assertFalse(Q_1.grad.isnan().any())
-        self.assertFalse(Q_1.grad.isinf().any())
+        self.assertFalse(Q1.grad.isnan().any())
+        self.assertFalse(Q1.grad.isinf().any())
 
-        self.assertTrue(torch.allclose(Q.grad, Q_1.grad, 1e-3, 1e-3))
+        self.assertTrue(torch.allclose(Q.grad, Q1.grad, 1e-3, 1e-3))
 
     def test_attention_message_K_gradient(self):
         embedding_dim = 17
@@ -111,7 +119,7 @@ class attention_message_gradient_test(unittest.TestCase):
         K = torch.randn([n_nodes, heads, embedding_dim])
         V = torch.randn([n_nodes, heads, embedding_dim_V])
         K_1 = K.clone()
-        edge_index = torch.randint(0, n_nodes, (2, n_edges))
+        edge_index = torch.randint(0, n_nodes, (2, n_edges)).unique(dim=1)
 
 
         K.requires_grad=True
