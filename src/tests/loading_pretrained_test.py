@@ -51,7 +51,7 @@ class GPT2_loading_functions(unittest.TestCase):
 
 import transformers
 
-from src.transformerMP import attention_message
+from src.attention import attention_message
 pretrained = transformers.GPT2LMHeadModel.from_pretrained('gpt2')
 class GPT2_loading_parameters(unittest.TestCase):
 

@@ -1,7 +1,7 @@
 import unittest
 import torch
 
-from src.transformerMP import normalize_strength
+from src.attention import normalize_strength
 
 class select_index_test(unittest.TestCase):
     def test_select_index(self):
