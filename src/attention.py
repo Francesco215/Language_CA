@@ -59,8 +59,20 @@ class AttentionMessage(torch.autograd.Function):
     #@once_differentiable #TODO: check if this is correct, () could be missing
     @staticmethod
     def backward(ctx, grad_out, grad_attention):
+        """This function calculates the gradient of the attention message function.
+
+        Args:
+            ctx (torch.autograd.function._ContextMethodMixin): Context of the backward pass
+            grad_out (torch.Tensor): Gradient of the output of the attention message function
+            grad_attention (torch.Tensor): Gradient of the attention tensor
+
+        Returns:
+            tuple: Tuple of gradients of the input tensors
+        """
+        # set the gradients of the output tensors to None    
         grad_Q = grad_K = grad_V = None
 
+        # if the gradient of the input tensors is needed
         if ctx.needs_input_grad[0] or ctx.needs_input_grad[1] or ctx.needs_input_grad[2]:
             out, attention, Q, K, V, edge_index, split_size = ctx.saved_tensors
 
@@ -69,10 +81,12 @@ class AttentionMessage(torch.autograd.Function):
 
             split_size=split_size.item()
 
+        # calculate variables used in the gradient calculation
         if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
             att_overlap=attention*overlaps(grad_out, V, edge_index, split_size)
             out_grad_overlap = (out*grad_out).sum(dim=-1)
 
+        # calculate the gradients
         if ctx.needs_input_grad[0]:
             grad_Q = compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receivers, split_size)/sqrt(d)
         if ctx.needs_input_grad[1]:
@@ -80,7 +94,7 @@ class AttentionMessage(torch.autograd.Function):
         if ctx.needs_input_grad[2]:
             grad_V = compute_grad_V(grad_out, attention, senders, receivers, split_size)
 
-
+        # return the gradients
         return grad_Q, grad_K, grad_V, None, None
 
 
@@ -227,12 +241,12 @@ def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receive
     """ This function calculates the gradient of the output with respect to the queries.
 
     Args:
-        grad_out (torch.Tensor): The gradient of the output of shape (N, h, dV)
-        out (torch.Tensor): The output of shape (N, h, dV)
         attention (torch.Tensor): The attention of shape (M, h)
         K (torch.Tensor): The keys of shape (N, h, dK)
-        V (torch.Tensor): The values of shape (N, h, dV)
-        edge_index (torch.Tensor): The edge index of shape (2, M)
+        att_overlap (torch.Tensor): Variable calculated beforehand (M, h)
+        out_grad_overlap (torch.Tensor): Variable calculated beforehand (M, h)
+        senders (torch.Tensor): The senders of shape (M,)
+        receivers (torch.Tensor): The receivers of shape (M,)
         split_size (int, optional): The size of the split. Defaults to 2**15.
 
     Returns:
@@ -252,11 +266,12 @@ def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, senders, receive
     """ This function calculates the gradient of the output with respect to the keys.
 
     Args:
-        grad_out (torch.Tensor): The gradient of the output of shape (N, h, dV)
         attention (torch.Tensor): The attention of shape (M, h)
-        Q (torch.Tensor): The keys of shape (N, h, dK)
-        V (torch.Tensor): The values of shape (N, h, dV)
-        edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
+        Q (torch.Tensor): The queries of shape (N, h, dQ)
+        att_overlap (torch.Tensor): Variable calculated beforehand (M, h)
+        out_grad_overlap (torch.Tensor): Variable calculated beforehand (M, h)
+        senders (torch.Tensor): The senders of shape (M,)
+        receivers (torch.Tensor): The receivers of shape (M,)
         split_size (int, optional): The size of the split. Defaults to 2**15.
 
     Returns:
@@ -278,7 +293,8 @@ def compute_grad_V(grad_out, attention, senders, receivers, split_size):
     Args:
         grad_out (torch.Tensor): The gradient of the output of shape (N, h, dV)
         attention (torch.Tensor): The attention of shape (M, h)
-        edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
+        senders (torch.Tensor): The senders of shape (M,)
+        receivers (torch.Tensor): The receivers of shape (M,)
         split_size (int, optional): The size of the split. Defaults to 2**15.
 
     Returns:
