@@ -4,5 +4,6 @@
 
 *.pyc
 *toml
+*.DS_Store
 
 src/modelling_GPT2.py

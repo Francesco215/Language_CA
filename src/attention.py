@@ -5,7 +5,7 @@ from math import sqrt
 from torch.autograd.function import once_differentiable
 
 
-class AttentionMessage(torch.autograd.Function):
+class AttentionMessageFunction(torch.autograd.Function):
     """This class implements the attention message function.
     It is a torch.autograd.Function that is used to calculate the attention message and its gradient.
     """
@@ -99,34 +99,6 @@ class AttentionMessage(torch.autograd.Function):
 
 
 
-def overlaps(Q, K, edge_index, split_size=2**15):
-    """
-    This function calculates the overlaps between the queries and the keys.
-
-    Args:
-        Q (torch.Tensor): Query tensor of shape (N, h, dK)
-        K (torch.Tensor): Key tensor of shape (N, h, dK)
-        edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
-        split_size (int, optional): The size of the split. Defaults to 2**15.
-
-    Returns:
-        torch.Tensor: The overlaps of shape (M, h)
-    """
-    senders, receivers = edge_index
-    n_nodes, heads, d = K.shape
-
-    # split the tensors to avoid memory issues
-    # in an ideal world with infinite memory we would just write this:
-    # return (Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
-
-    att = []
-    for s, r in zip(senders.split(split_size), receivers.split(split_size)):
-        att.append((Q[r]*K[s]).sum(dim=-1))
-
-    att = torch.cat(att, dim=0)
-
-    return att
-
 
 
 def softmax(att, receivers, n_nodes, heads):
@@ -164,8 +136,10 @@ def softmax(att, receivers, n_nodes, heads):
 
 
 def normalize_strength(strength, receivers, n_nodes, heads):
-    """ If you think defining a whole function for 3 lines of code is overkill, try to understand it.
-    lets say we have a directed graph with N nodes and M edges.
+    """ This function normalizes the strength of each connection by dividing it by the sum of the
+    strengths of all the connections that are directed towards the same node.
+
+    So, lets say we have a directed graph with N nodes and M edges.
     To represent each one i have 3 M-dimentional vectors which are cal `senders`, `receivers`
     and `strength`:
     The i-th element of the `senders` vector represents a node  that is directed towards the
@@ -231,6 +205,33 @@ def mult_att(attention, V, senders, receivers, split_size=2**15):
     return out
 
 
+def overlaps(Q, K, edge_index, split_size=2**15):
+    """
+    This function calculates the overlaps between the queries and the keys.
+
+    Args:
+        Q (torch.Tensor): Query tensor of shape (N, h, dK)
+        K (torch.Tensor): Key tensor of shape (N, h, dK)
+        edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
+        split_size (int, optional): The size of the split. Defaults to 2**15.
+
+    Returns:
+        torch.Tensor: The overlaps of shape (M, h)
+    """
+    senders, receivers = edge_index
+    n_nodes, heads, d = K.shape
+
+    # split the tensors to avoid memory issues
+    # in an ideal world with infinite memory we would just write this:
+    # return (Q[receivers]*K[senders]).sum(dim=-1)/sqrt(d)
+
+    att = []
+    for s, r in zip(senders.split(split_size), receivers.split(split_size)):
+        att.append((Q[r]*K[s]).sum(dim=-1))
+
+    att = torch.cat(att, dim=0)
+
+    return att
 
 
 
@@ -255,8 +256,8 @@ def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receive
 
     out = mult_att(att_overlap, K, senders, receivers, split_size)
     
-    att_K=mult_att(attention, K, senders, receivers, split_size)
-    out = out - einops.einsum(out_grad_overlap, att_K, '... , ... c -> ... c')
+    K = mult_att(attention, K, senders, receivers, split_size)
+    out = out - einops.einsum(out_grad_overlap, K, '... , ... c -> ... c')
 
     return  out
 
@@ -305,4 +306,10 @@ def compute_grad_V(grad_out, attention, senders, receivers, split_size):
 
 
 
-attention_message=AttentionMessage.apply
+class AttentionMessage:
+    def __init__(self, split_size=2**12):
+        self.split_size = split_size
+        self.function=AttentionMessageFunction.apply
+
+    def __call__(self, Q, K, V, edge_index):
+        return self.function(Q, K, V, edge_index, self.split_size)

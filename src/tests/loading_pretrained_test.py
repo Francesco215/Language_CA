@@ -51,7 +51,7 @@ class GPT2_loading_functions(unittest.TestCase):
 
 import transformers
 
-from src.attention import attention_message
+from src.attention import AttentionMessage
 pretrained = transformers.GPT2LMHeadModel.from_pretrained('gpt2')
 class GPT2_loading_parameters(unittest.TestCase):
 
@@ -135,6 +135,8 @@ class GPT2_loading_parameters(unittest.TestCase):
             Q=Q.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             K=K.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             V=V.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+            attention_message=AttentionMessage()
+
             out,att=attention_message(Q,K,V,edge_index)
             att=att.permute(1,0)
 
@@ -179,6 +181,7 @@ class GPT2_loading_parameters(unittest.TestCase):
             Q=Q.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             K=K.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
             V=V.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
+            attention_message = AttentionMessage()
             out,att=attention_message(Q,K,V,edge_index)
             att=att.permute(1,0)
 
@@ -253,7 +256,7 @@ class GPT2_loading_parameters(unittest.TestCase):
 
             out_pretrained,att_pretrained=pretrained.transformer.h[i].attn._attn(Qp,Kp,Vp)
             out_pretrained_reshaped=out_pretrained.permute(0,2,1,3).view(sequence_length,n_heads,d_Embedding//n_heads)
-
+            attention_message = AttentionMessage()
             out,att=attention_message(Q,K,V,edge_index)
             
             self.assertTrue(torch.allclose(out,out_pretrained_reshaped,1e-3,1e-3))

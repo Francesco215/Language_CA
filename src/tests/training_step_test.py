@@ -20,7 +20,6 @@ class Back_to_BackTest(unittest.TestCase):
         dV=50
         heads=4
         transformer_layers=2
-        tokenizer=Tokenizer()
 
         vocab_size=tokenizer.vocab_size
 

@@ -1,7 +1,7 @@
 import einops
 import torch
 import unittest
-from src.attention import attention_message, overlaps
+from src.attention import AttentionMessage, overlaps
 from .test_utils import og_attention_message
 class attention_message_utils(unittest.TestCase):
     def og_attention_test(self):
@@ -33,7 +33,7 @@ class attention_message_test(unittest.TestCase):
 
         #edge_index=torch.randint(0, input_size, (2, 10), device=device).unique(dim=1)
         edge_index=torch.randint(0,n_nodes,(2,n_edges)).unique(dim=1)
-
+        attention_message=AttentionMessage()
         x, att = attention_message(Q, K, V, edge_index)
         x = x.mean()
         x.backward()
@@ -62,6 +62,7 @@ class attention_message_test(unittest.TestCase):
         V = torch.randn([n_nodes,heads,embedding_dim_V])*90
 
         edge_index=torch.randint(0,n_nodes,(2,n_edges)).unique(dim=1)
+        attention_message = AttentionMessage()
 
         att,_=attention_message(Q,K,V,edge_index)
         self.assertEqual(V.shape,att.shape)
@@ -77,6 +78,8 @@ class attention_message_gradient_test(unittest.TestCase):
         n_nodes = 13
         n_edges = 133
         heads = 3
+        attention_message=AttentionMessage()
+
 
         Q = torch.randn([n_nodes, heads, embedding_dim])
         K = torch.randn([n_nodes, heads, embedding_dim])
@@ -114,6 +117,8 @@ class attention_message_gradient_test(unittest.TestCase):
         n_nodes = 13
         n_edges = 133
         heads = 3
+        attention_message=AttentionMessage()
+
 
         Q = torch.randn([n_nodes, heads, embedding_dim])
         K = torch.randn([n_nodes, heads, embedding_dim])
@@ -150,6 +155,8 @@ class attention_message_gradient_test(unittest.TestCase):
         n_nodes = 13
         n_edges = 133
         heads = 3
+        attention_message=AttentionMessage()
+
 
         Q = torch.randn([n_nodes, heads, embedding_dim])
         K = torch.randn([n_nodes, heads, embedding_dim])

@@ -26,14 +26,19 @@ class Decoder(nn.Module):
 
 
 class Loss(nn.Module):
-    def __init__(self, decoder:Decoder):
-        #TODO: add mask to the loss
+    def __init__(self, decoder:Decoder, loss_function=nn.CrossEntropyLoss()):
+        """Initializes the loss class
+
+        Args:
+            decoder (Decoder): The decoder function
+            loss_function (nn.Module, optional): The actual loss funciton(x,y).
+                Defaults to nn.CrossEntropyLoss().
+        """
         super().__init__()
 
-        assert isinstance(decoder,Decoder), "decoder must be an instance of the Decoder class"
         self.decoder=decoder 
 
-        self.loss=nn.CrossEntropyLoss() #TODO: check if it computes the loss in the correct channels
+        self.loss=loss_function #TODO: check if it computes the loss in the correct channels
 
     def forward(self, x, y):
         """calculates the loss between the prediction x and the target y
@@ -62,6 +67,7 @@ class GPT2Decoder(nn.Module):
         self.d_Embedding=d_Embedding
         self.tokenizer=tokenizer
         self.device=device
+        self.vocab_size=tokenizer.vocab_size
 
         # Initialize the language model head
         self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)

@@ -51,7 +51,8 @@ class Tokenizer:
 
     def __init__(self,
                  tokenizer="bert-base-cased",
-                 max_length=512
+                 max_length=512,
+                 device="cpu"
         ):
 
         if tokenizer!="bert-base-cased" and tokenizer!="gpt2":
@@ -61,6 +62,7 @@ class Tokenizer:
         self.tokenizer=AutoTokenizer.from_pretrained(tokenizer)
         self.vocab_size=self.tokenizer.vocab_size
         self.max_length=max_length
+        self.device=device
     
     @torch.no_grad()
     def __call__(self,text):
@@ -99,7 +101,7 @@ class Tokenizer:
             
             text_piece=text[cut-self.max_length:]
             tokens+=self.tokenizer(text_piece).input_ids[1:]
-            out.append(torch.tensor(tokens,dtype=torch.long))
+            out.append(torch.tensor(tokens, dtype=torch.long, device=self.device))
         
         if len(out)==1:
             return out[0]
@@ -110,7 +112,7 @@ class Tokenizer:
 
         assert type(list_text)==str, "The input must be a string"
         
-        return self.tokenizer.encode(list_text, return_tensors="pt").view(-1)
+        return self.tokenizer.encode(list_text, return_tensors="pt").to(self.device).view(-1)
 
     def decode(self, token_ids):
         return self.tokenizer.decode(token_ids)

@@ -6,6 +6,7 @@ from .encoder import Encoder
 from .decoder import Decoder
 from .data_loader import Tokenizer
 
+from torch.distributions.categorical import Categorical
 class BlockGenerator:
     def __init__(self, block, *args, **kwargs):
         """Generates a block of the graph attention network
@@ -20,7 +21,7 @@ class BlockGenerator:
 
     def __call__(self):
         out = self.block(*self.args, **self.kwargs)
-        assert isinstance(out,nn.Module)
+        assert isinstance(out, nn.Module)
         return out
     
 
@@ -94,5 +95,56 @@ class GraphAttentionNetwork(nn.Module):
         x=self.tokenizer.decode(x)
 
         return x
+    
+    @torch.no_grad()
+    def generate(self, starting_string, number_of_tokens, graph_maker, temperature:float=1., iterations:int=1):
+        """
+
+        Args:
+            starting_string (str): The starting string
+            number_of_tokens (int): Number of tokens to generate
+            graph_maker (function): A function that takes in the number of tokens and returns a graph
+            temperature (float, optional): Temperature for the softmax. Defaults to 1..
+            iterations (int, optional): Number of times the tranformers are applied to the graph.
+
+        Returns:
+            str: The generated string
+        """
+        for _ in range(number_of_tokens):
+            x = self.tokenizer(starting_string)
+            edge_index = graph_maker(x.shape[0])
+            x = self.calculate_final_embedding(x, edge_index)[-1]  # logits
+
+            temperature=1/1
+            probabilities = Categorical(logits=x/temperature)
+            sample=probabilities.sample().item()
+            last_word=self.tokenizer.decode(sample)
+            print(last_word,end='')
+            starting_string=starting_string+last_word
+        
+        return starting_string
 
 
+    def most_prob_generate(self, starting_string, number_of_tokens, graph_maker, temperature:float=1., iterations:int=1):
+        """
+
+        Args:
+            starting_string (str): The starting string
+            number_of_tokens (int): Number of tokens to generate
+            graph_maker (function): A function that takes in the number of tokens and returns a graph
+            temperature (float, optional): Temperature for the softmax. Defaults to 1..
+            iterations (int, optional): Number of times the tranformers are applied to the graph.
+
+        Returns:
+            str: The generated string
+        """
+        for _ in range(number_of_tokens):
+            x = self.tokenizer(starting_string)
+            edge_index = graph_maker(x.shape[0])
+            x = self.calculate_final_embedding(x, edge_index)[-1]  # logits
+
+            last_word=self.tokenizer.decode(x.argmax().item())
+            print(last_word,end='')
+            starting_string=starting_string+last_word
+        
+        return starting_string

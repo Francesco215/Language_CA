@@ -3,7 +3,7 @@ import torch
 from math import sqrt
 import einops
 
-from src.attention import attention_message
+from src.attention import AttentionMessage
 
 class AttentionBlock(nn.Module):
     """
@@ -11,7 +11,7 @@ class AttentionBlock(nn.Module):
     The transformer architecture is based on the paper "Attention is all you need" by Vaswani et al. (2017).
     """
 
-    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, device='cpu', split_size=2**15):
+    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, device='cpu', split_size=2**12):
 
         super().__init__()
 
@@ -28,6 +28,9 @@ class AttentionBlock(nn.Module):
         # Create the layers for the attention that make the keys, queries and values for each head
         self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, device)
 
+        # Create the attention layer
+        self.attention_message = AttentionMessage(split_size)
+
         # Create the layer that aggregates the heads and outputs the final embedding with a linear layer
         self.feedforward = aggregate_heads(dV, d_Embedding, heads, device)
 
@@ -38,13 +41,8 @@ class AttentionBlock(nn.Module):
         self.n_parameters = self.make_QKV.n_parameters + self.feedforward.n_parameters
 
     def forward(self, x, edge_index):
-        """Here the forward is different than in the figure 1 of attention is all you need.
-           The output of the attention is summed to the input x only at the end of the forward and
-           there is no normalization of the output.
-           There are a few reason to do so:
-              1) When the system reaches stability, we want the output of the transformer block to be zero (or close to zero)
-              2) We don't want the positioning encoding to go away. If we normalize the output of the attention, we will lose the positional encoding.
-              3) The gradient will propagate easly
+        """
+        This function calculates the messages for each node in the graph.
 
         Args:
             x (torch.Tensor): The values of the nodes of the graph
@@ -60,7 +58,7 @@ class AttentionBlock(nn.Module):
 
         # calculate the multi-head attention and activation function
         # TODO: check if residual should be added before or after the linear layer or at all
-        x, _ = attention_message(Q, K, V, edge_index, self.split_size)
+        x, _ = self.attention_message(Q, K, V, edge_index)
 
         # now we merge the output of the heads and apply the final linear layer
         x = self.feedforward(x)
