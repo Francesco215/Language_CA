@@ -227,7 +227,7 @@ def overlaps(Q, K, edge_index, split_size=2**15):
 
     att = []
     for s, r in zip(senders.split(split_size), receivers.split(split_size)):
-        att.append((Q[r]*K[s]).sum(dim=-1))
+        att.append(einops.einsum(Q[r], K[s], '... c, ... c -> ...'))
 
     att = torch.cat(att, dim=0)
 
