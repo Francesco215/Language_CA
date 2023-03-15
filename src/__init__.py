@@ -6,3 +6,5 @@ from .data_loader import Wiki, Tokenizer
 from .graphAN import GraphAttentionNetwork, BlockGenerator
 
 from .GPT2 import GPT2
+
+from .utils import moving_average

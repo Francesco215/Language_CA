@@ -67,9 +67,9 @@ class Tokenizer:
     @torch.no_grad()
     def __call__(self,text):
         if self.tokenizer_name=="bert-base-cased":
-            return self.bert_call(text)
+            return self.bert_call(text).to(self.device)
         if self.tokenizer_name=="gpt2":
-            return self.gpt2_call(text)
+            return self.gpt2_call(text).to(self.device)
 
         raise NotImplementedError("The tokenizer is not implemented")
 

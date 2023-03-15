@@ -109,7 +109,7 @@ class GPT2Encoder(nn.Module):
     def forward(self, x):
         #tokenize if necessary
         if type(x) == str:
-            x = self.tokenizer.encode(x)
+            x = self.tokenizer(x)
 
         #Embedding
         indices = torch.arange(x.shape[0], device=self.device)

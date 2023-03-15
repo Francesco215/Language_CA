@@ -48,20 +48,16 @@ class Loss(nn.Module):
             y (torch.Tensor): target, has the shape (n_nodes,). dtype: torch.long
 
         Returns:
-            torch.Tensor: the loss scalar, has the shape (1,). dtype: torch.float
+            torch.Tensor: the loss scalar. dtype: torch.float
         """
-        #assert x.shape[0]==y.shape[0], "x and y must have the same number of nodes"
-        #assert x.shape[1]==self.decoder.d_Embedding, "x must have the same number of channels as the embedding dimension"
+        assert x.shape[0]==y.shape[0], "x and y must have the same number of nodes"
+        assert x.shape[1]==self.decoder.d_Embedding, "x must have the same number of channels as the embedding dimension"
         assert y.max()<=self.decoder.vocab_size, "y must have the same number of channels as the vocabulary size"
         assert y.dtype==torch.long, "y must be of type torch.long"
 
         x=self.decoder(x)
         return self.loss(x,y)
 
-
-cross_entropy=nn.CrossEntropyLoss()
-def last_word_loss(x,y):
-  return cross_entropy(x[-1],y)
 
 
 class GPT2Decoder(nn.Module):
