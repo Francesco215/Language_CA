@@ -118,7 +118,7 @@ def rotary_encoding(x, base=1e-5, thetas=None):
     #pad with zeros if odd, otherwise we cant pair up consecutive elements
     odd = False
     if x.shape[0] % 2 != 0:
-        zeros = torch.zeros((1, *x.shape[1:]))
+        zeros = torch.zeros((1, *x.shape[1:]), device=x.device)
         x = torch.cat([x, zeros], dim=0)
         odd = True
 
@@ -130,8 +130,8 @@ def rotary_encoding(x, base=1e-5, thetas=None):
 
     #create phases
     if thetas is None:
-        thetas = torch.logspace(0, 1, x1.shape[-1], base=base)
-    indices = torch.arange(0, x1.shape[0])
+        thetas = torch.logspace(0, 1, x1.shape[-1], base=base, device=x.device)
+    indices = torch.arange(0, x1.shape[0], device=x.device)
     phases = einops.einsum(indices, thetas, 'a, c -> a c')
 
     #rotate
