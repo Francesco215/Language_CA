@@ -208,7 +208,7 @@ class transformer_test(unittest.TestCase):
         n_nodes=13
         heads=3
 
-        QKV_maker=make_QKV(embedding_dim,embedding_dim_K,embedding_dim_V,heads)
+        QKV_maker=make_QKV(embedding_dim,embedding_dim_K,embedding_dim_V,heads, True)
 
         x=torch.randn((n_nodes,embedding_dim))
         Q,K,V=QKV_maker(x)

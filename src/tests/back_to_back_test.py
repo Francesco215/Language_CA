@@ -16,8 +16,8 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(embedding_dim,vocab_size)
-        block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads)
+        encoder=Encoder(embedding_dim, tokenizer)
+        block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads, rotary_encoding=True)
 
         network=GraphAttentionNetwork(tokenizer,encoder,block_generator,n_blocks=transformer_layers)
 
@@ -39,7 +39,7 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size = tokenizer.vocab_size
 
-        encoder = Encoder(embedding_dim, vocab_size)
+        encoder = Encoder(embedding_dim, tokenizer)
         block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads)
 
         network = GraphAttentionNetwork(tokenizer, encoder, block_generator, n_blocks=transformer_layers)
@@ -61,7 +61,7 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size = tokenizer.vocab_size
 
-        encoder = Encoder(embedding_dim, vocab_size)
+        encoder = Encoder(embedding_dim, tokenizer)
         block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads)
 
         network = GraphAttentionNetwork(tokenizer, encoder, block_generator, n_blocks=transformer_layers)
@@ -100,7 +100,7 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim, tokenizer)
         block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads)
 
         network=GraphAttentionNetwork(tokenizer,encoder,block_generator,n_blocks=transformer_layers)
@@ -131,7 +131,7 @@ class Back_to_BackTest_from_dataset(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(embedding_dim,vocab_size)
+        encoder=Encoder(embedding_dim, tokenizer)
         block_generator = BlockGenerator(AttentionBlock, embedding_dim, dK, dV, heads)
 
         network=GraphAttentionNetwork(tokenizer,encoder,block_generator,n_blocks=transformer_layers)
