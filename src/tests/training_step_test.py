@@ -23,7 +23,7 @@ class Back_to_BackTest(unittest.TestCase):
 
         vocab_size=tokenizer.vocab_size
 
-        encoder=Encoder(embedding_dim,vocab_size=vocab_size)
+        encoder=Encoder(embedding_dim,tokenizer)
         block_generator=BlockGenerator(AttentionBlock,embedding_dim,dK,dV,heads)
 
         model=GraphAttentionNetwork(tokenizer,encoder,block_generator,n_blocks=transformer_layers)

@@ -9,8 +9,7 @@ class Encoder(nn.Module):
 
     def __init__(self,
                  d_Embedding: int = 512,
-                 base_freq: float = 1e-5,
-                 vocab_size: int = 28996,  # defaults to the bert-base dictionary size,
+                 tokenizer=Tokenizer('gpt2'),  # defaults to the bert-base dictionary size,
                  dropout: float = 0.1,
                  device: str = 'cpu'
                  ):
@@ -29,20 +28,23 @@ class Encoder(nn.Module):
                 TODO: chec if it should be applied to the positional encoding.
         """
         super().__init__()
-
-        #the embedding layer turns each token into a vector of size d_Embedding
-        self.embedding = nn.Embedding(vocab_size, d_Embedding,device=device)
-        self.dropout = nn.Dropout(dropout)
-
-        self.vocab_size = vocab_size
-        self.base_freq = base_freq
+        self.tokenizer = tokenizer
+        self.vocab_size = tokenizer.vocab_size
         self.d_Embedding = d_Embedding
         self.device=device
 
+        #the embedding layer turns each token into a vector of size d_Embedding
+        self.embedding = nn.Embedding(self.vocab_size, d_Embedding,device=device)
+        self.dropout = nn.Dropout(dropout)
+
         #the number of parameters is the number of tokens times the embedding dimention
-        self.n_parameters = vocab_size * d_Embedding
+        self.n_parameters = self.vocab_size * d_Embedding
 
     def forward(self, x):
+        #tokenize if necessary
+        if type(x) == str:
+            x = self.tokenizer(x)
+
         x = self.embedding(x)
         x = self.dropout(x)
         return x
@@ -69,8 +71,7 @@ class GPT2Encoder(nn.Module):
         self.dropout = nn.Dropout(dropout)
 
         # Calculate the number of parameters
-        self.n_parameters = tokenizer.vocab_size * \
-            d_Embedding + max_position_encoding*d_Embedding
+        self.n_parameters = tokenizer.vocab_size * d_Embedding + max_position_encoding * d_Embedding
 
     def forward(self, x):
         #tokenize if necessary
