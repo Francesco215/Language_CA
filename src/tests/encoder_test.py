@@ -31,16 +31,6 @@ class EncoderTest(unittest.TestCase):
         x=torch.randint(0,vocab_size*2,(sequence_length,))
         self.assertRaises(IndexError, encoder, x)
 
-    def test_encoder_shape_batch(self):
-        #this test is not needed, but it is a good example of how to test a batch
-        sequence_length=130
-        vocab_size=100
-        batch_size=10
-        encoder=Encoder(embedding_dim, base_freq, vocab_size)
-
-        x=torch.randint(0,vocab_size-1,(batch_size,sequence_length))
-        #encoded=encoder(x)
-        self.assertRaises(Exception,encoder,x)
     
     def test_values_batch(self):
         sequence_length=130

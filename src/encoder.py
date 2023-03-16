@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+import einops
 
 from src.data_loader import Tokenizer
 
@@ -43,45 +44,10 @@ class Encoder(nn.Module):
 
     def forward(self, x):
         x = self.embedding(x)
-
-        #intuitively the positional encoding should be multiplied, but the ML comunity sums it. maybe its just the same...
-        p_encoding = positional_encoding(x.shape, self.base_freq)
-        x = x+p_encoding
-
         x = self.dropout(x)
-
         return x
 
 
-
-from einops import einsum
-
-@torch.no_grad()
-def positional_encoding(shape:torch.tensor,base_freq:float=1e-5)->torch.Tensor:
-    """This function gives the positional encoding, it's slightly different then the one defined in
-        the paper "Attention is all you need"
-        TODO: test everything
-    Args:
-        shape (torch.tensor): (l,c) l=sequence lenght, c=channels
-        base_freq (float, optional): The base fequency of th sinusoidal funcion.
-            Defaults to 1e-5.
-
-    Returns:
-        torch.Tensor: Positional encoding with the same shape as the input (l,c)
-    """
-    assert len(shape) == 2, "shape must be a tuple of lenght 2, there are no batches here!"
-    n_nodes, n_channels = shape
-    assert n_nodes != 1 and n_channels != 1
-
-    pos = torch.arange(0, n_channels).repeat(n_nodes, 1)
-
-
-    mult = torch.logspace(0, 2, n_nodes, base=base_freq)
-
-    elements = einsum(pos, mult, 'l c, l -> l c')
-
-    #I don't use the cosine term because I don't really think it's very useful. I will double check in any case
-    return torch.sin(elements)
 
 
 class GPT2Encoder(nn.Module):
@@ -128,3 +94,55 @@ class GPT2Encoder(nn.Module):
         # Load the embedding layer
         self.embedding.weight = weight_token_embedding.weight
         self.positional_encoding.weight = weight_positional_embedding.weight
+
+
+
+
+
+
+def rotary_encoding(x, base=1e-5, thetas=None):
+    """Applies a rotary embedding to a tensor.
+
+    Args:
+        x (torch.Tensor): Tensor to apply the rotary embedding to.
+        base (float, optional): Base of the logarithm. Defaults to 1e-5.
+        thetas (torch.Tensor, optional): Tensor containing the thetas.
+            It can be used in case you want to apply learned positional encoding.
+            Defaults to None.
+
+    Returns:
+        torch.Tensor: Tensor with the rotary embedding applied.
+    """
+
+    #pad with zeros if odd, otherwise we cant pair up consecutive elements
+    odd = False
+    if x.shape[0] % 2 != 0:
+        zeros = torch.zeros((1, *x.shape[1:]))
+        x = torch.cat([x, zeros], dim=0)
+        odd = True
+
+    #pair up consecutive elements
+    x1 = einops.rearrange(x, '(n1 n2) ... -> n1 n2 ...', n2=2)
+
+    #pair up elements and swap them
+    x2 = x1[:, torch.tensor([1, 0])]
+
+    #create phases
+    if thetas is None:
+        thetas = torch.logspace(0, 1, x1.shape[-1], base=base)
+    indices = torch.arange(0, x1.shape[0])
+    phases = einops.einsum(indices, thetas, 'a, c -> a c')
+
+    #rotate
+    cos = torch.cos(phases)
+    sin = torch.sin(phases)
+
+    #apply rotation
+    x1 = einops.einsum(x1, cos, 'a ... c, a c -> a ... c')
+    x2 = einops.einsum(x2, sin, 'a ... c, a c -> a ... c')
+    x = x1+x2
+    x = einops.rearrange(x, 'n1 n2 ...->(n1 n2) ...')
+
+    if odd:
+        return x[:-1]  # remove padding if odd
+    return x

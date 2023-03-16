@@ -41,7 +41,7 @@ class GPT2_Block(nn.Module):
         self.split_size=split_size
         
         # Initialize the transformer block and the MLP
-        self.attention_block=AttentionBlockGPT2(d_Embedding, dK, dV, heads, dropout, device, split_size)
+        self.attention_block=AttentionBlockGPT2(d_Embedding, dK, dV, heads, dropout, False, device, split_size)
         self.MLP=GPT2MLP(d_Embedding, intermediate_size, dropout, device)
 
         # Layer normalization

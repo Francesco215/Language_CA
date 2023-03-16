@@ -43,7 +43,6 @@ class GraphAttentionNetwork(nn.Module):
         assert isinstance(tokenizer,   Tokenizer), "tokenizer must be an instance of the Tokenizer class"
         assert isinstance(block_generator, BlockGenerator), "transformer cannot be an instance of the TransformerBlock class"
 
-        assert tokenizer.device == encoder.device == decoder.device, "The device of tokenizer, encoder and decoder must be the same, got {} {} {}".format(tokenizer.device, encoder.device, decoder.device)
 
         self.tokenizer=tokenizer
         
@@ -52,10 +51,12 @@ class GraphAttentionNetwork(nn.Module):
         self.n_blocks=n_blocks
         self.device=encoder.device
 
-        if decoder is None:        
+        if decoder == None:        
             self.decoder = Decoder(self.encoder)
         else:
             self.decoder = decoder
+
+        assert tokenizer.device == encoder.device == self.decoder.device, "The device of tokenizer, encoder and decoder must be the same, got {} {} {}".format(tokenizer.device, encoder.device, decoder.device)
 
         self.transformer_blocks=nn.ModuleList([block_generator() for _ in range(n_blocks)])
 

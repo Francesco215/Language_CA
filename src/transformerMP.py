@@ -1,7 +1,5 @@
 from torch import nn
 import torch
-from math import sqrt
-import einops
 
 from src.attention import AttentionMessage
 
@@ -11,7 +9,7 @@ class AttentionBlock(nn.Module):
     The transformer architecture is based on the paper "Attention is all you need" by Vaswani et al. (2017).
     """
 
-    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, device='cpu', split_size=2**12):
+    def __init__(self, d_Embedding=512, dK=1024, dV=1024, heads=8, dropout=0.0, rotary_encoding=False, device='cpu', split_size=2**12):
 
         super().__init__()
 
@@ -22,11 +20,12 @@ class AttentionBlock(nn.Module):
         self.dQ = dK
         self.heads = heads
         self.dropout = dropout
+        self.rotary_embedding = rotary_encoding
         self.device = device
         self.split_size = split_size
 
         # Create the layers for the attention that make the keys, queries and values for each head
-        self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, device)
+        self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, rotary_encoding, device)
 
         # Create the attention layer
         self.attention_message = AttentionMessage(split_size)
@@ -69,14 +68,11 @@ class AttentionBlock(nn.Module):
         return x
 
 
-
-
-
-
+from src.encoder import rotary_encoding
 # Utilis function to make the code more readable. they are just to make the generation of K,Q,V
 # with multi-head and going back to the embedding much easier to read
 class make_QKV(nn.Linear):
-    def __init__(self, d_Embedding, dK, dV, heads, device='cpu'):
+    def __init__(self, d_Embedding, dK, dV, heads, rotary_encoding=False, device='cpu'):
         out_features = (2*dK+dV)*heads
         super().__init__(d_Embedding, out_features, device=device)
 
@@ -84,6 +80,7 @@ class make_QKV(nn.Linear):
         self.dK = dK
         self.dV = dV
         self.heads = heads
+        self.rotary_encoding = rotary_encoding
 
         self.split_shape = (dK*heads, dK*heads, dV*heads)
 
@@ -96,6 +93,10 @@ class make_QKV(nn.Linear):
         Q = Q.view(-1, self.heads, self.dK)
         K = K.view(-1, self.heads, self.dK)
         V = V.view(-1, self.heads, self.dV)
+
+        if self.rotary_encoding:
+            Q = rotary_encoding(Q)
+            K = rotary_encoding(K)
 
         return Q, K, V
 
