@@ -5,7 +5,7 @@ import einops
 from src.data_loader import Tokenizer
 
 class Encoder(nn.Module):
-    """Layer to turn tokens into word embeddings, it also supports positional embeddings"""
+    """Layer to turn tokens into word embeddings"""
 
     def __init__(self,
                  d_Embedding: int = 512,
@@ -13,19 +13,16 @@ class Encoder(nn.Module):
                  dropout: float = 0.1,
                  device: str = 'cpu'
                  ):
-        """We first turn tokens into embedding via the self.emb function which turns each token,
-        which is a scalar, into n_embedding dimentional vector.
-        The input vector has size where L is the sequence lenght.
+        """
+        This funciton takes the tokens and turns them into word embeddings.
+        if the input is a string, it will be tokenized using the tokenizer.
          
 
         Args:
             d_embedding (int):The size of the embedding vector.
-            base_freq (float, optional): The base frequency of sinusoidal
-                functions for the positional encoding. (default: 1e-4)
-            vocab_size (int, optional): The size of the dictionary of the tokenizer.
-                default: 28996 which is equal to the bert-base dictionary size
+            tokenizer (Tokenizer, optional): The tokenizer to use. Defaults to Tokenizer('gpt2').
             dropout (float, optional): The dropout rate. Defaults to 0.1.
-                TODO: chec if it should be applied to the positional encoding.
+            device (str, optional): The device to use. Defaults to 'cpu'.
         """
         super().__init__()
         self.tokenizer = tokenizer
@@ -52,23 +49,16 @@ class Encoder(nn.Module):
 
 
 
-class GPT2Encoder(nn.Module):
+class GPT2Encoder(Encoder):
 
     def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), max_position_encoding=1024, dropout=0.0, device='cpu'):
-        super().__init__()
+        super().__init__(d_Embedding,tokenizer,dropout,device)
 
         # Save the parameters
-        self.tokenizer = tokenizer
-        self.d_Embedding = d_Embedding
         self.max_position_encoding = max_position_encoding
-        self.device = device
-        self.vocab_size = tokenizer.vocab_size
 
-        # Initialize the embedding layer
-        self.embedding = nn.Embedding(tokenizer.vocab_size, d_Embedding, device=device)
+        # Add positional encoding
         self.positional_encoding = nn.Embedding(max_position_encoding, d_Embedding, device=device)
-
-        self.dropout = nn.Dropout(dropout)
 
         # Calculate the number of parameters
         self.n_parameters = tokenizer.vocab_size * d_Embedding + max_position_encoding * d_Embedding
@@ -77,6 +67,8 @@ class GPT2Encoder(nn.Module):
         #tokenize if necessary
         if type(x) == str:
             x = self.tokenizer(x)
+
+        assert x.shape[0]<self.max_position_encoding, f"The sequence is too long for the positional encoding, got {x.shape[0]} but the maximum is {self.max_position_encoding}"
 
         #Embedding
         indices = torch.arange(x.shape[0], device=self.device)
