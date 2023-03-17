@@ -3,12 +3,14 @@ from src import Tokenizer
 
 from torch import nn
 
+from torch.nn import functional as F
+
 
 from src.GPT2 import GPT2, GPT2_Block, Conv1D_to_Linear
 from src import linear_unidirectional_graph_maker
 from transformers.modeling_utils import Conv1D
 from src.encoder import GPT2Encoder
-from src.decoder import GPT2Decoder
+from src.decoder import GPT2Decoder, Loss
 
 from src.graphAN import BlockGenerator
 
@@ -373,4 +375,40 @@ class GPT2_loading_parameters(unittest.TestCase):
 
         self.assertTrue(torch.allclose(x,x_p,1e-3,1e-3))
     
+    def test_GPT2_gradient(self):
+        """This funciton tests the gradient by comparing the gradient of the GPT2 encoder to the one of my GPT2 encoder.
+        The only way for this to work is if all the gradients in between are the same.
+        """
+        tokenizer = Tokenizer('gpt2')
+
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder()
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
+        graph_maker=linear_unidirectional_graph_maker(40)
+        loss_function=Loss(decoder)
+
+        model.load_from_original(pretrained)
+
+        text = "Legolas and Gimli advanced on the orcs, raising their weapons with a harrowing war cry."
+
+        nodes = tokenizer(text)
+        nodes, target = nodes[:-3], nodes[1:-2]
+        edge_index=graph_maker(nodes.shape[0])
+
+        x_p=pretrained(nodes)[0] #logtis
+        x=model(nodes,edge_index) #logits
+
+        loss = loss_function(x, target)
+        loss.backward()
+
+        grad=model.encoder.embedding.weight.grad
+        
+        loss_p = F.cross_entropy(x_p, target)
+        loss_p.backward()
+
+        grad_p=pretrained.transformer.wte.weight.grad
+
+        self.assertTrue(torch.allclose(grad,grad_p,1e-3,1e-3))
+
 
