@@ -19,7 +19,7 @@ class GPT2(GraphAttentionNetwork):
             self.transformer_blocks[i].load_from_original(transformer_heads[i])
 
         # Load the language model head
-        self.decoder.load_from_original(pretrained_model.transformer.ln_f, pretrained_model.lm_head)
+        self.decoder.load_from_original(pretrained_model.transformer.ln_f)
 
 
 

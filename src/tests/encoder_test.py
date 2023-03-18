@@ -2,8 +2,10 @@ import unittest
 from src import Encoder,graph_initialization
 
 import torch
+import numpy as np
 
 from src.data_loader import Tokenizer
+from src.encoder import make_sin_cos
 
 
 #TODO: add some kind of test for the positional encoding
@@ -67,3 +69,27 @@ class EncoderTest(unittest.TestCase):
         edges=graph_initialization.random_graph_maker(window_width=1,avg_n_edges=5)(sequence_length)
         encoded=encoder(x)
         self.assertEqual(type(encoded),torch.Tensor)
+
+    def test_sin_cos(self):
+        n,d=50,100
+        shape=(n,d)
+        base=1e-5
+
+        sin,cos=make_sin_cos(shape,base)
+
+        self.assertEqual(sin.shape,shape)
+        self.assertEqual(cos.shape,shape)
+        
+        for _ in range(20):
+            i0=np.random.randint(0,n)
+            i1=np.random.randint(0,d)
+
+            exponent=i1/(d-1)
+
+            theta=torch.tensor(i0*base**exponent)
+
+            expected_sin=torch.sin(theta)
+            expected_cos=torch.cos(theta)
+
+            self.assertTrue(torch.isclose(sin[i0,i1],expected_sin,1e-3,1e-3))
+            self.assertTrue(torch.isclose(cos[i0,i1],expected_cos,1e-3,1e-3))

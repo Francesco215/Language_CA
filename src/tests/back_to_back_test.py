@@ -158,7 +158,7 @@ class GPT2BacktoBack(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder=GPT2Encoder(embedding_dim,tokenizer)
-        decoder=GPT2Decoder(embedding_dim,tokenizer)
+        decoder=GPT2Decoder(encoder)
         block_generator=BlockGenerator(GPT2_Block,embedding_dim, dK, dV, heads, intermediate_size, dropout)
         network= GPT2(tokenizer,encoder,block_generator,decoder,12)
 
@@ -190,7 +190,7 @@ class GPT2BacktoBack(unittest.TestCase):
         vocab_size=tokenizer.vocab_size
 
         encoder = GPT2Encoder(embedding_dim, tokenizer)
-        decoder = GPT2Decoder(embedding_dim, tokenizer)
+        decoder = GPT2Decoder(encoder)
         block_generator = BlockGenerator(GPT2_Block, embedding_dim, dK, dV, heads, intermediate_size, dropout)
         network = GPT2(tokenizer, encoder, block_generator, decoder, 12)
 

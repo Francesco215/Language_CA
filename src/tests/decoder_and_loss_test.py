@@ -20,6 +20,25 @@ class DecoderTest(unittest.TestCase):
         y = decoder(x)
         self.assertEqual(y.shape, (sequence_length, vocab_size))
 
+
+    def test_encoder_decoder(self):
+        tokenizer = Tokenizer("bert-base-cased", max_length=50)
+
+        hidden_dim = 206
+        embedding_dim = 103
+        vocab_size = tokenizer.vocab_size
+        sequence_length = 9
+
+
+        encoder = Encoder(embedding_dim, tokenizer)
+        decoder = Decoder(encoder)
+        
+        
+        x = torch.randint(0,vocab_size, (sequence_length,))
+        y = decoder(encoder(x))
+
+        self.assertTrue((y.argmax(dim=-1)==x).all())
+
 class LossTest(unittest.TestCase):
     def test_loss(self):
         tokenizer = Tokenizer("bert-base-cased", max_length=50)

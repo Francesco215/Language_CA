@@ -119,16 +119,10 @@ def rotary_encoding(x, base=1e-5, thetas=None):
 
     #pair up elements and swap them
     x2 = x1[:, torch.tensor([1, 0])]
+    x2[:, 0] = -x2[:, 0]
 
     #create phases
-    if thetas is None:
-        thetas = torch.logspace(0, 1, x1.shape[-1], base=base, device=x.device)
-    indices = torch.arange(0, x1.shape[0], device=x.device)
-    phases = einops.einsum(indices, thetas, 'a, c -> a c')
-
-    #rotate
-    cos = torch.cos(phases)
-    sin = torch.sin(phases)
+    sin, cos = make_sin_cos(x1.shape,base,thetas,device=x.device)
 
     #apply rotation
     x1 = einops.einsum(x1, cos, 'a ... c, a c -> a ... c')
@@ -139,3 +133,18 @@ def rotary_encoding(x, base=1e-5, thetas=None):
     if odd:
         return x[:-1]  # remove padding if odd
     return x
+
+
+def make_sin_cos(shape, base=1e-5, thetas=None, device='cpu'):    
+    if thetas is None:
+        thetas = torch.logspace(0, 1, shape[-1], base, device=device)
+    indices = torch.arange(0, shape[0], device=device)
+    phases = einops.einsum(indices, thetas, 'a, c -> a c')
+
+    #rotate
+    sin = torch.sin(phases)
+    cos = torch.cos(phases)
+
+    #zetas = torch.linspace(gamma,2*x.shape[-1]+gamma,x.shape[-1],device=x.device)/(1+gamma)
+
+    return sin, cos

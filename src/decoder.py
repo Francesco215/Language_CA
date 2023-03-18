@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from src.data_loader import Tokenizer
 
-from src.encoder import Encoder
+from src.encoder import Encoder, GPT2Encoder
 import torch.nn.functional as F
 
 class Decoder(nn.Module):
@@ -10,18 +10,18 @@ class Decoder(nn.Module):
 
     def __init__(self,encoder: Encoder):
         super().__init__()
-        self.encoder = encoder.embedding
+        self.encoder = encoder
         self.d_Embedding=encoder.d_Embedding
         self.vocab_size=encoder.vocab_size
         self.n_parameters=encoder.n_parameters
         self.device=encoder.device
 
-    def forward(self, input: torch.Tensor) -> torch.Tensor:
-        return F.linear(input, self.encoder.weight)
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
+        return F.linear(x, self.weight)
 
     @property
     def weight(self) -> torch.Tensor:
-        return self.encoder.weight
+        return self.encoder.embedding.weight
 
 
 
@@ -60,32 +60,20 @@ class Loss(nn.Module):
 
 
 
-class GPT2Decoder(nn.Module):
-    def __init__(self, d_Embedding=768, tokenizer=Tokenizer('gpt2'), device='cpu') -> None:
-        super().__init__()
-
-        self.d_Embedding=d_Embedding
-        self.tokenizer=tokenizer
-        self.device=device
-        self.vocab_size=tokenizer.vocab_size
+class GPT2Decoder(Decoder):
+    def __init__(self, encoder:GPT2Encoder):
+        super().__init__(encoder)
 
         # Initialize the language model head
-        self.layer_norm=nn.LayerNorm(d_Embedding, eps = 1e-5, elementwise_affine=True, device=device)
-        self.language_model_head=nn.Linear(d_Embedding, tokenizer.vocab_size, bias=False, device=device)
-
+        self.layer_norm=nn.LayerNorm(self.d_Embedding, eps = 1e-5, elementwise_affine=True, device=self.device)
         # Calculate the number of parameters
-        self.n_parameters=d_Embedding*tokenizer.vocab_size
+        self.n_parameters+=self.layer_norm.weight.numel()+self.layer_norm.bias.numel()
 
     def forward(self, x):
-        x=self.layer_norm(x)
-        x=self.language_model_head(x)
+        x = self.layer_norm(x)
+        x = super().forward(x)
 
         return x
     
-    def load_from_original(self, ln_f, language_model_head):
+    def load_from_original(self, ln_f):
         self.layer_norm=ln_f
-
-        assert self.language_model_head.weight.shape==language_model_head.weight.shape
-
-        # Load the language model head
-        self.language_model_head.weight=language_model_head.weight
