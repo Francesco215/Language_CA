@@ -26,6 +26,7 @@ class Wiki(Dataset):
         self.device=device
 
         self.index=0
+        self.indices=torch.randperm(len(self.dataset))
 
     def __len__(self):
         return len(self.dataset)
@@ -36,9 +37,9 @@ class Wiki(Dataset):
         edge_index = []
         targets = []
 
-        while(current_len <= self.max_len_input):
-
-            text = self.dataset[self.index]['text']
+        while(current_len <= self.max_len_input and self.index < len(self.dataset)):
+            index=self.indices[self.index].item()
+            text = self.dataset[index]['text']
             text = self.tokenizer(text).to(self.device)
 
             n = text[:-1]
@@ -57,8 +58,6 @@ class Wiki(Dataset):
 
             self.index += 1
 
-            if self.index >= len(self.dataset):
-                self.index=0
 
         nodes, edge_index = batch_graphs(nodes, edge_index)
         targets = torch.cat(targets, dim=0)
@@ -86,6 +85,47 @@ class Wiki(Dataset):
     
     def get_original_text(self,idx):
         return self.datatet[idx]['text']
+
+
+@torch.no_grad()
+def validation(validation_set, model, loss_function, graph_maker, n_samples=30, ramdom=True, starting_index=0):
+    """ This function is used to evaluate the model on the validation set.
+
+    Args:
+        validation_set (huggingface dataset): the validation set
+        model (torch.nn.Module): the model to be evaluated
+        loss_function (torch.nn.Module): the loss function to be used
+        graph_maker (Graph_maker): the graph maker to be used
+        n_samples (int, optional): the number of samples to be used. Defaults to 30.
+        ramdom (bool, optional): if True, the samples are chosen randomly, else they are taken sequentially from the starting index.
+            Defaults to True.
+        starting_index (int, optional): the starting index of the samples. Defaults to 0.
+     
+    Returns:
+        torch.tensor: the average loss on the validation set
+    """
+
+    loss = torch.tensor([0.], device=model.device)
+    for i in range(starting_index, starting_index+n_samples):
+
+        if ramdom:
+            i = np.random.randint(0, len(validation_set))
+
+        text = validation_set[i]['text']
+        x = model.tokenizer(text)
+        if isinstance(model, GPT2):
+            x = x[:1023]
+
+        nodes = x[:-1]
+        target = x[1:]
+
+        edge_index = graph_maker(nodes.shape[0])
+
+        out = model(nodes, edge_index)
+        loss += loss_function(out, target)
+
+    return loss/n_samples
+
 
 
 
@@ -158,3 +198,5 @@ class Tokenizer:
 
     def decode(self, token_ids):
         return self.tokenizer.decode(token_ids)
+    
+
