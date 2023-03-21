@@ -1,55 +1,50 @@
 import torch
-from src.attention import attention_message, overlaps
-from src.tests.test_utils import og_attention_message
-
-import einops
-
-
-attention_message
+from torch import nn
+import transformers
+from transformers import AutoTokenizer
+from src.encoder import Encoder, GPT2Encoder
+from src.decoder import Decoder, GPT2Decoder
+from src.graph_initialization import linear_unidirectional_graph_maker
+from src.graphAN import GraphAttentionNetwork, BlockGenerator
+from src.data_loader import Tokenizer
+from src.GPT2 import GPT2_Block, GPT2
 
 device='cpu'
-heads=2
-input_size=3
-
-d_emb=2
-
-Q = torch.randn((input_size, heads, d_emb), device=device)
-K = torch.randn((input_size, heads, d_emb), device=device)
-V = torch.randn((input_size, heads, d_emb), device=device)
-Q1 = Q.clone()
-
-Q.requires_grad=True
-Q.retain_grad()
+ce_loss = nn.CrossEntropyLoss()
 
 
+pretrained = transformers.GPT2LMHeadModel.from_pretrained('gpt2').to(device)
 
-#edge_index=torch.randint(0, input_size, (2, 10), device=device).unique(dim=1)
-edge_index=torch.tensor([[0, 1, 1, 2, 2, 1],
-                         [0, 0, 1, 0, 1, 2]])
-senders, receivers = edge_index
-#print(edge_index)
-ovl = overlaps(Q, K, edge_index)
+tokenizer=AutoTokenizer.from_pretrained('gpt2')
+text = "The capital of France is Paris, and"
+encoded_text=tokenizer.encode(text,add_special_tokens=False,return_tensors='pt').to(device)
 
-x, att = attention_message(Q, K, V, edge_index)
-ovl = overlaps(Q,K,edge_index)
-x=x.mean()
-x.backward()
+for _ in range(10):
+    logits_last_token=pretrained(encoded_text).logits[0][-1]
+    last_token=logits_last_token.argmax(-1)
+    encoded_text=torch.cat((encoded_text,last_token.view(1,1)),dim=1)
 
+print(tokenizer.decode(encoded_text[0]))
 
-
-Q1.requires_grad=True
-Q1.retain_grad()
+print('\n\n')
 
 
-x1,att1=og_attention_message(Q1, K, V, edge_index)
-ovl1=einops.einsum(K, Q, 'n h d, m h d -> n m h')
-x1=x1.mean()
-x1.backward()
+tokenizer = Tokenizer('gpt2',device=device)
+encoder = GPT2Encoder()
+decoder = GPT2Decoder(encoder)
+block_generator = BlockGenerator(GPT2_Block)
+model = GPT2(tokenizer, encoder, block_generator, decoder)
 
 
-for i in range(edge_index.shape[1]):
-    print('------------------')
-    print(att[i])
-    print(att1[senders[i],receivers[i]])
+model.load_from_original(pretrained)
 
-print(x,x1)
+graph_maker = linear_unidirectional_graph_maker(1000)
+
+encoded_text=encoded_text[0]
+edge_index=graph_maker(encoded_text.shape[0])
+
+out=model.generate_most_prob(text,10,graph_maker)
+
+print(out)
+
+

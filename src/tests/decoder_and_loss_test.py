@@ -43,7 +43,6 @@ class LossTest(unittest.TestCase):
     def test_loss(self):
         tokenizer = Tokenizer("bert-base-cased", max_length=50)
 
-        hidden_dim = 206
         embedding_dim = 103
         vocab_size = tokenizer.vocab_size
         sequence_length = 10
@@ -56,4 +55,38 @@ class LossTest(unittest.TestCase):
         y_hat = loss(x, y)
         self.assertEqual(y_hat.shape, torch.Size([]))
 
+    def test_cross_entropy_function(self):
+        tokenizer = Tokenizer("bert-base-cased", max_length=50)
 
+        embedding_dim = 103
+        vocab_size = tokenizer.vocab_size
+        sequence_length = 10
+
+        
+        encoder = Encoder(embedding_dim, tokenizer)
+        decoder = Decoder(encoder)
+
+        y = torch.randint(0,vocab_size,(sequence_length,))
+        x = torch.randn(sequence_length, embedding_dim)
+
+        loss=Loss(decoder)
+        l1 = loss(x, y)
+
+
+        def categorical_cross_entropy(x, target):
+            assert target.dtype == torch.int64
+
+
+            logsoftmax=torch.nn.LogSoftmax(dim=-1)
+
+            log_pred=logsoftmax(decoder(x))
+            target=torch.nn.functional.one_hot(target, num_classes=vocab_size)
+            loss = -torch.mean((target * log_pred).sum(dim=-1))
+            
+            return loss
+        
+
+        l2 = categorical_cross_entropy(x, y)
+        self.assertTrue(torch.isclose(l2, l1, 1e-3, 1e-3))
+
+    

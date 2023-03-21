@@ -10,6 +10,9 @@ class Decoder(nn.Module):
 
     def __init__(self,encoder: Encoder):
         super().__init__()
+
+        assert isinstance(encoder, Encoder), "encoder must be of type Encoder"
+
         self.encoder = encoder
         self.d_Embedding=encoder.d_Embedding
         self.vocab_size=encoder.vocab_size

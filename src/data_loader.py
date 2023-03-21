@@ -21,9 +21,49 @@ class Wiki(Dataset):
         self.tokenizer=tokenizer
         self.graph_maker=graph_maker
         self.transform=transform
+        self.max_len_input=2e3
+        self.overflow_len=6000
+        self.device=device
+
+        self.index=0
 
     def __len__(self):
         return len(self.dataset)
+    
+    def take_text_in_order(self):
+        current_len = 0
+        nodes = []
+        edge_index = []
+        targets = []
+
+        while(current_len <= self.max_len_input):
+
+            text = self.dataset[self.index]['text']
+            text = self.tokenizer(text).to(self.device)
+
+            n = text[:-1]
+            t = text[1:]
+
+            if current_len + n.shape[0] > self.overflow_len:
+                cutoff = self.overflow_len - current_len - n.shape[0]
+                n = n[:cutoff]
+                t = t[:cutoff]
+
+            current_len += n.shape[0]
+
+            nodes.append(n)
+            targets.append(t)
+            edge_index.append(self.graph_maker(n.shape[0]))
+
+            self.index += 1
+
+            if self.index >= len(self.dataset):
+                self.index=0
+
+        nodes, edge_index = batch_graphs(nodes, edge_index)
+        targets = torch.cat(targets, dim=0)
+
+        return nodes, edge_index, targets
 
     @torch.no_grad()
     def __getitem__(self,idx):
@@ -46,6 +86,8 @@ class Wiki(Dataset):
     
     def get_original_text(self,idx):
         return self.datatet[idx]['text']
+
+
 
 class Tokenizer:
 

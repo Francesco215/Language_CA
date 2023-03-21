@@ -40,21 +40,23 @@ class GraphAttentionNetwork(nn.Module):
         
         super().__init__()
 
+        assert isinstance(encoder, Encoder), "encoder must be an instance of the Encoder class"
         assert isinstance(tokenizer,   Tokenizer), "tokenizer must be an instance of the Tokenizer class"
         assert isinstance(block_generator, BlockGenerator), "transformer cannot be an instance of the TransformerBlock class"
 
 
         self.tokenizer=tokenizer
-        
         self.encoder = encoder
         self.d_Embedding=encoder.d_Embedding
         self.n_blocks=n_blocks
         self.device=encoder.device
+        self.losses=[]
 
         if decoder == None:        
             self.decoder = Decoder(self.encoder)
         else:
             self.decoder = decoder
+            assert isinstance(decoder, Decoder), "decoder must be an instance of the Decoder class"
 
         assert tokenizer.device == encoder.device == self.decoder.device, "The device of tokenizer, encoder and decoder must be the same, got {} {} {}".format(tokenizer.device, encoder.device, decoder.device)
 
@@ -113,22 +115,20 @@ class GraphAttentionNetwork(nn.Module):
         Returns:
             str: The generated string
         """
+        x = self.tokenizer(starting_string)
         for _ in range(number_of_tokens):
-            x = self.tokenizer(starting_string)
             edge_index = graph_maker(x.shape[0])
-            x = self.calculate_final_embedding(x, edge_index)[-1]  # logits
+            last_word = self.calculate_final_embedding(x, edge_index)[-1]  # logits
 
             temperature=1/1
-            probabilities = Categorical(logits=x/temperature)
+            probabilities = Categorical(logits=last_word/temperature)
             sample=probabilities.sample().item()
-            last_word=self.tokenizer.decode(sample)
-            print(last_word,end='')
-            starting_string=starting_string+last_word
-        
-        return starting_string
+            x=torch.cat((x,last_word.view(1)),dim=0)
+
+        return self.tokenizer.decode(x)
 
 
-    def most_prob_generate(self, starting_string, number_of_tokens, graph_maker, temperature:float=1., iterations:int=1):
+    def generate_most_prob(self, starting_string, number_of_tokens, graph_maker, iterations:int=1):
         """
 
         Args:
@@ -141,13 +141,29 @@ class GraphAttentionNetwork(nn.Module):
         Returns:
             str: The generated string
         """
+        x = self.tokenizer(starting_string)
         for _ in range(number_of_tokens):
-            x = self.tokenizer(starting_string)
             edge_index = graph_maker(x.shape[0])
-            x = self.calculate_final_embedding(x, edge_index)[-1]  # logits
+            last_word = self.calculate_final_embedding(x, edge_index)[-1].argmax()  # logits
 
-            last_word=self.tokenizer.decode(x.argmax().item())
-            print(last_word,end='')
-            starting_string=starting_string+last_word
+            x=torch.cat((x,last_word.view(1)),dim=0)
         
-        return starting_string
+        return self.tokenizer.decode(x)
+
+
+    def save(self,optimizer,scheduler,path):
+        torch.save({
+            'model_state_dict': self.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict(),
+            'scheduler_state_dict': scheduler.state_dict(),
+            'losses': self.losses,
+            }, path)
+        
+    def load(self,optimizer,scheduler,path):
+        file = torch.load(path, map_location=self.device)
+        self.load_state_dict(file['model_state_dict'])
+        optimizer.load_state_dict(file['optimizer_state_dict'])
+        scheduler.load_state_dict(file['scheduler_state_dict'])
+        self.losses = file['losses']
+
+        return optimizer, scheduler

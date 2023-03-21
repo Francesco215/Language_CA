@@ -6,4 +6,6 @@
 *toml
 *.DS_Store
 
+experiment*
+
 src/modelling_GPT2.py
