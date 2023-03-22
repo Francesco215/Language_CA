@@ -1,10 +1,12 @@
 from torch.utils.data import Dataset
-from transformers import AutoTokenizer
+import numpy as np
 import torch
-from .graph_initialization import *
+from src.GPT2 import GPT2
 
+
+from src.graph_initialization import Graph_maker, batch_graphs
 class Wiki(Dataset):
-    def __init__(self, dataset, tokenizer, graph_maker, transform = None, device="cpu"):
+    def __init__(self, dataset, tokenizer, graph_maker, transform = None, min_len_input=2e3, overflow_len=6000, device="cpu"):
         """Creates a dataset class from a the hugging cast dataset of wikipedia 
             (https://huggingface.co/datasets/wikipedia)
 
@@ -21,8 +23,8 @@ class Wiki(Dataset):
         self.tokenizer=tokenizer
         self.graph_maker=graph_maker
         self.transform=transform
-        self.max_len_input=2e3
-        self.overflow_len=6000
+        self.min_len_input=min_len_input
+        self.overflow_len=overflow_len
         self.device=device
 
         self.index=0
@@ -37,7 +39,7 @@ class Wiki(Dataset):
         edge_index = []
         targets = []
 
-        while(current_len <= self.max_len_input and self.index < len(self.dataset)):
+        while(current_len <= self.min_len_input and self.index < len(self.dataset)):
             index=self.indices[self.index].item()
             text = self.dataset[index]['text']
             text = self.tokenizer(text).to(self.device)
@@ -125,78 +127,4 @@ def validation(validation_set, model, loss_function, graph_maker, n_samples=30, 
         loss += loss_function(out, target)
 
     return loss/n_samples
-
-
-
-
-class Tokenizer:
-
-    def __init__(self,
-                 tokenizer="bert-base-cased",
-                 max_length=512,
-                 device="cpu"
-        ):
-
-        if tokenizer!="bert-base-cased" and tokenizer!="gpt2":
-            raise Warning("The tokenizer is bert-base-cased, using a different tokenizer may cause problems.\n Read the TODO in the Tokenizer class in src/data_loader.py")
-
-        self.tokenizer_name=tokenizer
-        self.tokenizer=AutoTokenizer.from_pretrained(tokenizer)
-        self.vocab_size=self.tokenizer.vocab_size
-        self.max_length=max_length
-        self.device=device
-    
-    @torch.no_grad()
-    def __call__(self,text):
-        if self.tokenizer_name=="bert-base-cased":
-            return self.bert_call(text)
-        if self.tokenizer_name=="gpt2":
-            return self.gpt2_call(text).to(self.device)
-
-        raise NotImplementedError("The tokenizer is not implemented")
-
-    def bert_call(self, list_text):
-        """This function is complete garbage, it should be completely rewritten
-        the sole reason as to why this function exists is becouse tokenizers have a max input length
-        
-        args:
-            list_text (str or list of str): the text to be tokenized
-
-        returns:
-            list of torch.tensor: the tokenized text
-        """
-        if type(list_text)!=str and type(list_text)!=list:
-            raise TypeError("The input must be a string or a list of strings")
-
-        if type(list_text)==str:
-            list_text=[list_text]
-
-        out=[]
-        for text in list_text:
-            tokens=[101] #TODO: find a way to get the token id of the [CLS] token
-            cut=self.max_length
-
-            while len(text)>cut:
-                text_piece=text[cut-self.max_length:cut]
-                tokens += self.tokenizer(text_piece).input_ids[1:-1]
-                cut += self.max_length
-            
-            text_piece=text[cut-self.max_length:]
-            tokens+=self.tokenizer(text_piece).input_ids[1:]
-            out.append(torch.tensor(tokens, dtype=torch.long, device=self.device))
-        
-        if len(out)==1:
-            return out[0]
-
-        return out
-    
-    def gpt2_call(self, list_text):
-
-        assert type(list_text)==str, "The input must be a string"
-        
-        return self.tokenizer.encode(list_text, return_tensors="pt").to(self.device).view(-1)
-
-    def decode(self, token_ids):
-        return self.tokenizer.decode(token_ids)
-    
 

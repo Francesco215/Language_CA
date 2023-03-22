@@ -1,6 +1,6 @@
 import torch
 from torch import nn
-from src.data_loader import Tokenizer
+from src.tokenizer import Tokenizer
 
 from src.encoder import Encoder, GPT2Encoder
 import torch.nn.functional as F

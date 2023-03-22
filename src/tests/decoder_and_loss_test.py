@@ -3,7 +3,7 @@ from src import Decoder, Loss, Encoder
 
 import torch
 
-from src.data_loader import Tokenizer
+from src.tokenizer import Tokenizer
 
 class DecoderTest(unittest.TestCase):
     def test_decoder(self):

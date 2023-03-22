@@ -4,7 +4,7 @@ from torch import nn
 
 from .encoder import Encoder
 from .decoder import Decoder
-from .data_loader import Tokenizer
+from .tokenizer import Tokenizer
 
 from torch.distributions.categorical import Categorical
 class BlockGenerator:

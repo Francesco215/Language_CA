@@ -2,7 +2,7 @@ import torch
 from torch import nn
 import einops
 
-from src.data_loader import Tokenizer
+from src.tokenizer import Tokenizer
 
 class Encoder(nn.Module):
     """Layer to turn tokens into word embeddings"""

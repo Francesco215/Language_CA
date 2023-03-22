@@ -6,7 +6,7 @@ from src.encoder import Encoder, GPT2Encoder
 from src.decoder import Decoder, GPT2Decoder
 from src.graph_initialization import linear_unidirectional_graph_maker
 from src.graphAN import GraphAttentionNetwork, BlockGenerator
-from src.data_loader import Tokenizer
+from src.tokenizer import Tokenizer
 from src.GPT2 import GPT2_Block, GPT2
 
 device='cpu'

@@ -4,7 +4,7 @@ from src import Encoder,graph_initialization
 import torch
 import numpy as np
 
-from src.data_loader import Tokenizer
+from src.tokenizer import Tokenizer
 from src.encoder import make_sin_cos
 
 

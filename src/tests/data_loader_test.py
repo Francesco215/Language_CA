@@ -1,5 +1,6 @@
 import unittest
-from src.data_loader import Tokenizer,Wiki
+from src.data_loader import Wiki
+from src.tokenizer import Tokenizer
 from src.graph_initialization import batch_graphs,random_graph_maker
 import torch
 

@@ -1,7 +1,7 @@
 import torch
 from torch import nn
 
-from src import  GraphAttentionNetwork
+from src.graphAN import  GraphAttentionNetwork
 
 #GPT2_Block(d_Embedding, dK, dV, heads, intermediate_size, dropout, device)
 class GPT2(GraphAttentionNetwork):
