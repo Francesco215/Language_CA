@@ -51,6 +51,7 @@ class GraphAttentionNetwork(nn.Module):
         self.n_blocks=n_blocks
         self.device=encoder.device
         self.losses=[]
+        self.validation_losses=[]
 
         if decoder == None:        
             self.decoder = Decoder(self.encoder)
@@ -151,19 +152,22 @@ class GraphAttentionNetwork(nn.Module):
         return self.tokenizer.decode(x)
 
 
-    def save(self,optimizer,scheduler,path):
+    def save(self,path,optimizer=None,scheduler=None):
         torch.save({
             'model_state_dict': self.state_dict(),
-            'optimizer_state_dict': optimizer.state_dict(),
-            'scheduler_state_dict': scheduler.state_dict(),
+            'optimizer_state_dict': optimizer.state_dict() if optimizer is not None else None,
+            'scheduler_state_dict': scheduler.state_dict() if scheduler is not None else None,
             'losses': self.losses,
             }, path)
         
-    def load(self,optimizer,scheduler,path):
+    def load(self,path,optimizer=None,scheduler=None):
+
         file = torch.load(path, map_location=self.device)
         self.load_state_dict(file['model_state_dict'])
-        optimizer.load_state_dict(file['optimizer_state_dict'])
-        scheduler.load_state_dict(file['scheduler_state_dict'])
+
+        optimizer.load_state_dict(file['optimizer_state_dict']) if optimizer is not None else None
+        scheduler.load_state_dict(file['scheduler_state_dict']) if scheduler is not None else None
+
         self.losses = file['losses']
 
         return optimizer, scheduler

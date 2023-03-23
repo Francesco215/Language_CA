@@ -6,7 +6,7 @@ from src.GPT2 import GPT2
 
 from src.graph_initialization import Graph_maker, batch_graphs
 class Wiki(Dataset):
-    def __init__(self, dataset, tokenizer, graph_maker, transform = None, min_len_input=2e3, overflow_len=6000, device="cpu"):
+    def __init__(self, dataset, tokenizer, graph_maker, transform = None, min_len_input=2e3, max_len_input=6000, device="cpu"):
         """Creates a dataset class from a the hugging cast dataset of wikipedia 
             (https://huggingface.co/datasets/wikipedia)
 
@@ -24,7 +24,7 @@ class Wiki(Dataset):
         self.graph_maker=graph_maker
         self.transform=transform
         self.min_len_input=min_len_input
-        self.overflow_len=overflow_len
+        self.max_len_input=max_len_input
         self.device=device
 
         self.index=0
@@ -47,8 +47,8 @@ class Wiki(Dataset):
             n = text[:-1]
             t = text[1:]
 
-            if current_len + n.shape[0] > self.overflow_len:
-                cutoff = self.overflow_len - current_len - n.shape[0]
+            if current_len + n.shape[0] > self.max_len_input:
+                cutoff = self.max_len_input - current_len - n.shape[0]
                 n = n[:cutoff]
                 t = t[:cutoff]
 
@@ -90,7 +90,7 @@ class Wiki(Dataset):
 
 
 @torch.no_grad()
-def validation(validation_set, model, loss_function, graph_maker, n_samples=30, ramdom=True, starting_index=0):
+def validation(validation_set, model, loss_function, graph_maker, n_samples=30, ramdom=True, starting_index=0, iterations=1):
     """ This function is used to evaluate the model on the validation set.
 
     Args:
@@ -123,7 +123,7 @@ def validation(validation_set, model, loss_function, graph_maker, n_samples=30, 
 
         edge_index = graph_maker(nodes.shape[0])
 
-        out = model(nodes, edge_index)
+        out = model(nodes, edge_index, iterations)
         loss += loss_function(out, target)
 
     return loss/n_samples

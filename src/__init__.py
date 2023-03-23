@@ -5,6 +5,7 @@ from .graph_initialization import linear_bidirectional_graph_maker, random_graph
 from .data_loader import Wiki
 from .tokenizer import Tokenizer
 from .graphAN import GraphAttentionNetwork, BlockGenerator
+from .cellular_automata import CellularAutomata
 
 from .GPT2 import GPT2
 

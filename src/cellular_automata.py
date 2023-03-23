@@ -1,12 +1,12 @@
-from tokenizer import Tokenizer
-from encoder import Encoder
-from decoder import Decoder, Loss
+from src.tokenizer import Tokenizer
+from src.encoder import Encoder
+from src.decoder import Decoder, Loss
 
 
 import torch
 import torch.nn as nn
 
-from graphAN import BlockGenerator, GraphAttentionNetwork
+from src.graphAN import BlockGenerator, GraphAttentionNetwork
 
 
 class CellularAutomata(GraphAttentionNetwork):
