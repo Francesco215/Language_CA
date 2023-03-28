@@ -128,7 +128,7 @@ class GraphAttentionNetwork(nn.Module):
 
         return self.tokenizer.decode(x)
 
-
+    @torch.no_grad()
     def generate_most_prob(self, starting_string, number_of_tokens, graph_maker, iterations:int=1):
         """
 

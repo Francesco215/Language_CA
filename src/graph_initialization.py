@@ -144,6 +144,32 @@ class random_unidirectional_graph_maker(linear_unidirectional_graph_maker):
         return edges    
 
 
+
+
+
+
+class UnetGraphMaker(linear_unidirectional_graph_maker):
+    #TODO write this
+
+    def __init__(self, window_width:int=1, decimation=10, device='cpu'):
+        super().__init__(window_width, device)
+
+        pass
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 @torch.no_grad()
 def batch_graphs(nodes_list:list, edges_list:list):
     """Given a list of nodes and a list of edges, returns a batch of graphs.

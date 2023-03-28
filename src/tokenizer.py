@@ -84,6 +84,12 @@ class CharTokenizer(Tokenizer):
                  data_file,
                  device="cpu"
                  ):
+        """Given a single data file, create a tokenizer that can be used to tokenize the data
+
+            args:
+                data_file (str): the path to the data file
+                device (str|torch.device): the device to use for the tokenizer
+        """
 
 
         self.device = device
@@ -110,4 +116,5 @@ class CharTokenizer(Tokenizer):
 
     def decode(self, token_ids):
         # decoder: take a list of integers, output a string
-        return ''.join([self.int_to_char[i] for i in token_ids])
+        
+        return ''.join([self.int_to_char[i] for i in token_ids.tolist()])

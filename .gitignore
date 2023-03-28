@@ -9,3 +9,5 @@
 experiment*
 
 src/modelling_GPT2.py
+
+shakespeare_data/*
