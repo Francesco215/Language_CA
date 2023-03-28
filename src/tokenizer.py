@@ -72,6 +72,42 @@ class Tokenizer:
         assert type(list_text) == str, "The input must be a string"
 
         return self.tokenizer.encode(list_text, return_tensors="pt").to(self.device).view(-1)
+    
 
     def decode(self, token_ids):
         return self.tokenizer.decode(token_ids)
+
+
+class CharTokenizer(Tokenizer):
+    """Char level tokenizer, code adapted from https://github.com/karpathy/nanoGPT/blob/master/data/shakespeare_char/prepare.py"""
+    def __init__(self,
+                 data_file,
+                 device="cpu"
+                 ):
+
+
+        self.device = device
+
+
+        with open(data_file, 'r') as f:
+            data = f.read()
+        print(f"length of dataset in characters: {len(data):,}")
+
+        # get all the unique characters that occur in this text
+        chars = sorted(list(set(data)))
+        self.vocab_size = len(chars)
+        self.unique_chars=''.join(chars)
+
+        # create a mapping from characters to integers
+        self.char_to_int = {ch: i for i, ch in enumerate(chars)}
+        self.int_to_char = {i: ch for i, ch in enumerate(chars)}
+
+
+    def __call__(self, input_string):
+        # encoder: take a string, output a list of integers
+        return torch.tensor([self.char_to_int[c] for c in input_string], dtype=torch.long, device=self.device)
+
+
+    def decode(self, token_ids):
+        # decoder: take a list of integers, output a string
+        return ''.join([self.int_to_char[i] for i in token_ids])
