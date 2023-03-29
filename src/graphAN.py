@@ -88,7 +88,7 @@ class GraphAttentionNetwork(nn.Module):
         
         return x
     
-    def calculate_final_embedding(self, x, edge_index, iterations:int=1):
+    def final_embedding(self, x, edge_index, iterations:int=1):
         x=self.__call__(x,edge_index,iterations)
         x=self.decoder(x)
 
@@ -96,7 +96,7 @@ class GraphAttentionNetwork(nn.Module):
 
     @torch.no_grad()
     def inference(self, x , edge_index, iterations:int=1):
-        x=self.calculate_final_embedding(x,edge_index,iterations)
+        x=self.final_embedding(x,edge_index,iterations)
         x=x.argmax(dim=-1)
         x=self.tokenizer.decode(x)
 
@@ -116,10 +116,12 @@ class GraphAttentionNetwork(nn.Module):
         Returns:
             str: The generated string
         """
-        x = self.tokenizer(starting_string)
+        assert type(starting_string)==str, "starting_string must be a string"
+        x = self.tokenizer(starting_string) #TODO: probably superfluous if encoder treats correctly strings
+
         for _ in range(number_of_tokens):
             edge_index = graph_maker(x.shape[0])
-            last_word = self.calculate_final_embedding(x, edge_index)[-1]  # logits
+            last_word = self.final_embedding(x, edge_index)[-1]  # logits
 
             temperature=1/1
             probabilities = Categorical(logits=last_word/temperature)
@@ -145,7 +147,7 @@ class GraphAttentionNetwork(nn.Module):
         x = self.tokenizer(starting_string)
         for _ in range(number_of_tokens):
             edge_index = graph_maker(x.shape[0])
-            last_word = self.calculate_final_embedding(x, edge_index)[-1].argmax()  # logits
+            last_word = self.final_embedding(x, edge_index)[-1].argmax()  # logits
 
             x=torch.cat((x,last_word.view(1)),dim=0)
         

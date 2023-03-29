@@ -166,7 +166,7 @@ class GPT2BacktoBack(unittest.TestCase):
         n_edges=302
         nodes=torch.randint(0,vocab_size,(n_nodes,))
         edge_index=torch.randint(0,n_nodes,(2,n_edges))
-        out=network.calculate_final_embedding(nodes,edge_index)
+        out=network.final_embedding(nodes,edge_index)
         self.assertEqual(out.shape,(n_nodes,vocab_size))
 
     def test_flow_single_batched_datapoint(self):  
@@ -198,5 +198,5 @@ class GPT2BacktoBack(unittest.TestCase):
         nodes,edge_index=batch_graphs(nodes,edge_index)
         n_nodes,n_edges=len(nodes),len(edge_index[0])
 
-        out=network.calculate_final_embedding(nodes,edge_index)
+        out=network.final_embedding(nodes,edge_index)
         self.assertEqual(out.shape,(n_nodes,vocab_size))

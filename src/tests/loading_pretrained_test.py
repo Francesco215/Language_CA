@@ -75,7 +75,7 @@ class GPT2_loading_parameters(unittest.TestCase):
         graph_maker=linear_unidirectional_graph_maker(5)
         edge_index=graph_maker(x.shape[0])
 
-        out=model.calculate_final_embedding(x,edge_index)
+        out=model.final_embedding(x,edge_index)
 
         self.assertEqual(out.shape,(len(x),tokenizer.vocab_size))
         self.assertFalse(out.isnan().any())
@@ -394,7 +394,7 @@ class GPT2_loading_parameters(unittest.TestCase):
         senders,recievers=edge_index
 
         x_p=pretrained(x)[0] #logtis
-        x=model.calculate_final_embedding(x,edge_index) #logits
+        x=model.final_embedding(x,edge_index) #logits
 
         self.assertTrue(torch.allclose(x,x_p,1e-3,1e-3))
     
