@@ -116,5 +116,8 @@ class CharTokenizer(Tokenizer):
 
     def decode(self, token_ids):
         # decoder: take a list of integers, output a string
-        
+        token_ids=token_ids.tolist()
+        if type(token_ids) == int:
+            return self.int_to_char[token_ids]
+
         return ''.join([self.int_to_char[i] for i in token_ids.tolist()])

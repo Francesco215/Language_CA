@@ -14,6 +14,8 @@ from src.decoder import GPT2Decoder, Loss
 
 from src.graphAN import BlockGenerator
 
+from transformers import AutoTokenizer
+
 class GPT2_loading_functions(unittest.TestCase):
     def test_Conv1D_to_Linear(self):
         conv=Conv1D(60,40)
@@ -433,3 +435,36 @@ class GPT2_loading_parameters(unittest.TestCase):
         self.assertTrue(torch.allclose(grad,grad_p,1e-3,1e-3))
 
 
+    def test_GPT2_generation(self):
+        tokenizer=AutoTokenizer.from_pretrained('gpt2')
+        text = "The capital of France is Paris, and"
+        encoded_text=tokenizer.encode(text, add_special_tokens=False, return_tensors='pt')
+
+        for _ in range(10):
+            logits_last_token=pretrained(encoded_text).logits[0][-1]
+            last_token=logits_last_token.argmax(-1)
+            encoded_text=torch.cat((encoded_text,last_token.view(1,1)),dim=1)
+
+        target=tokenizer.decode(encoded_text[0])
+
+
+
+
+        tokenizer = Tokenizer('gpt2')
+        encoder = GPT2Encoder()
+        decoder = GPT2Decoder(encoder)
+        block_generator = BlockGenerator(GPT2_Block)
+        model = GPT2(tokenizer, encoder, block_generator, decoder)
+
+
+        model.load_from_original(pretrained)
+
+        graph_maker = linear_unidirectional_graph_maker(1000)
+
+        encoded_text=encoded_text[0]
+        edge_index=graph_maker(encoded_text.shape[0])
+
+        out=model.generate_most_prob(text,10,graph_maker)
+
+
+        self.assertEqual(out,target)

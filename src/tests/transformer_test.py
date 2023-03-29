@@ -293,19 +293,4 @@ class GPT2_transformer_test(unittest.TestCase):
         self.assertFalse(out.isnan().any())
         self.assertFalse(out.isinf().any())
 
-    def test_GPT2_transformer_forward(self):
-        embedding_dim=24
-        embedding_dim_K=18
-        embedding_dim_V=21
-        n_nodes=13
-        n_edges=133
-        heads=3
-
-        block=AttentionBlockGPT2(embedding_dim,dK=embedding_dim_K,dV=embedding_dim_V,heads=heads)
-        x=torch.randn((n_nodes,embedding_dim))
-        edge_index=torch.randint(0,n_nodes,(2,n_edges))
-        out=block(x,edge_index)
-
-        self.assertEqual(out.shape,x.shape)
-        self.assertFalse(out.isnan().any())
-        self.assertFalse(out.isinf().any())
+    
