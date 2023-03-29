@@ -123,8 +123,8 @@ class GraphAttentionNetwork(nn.Module):
 
             temperature=1/1
             probabilities = Categorical(logits=last_word/temperature)
-            sample=probabilities.sample().item()
-            x=torch.cat((x,last_word.view(1)),dim=0)
+            sample=probabilities.sample()
+            x=torch.cat((x,sample.view(1)),dim=0)
 
         return self.tokenizer.decode(x)
 

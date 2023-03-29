@@ -119,5 +119,7 @@ class CharTokenizer(Tokenizer):
         token_ids=token_ids.tolist()
         if type(token_ids) == int:
             return self.int_to_char[token_ids]
-
-        return ''.join([self.int_to_char[i] for i in token_ids.tolist()])
+        
+        if type(token_ids) == torch.Tensor:
+            token_ids = token_ids.tolist()
+        return ''.join([self.int_to_char[i] for i in token_ids])
