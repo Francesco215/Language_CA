@@ -43,23 +43,23 @@ class Loss(nn.Module):
 
         self.loss=loss_function #TODO: check if it computes the loss in the correct channels
 
-    def forward(self, x, y):
-        """calculates the loss between the prediction x and the target y
+    def forward(self, embeddings, targets):
+        """calculates the loss between the predicted embeddigns and the targets
 
         Args:
-            x (torch.Tensor): prediction, has the shape (n_nodes, vocab_size). dtype: torch.float
-            y (torch.Tensor): target, has the shape (n_nodes,). dtype: torch.long
+            embeddings (torch.Tensor): predicted embeddings, has the shape (n_nodes, vocab_size). dtype: torch.float
+            targets (torch.Tensor): target, has the shape (n_nodes,). dtype: torch.long
 
         Returns:
             torch.Tensor: the loss scalar. dtype: torch.float
         """
-        assert x.shape[0]==y.shape[0], "x and y must have the same number of nodes"
-        assert x.shape[1]==self.decoder.d_Embedding, "x must have the same number of channels as the embedding dimension"
-        assert y.max()<=self.decoder.vocab_size, "y must have the same number of channels as the vocabulary size"
-        assert y.dtype==torch.long, "y must be of type torch.long"
+        assert embeddings.shape[0]==targets.shape[0], "x and y must have the same number of nodes"
+        assert embeddings.shape[1]==self.decoder.d_Embedding, "x must have the same number of channels as the embedding dimension"
+        assert targets.max()<=self.decoder.vocab_size, "y must have the same number of channels as the vocabulary size"
+        assert targets.dtype==torch.long, "y must be of type torch.long"
 
-        x=self.decoder(x)
-        return self.loss(x,y)
+        embeddings=self.decoder(embeddings)
+        return self.loss(embeddings, targets)
 
 
 

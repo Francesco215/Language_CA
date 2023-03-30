@@ -123,7 +123,6 @@ class GraphAttentionNetwork(nn.Module):
             edge_index = graph_maker(x.shape[0])
             last_word = self.final_embedding(x, edge_index)[-1]  # logits
 
-            temperature=1/1
             probabilities = Categorical(logits=last_word/temperature)
             sample=probabilities.sample()
             x=torch.cat((x,sample.view(1)),dim=0)

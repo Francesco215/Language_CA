@@ -103,31 +103,41 @@ model.eval()
 
 #data loading
 text=sample_shakespeare(val_data, 100) #sample 100 characters data from the validation set
-x=tokenizer(text)# and tokenize it
+embeddings=tokenizer(text)# and tokenize it
 
-target=x[1:] # the target is the same as the input but shifted by one
-x=x[:-1]# the input is the same as the target but shifted by one
-edge_index=graph_maker(x.shape[0]) #this in not really important for now what it means
+target=embeddings[1:] # the target is the same as the input but shifted by one
+embeddings=embeddings[:-1]# the input is the same as the target but shifted by one
+edge_index=graph_maker(embeddings.shape[0]) #this in not really important for now what it means
 
 
 #inference and loss
-prediction=model.final_embedding(x,edge_index) #calculate the prediction of the final embedding
+logits=model.final_embedding(embeddings,edge_index) #calculate the prediction of the final embedding
 ce_loss=nn.CrossEntropyLoss()
-print('validation cross_entropy:',ce_loss(prediction,target).item()) #returns about ~1.5
+print('validation cross_entropy:',ce_loss(logits,target).item()) #returns about ~1.5
 
 
 #text generation
 print('\ninput text:\n',text)
 for _ in range(40): #lets generate 40 characters
-    edge_index=graph_maker(x.shape[0]) #this in not really important for now what it means
-    prediction=model.final_embedding(x,edge_index) #calculate the prediction of the final embedding
-    prediction=prediction[-1] #take the last prediction
-    last_token=torch.argmax(prediction) #take the token with the highest probability
+    edge_index=graph_maker(embeddings.shape[0]) #this in not really important for now what it means
+    logits=model.final_embedding(embeddings,edge_index) #calculate the prediction of the final embedding
+    logits=logits[-1] #take the last prediction
+    last_token=torch.argmax(logits) #take the token with the highest probability
 
-    x=torch.cat((x,last_token.unsqueeze(0))) #add the token to the input
+    embeddings=torch.cat((embeddings,last_token.unsqueeze(0))) #add the token to the input
 
 
 print('\n\ngenerated text:') 
-print(tokenizer.decode(x[-40:])) #print the generated text
+print(tokenizer.decode(embeddings[-40:])) #print the generated text
 
 
+
+
+logits=model.final_embedding(embeddings,edge_index)
+
+loss=F.crossentropy(logits,target)
+
+
+out=model(embeddings,edge_index)
+
+loss_function(out,target)
