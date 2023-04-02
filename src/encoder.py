@@ -92,12 +92,12 @@ class GPT2Encoder(Encoder):
 
 
 
-
 def rotary_encoding(x, base=1e-5, thetas=None):
     """Applies a rotary embedding to a tensor.
 
     Args:
         x (torch.Tensor): Tensor to apply the rotary embedding to.
+            x.shape=(sequence_lenght, n_heads, d_embedding)
         base (float, optional): Base of the logarithm. Defaults to 1e-5.
         thetas (torch.Tensor, optional): Tensor containing the thetas.
             It can be used in case you want to apply learned positional encoding.
@@ -118,24 +118,25 @@ def rotary_encoding(x, base=1e-5, thetas=None):
     x1 = einops.rearrange(x, '(n1 n2) ... -> n1 n2 ...', n2=2)
 
     #pair up elements and swap them
-    x2 = x1[:, torch.tensor([1, 0])]
-    x2[:, 0] = -x2[:, 0]
+    x2 = x1[:,torch.tensor([1, 0])]
+    x2[:,0] = -x2[:,0]
 
     #create phases
     sin, cos = make_sin_cos(x1.shape,base,thetas,device=x.device)
 
     #apply rotation
-    x1 = einops.einsum(x1, cos, 'a ... c, a c -> a ... c')
-    x2 = einops.einsum(x2, sin, 'a ... c, a c -> a ... c')
+    x1 = einops.einsum(x1, cos, 'n ... c, n c -> n ... c')
+    x2 = einops.einsum(x2, sin, 'n ... c, n c -> n ... c')
     x = x1+x2
-    x = einops.rearrange(x, 'n1 n2 ...->(n1 n2) ...')
+    x = einops.rearrange(x, 'n1 n2 ... -> (n1 n2) ...', n2=2)
 
     if odd:
         return x[:-1]  # remove padding if odd
     return x
 
 
-def make_sin_cos(shape, base=1e-5, thetas=None, device='cpu'):    
+def make_sin_cos(shape, base=1e-5, thetas=None, device='cpu'):
+
     if thetas is None:
         thetas = torch.logspace(0, 1, shape[-1], base, device=device)
     indices = torch.arange(0, shape[0], device=device)

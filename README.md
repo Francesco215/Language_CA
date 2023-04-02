@@ -1,7 +1,7 @@
 # Self-organizing text
 
 ## The Idea
-The complexity of generating a text with N words with modern machine learning algorithms such as the Transformer is O(N^3). This makes it computationally infeasible to generate coherent pieces of text as long as books. 
+The complexity of generating a text with N words with modern machine learning algorithms such as the Transformer is O(N^2). This makes it computationally infeasible to generate coherent pieces of text as long as books. 
 
 Self-organizing systems, on the other hand, are systems composed of multiple agents that can spontaneously self-organize into complex structures through local interactions between the agents themselves. A striking example of this is the formation of multicellular organisms, where each cell can only interact with its local environment through its cell membrane, but based on the signals it receives from its neighbors and its own internal state, it is able to understand what type of cell it should be and self-regulate. Despite the limited information available to each individual cell, incredibly complex organisms can be formed.
 

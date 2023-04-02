@@ -57,16 +57,16 @@ device = 'cpu'
 #device = 'mps'  if torch.backends.mps.is_available() else 'cpu'
 device = 'cuda' if torch.cuda.is_available() else device
 
-dK = 16
+dV = 16
 dV = 16
 heads = 6
-d_Embedding = dK*heads
+d_Embedding = dV*heads
 intermediate_size=intermediate_size=2*d_Embedding
 
 
 encoder = Encoder(d_Embedding, tokenizer, dropout=0, device=device)
 decoder = Decoder(encoder)
-block_generator = BlockGenerator(GPT2_Block, d_Embedding, dK, dV, heads, intermediate_size,
+block_generator = BlockGenerator(GPT2_Block, d_Embedding, dV, dV, heads, intermediate_size,
                                  dropout=0.1, split_size=2**10, device=device, rotary_encoding=True)
 
 model = GraphAttentionNetwork(tokenizer, encoder, block_generator, decoder)

@@ -21,18 +21,17 @@ class AttentionMessageFunction(torch.autograd.Function):
         """This function calculates the attention message for each node in the graph.
 
         Args:
-            K (torch.Tensor): Key tensor of shape (N, h, dK)
-            Q (torch.Tensor): Query tensor of shape (N, h, dK)
-            V (torch.Tensor): Value tensor of shape (N, h, dV)
+            K (torch.Tensor): Key tensor of shape (h, N, dK)
+            Q (torch.Tensor): Query tensor of shape (h, N, dK)
+            V (torch.Tensor): Value tensor of shape (h, N, dV)
             edge_index (torch.Tensor): Adjacency matrix of the graph of shape (2, M)
 
         Returns:
-            torch.Tensor: Multi-head attention message of shape (N, h, dV)
+            torch.Tensor: Multi-head attention message of shape (h, N, dV)
         """
         assert K.dim() == Q.dim() == V.dim() == 3, "K, Q, V must be tensors of rank 3"
-        assert K.shape[0] == Q.shape[0] == V.shape[0], "K, Q, V must have the same first dimension"
-        assert K.shape[1] == Q.shape[1] == V.shape[1], "K, Q, V must have the same second dimension"
-        assert K.shape[2] == Q.shape[2], "K and Q must have the same third dimension"
+        assert K.shape[:-1] == Q.shape[:-1] == V.shape[:-1], " all dimentions of K, Q, V except the last must be the same"
+        assert K.shape[-1] == Q.shape[-1], "K and Q must have the same last dimension"
 
         assert edge_index.dim() == 2, "edge_index must be a 2-dimentional tensor"
         assert edge_index.shape[0] == 2, "edge_index must have 2 rows"
