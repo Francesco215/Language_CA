@@ -89,9 +89,6 @@ class GPT2Encoder(Encoder):
         self.positional_encoding.weight = weight_positional_embedding.weight
 
 
-
-
-
 def rotary_encoding(x, base=1e-5, thetas=None):
     """Applies a rotary embedding to a tensor.
 
@@ -106,39 +103,37 @@ def rotary_encoding(x, base=1e-5, thetas=None):
     Returns:
         torch.Tensor: Tensor with the rotary embedding applied.
     """
-
-    #pad with zeros if odd, otherwise we cant pair up consecutive elements
-    odd = False
-    if x.shape[0] % 2 != 0:
-        zeros = torch.zeros((1, *x.shape[1:]), device=x.device)
-        x = torch.cat([x, zeros], dim=0)
-        odd = True
+    assert x.shape[-1] % 2 == 0, 'the last dimension must be even'
 
     #pair up consecutive elements
-    x1 = einops.rearrange(x, '(n1 n2) ... -> n1 n2 ...', n2=2)
+    x1 = einops.rearrange(x, '... (n1 n2) -> ... n1 n2', n2=2)
 
     #pair up elements and swap them
-    x2 = x1[:,torch.tensor([1, 0])]
-    x2[:,0] = -x2[:,0]
+    x2 = x1[..., torch.tensor([1, 0])]
+    x2[..., 0] = -x2[..., 0]
 
     #create phases
-    sin, cos = make_sin_cos(x1.shape,base,thetas,device=x.device)
+    sin, cos = make_sin_cos(x1.shape, base, thetas, device=x.device)# TODO: make cache
 
     #apply rotation
-    x1 = einops.einsum(x1, cos, 'n ... c, n c -> n ... c')
-    x2 = einops.einsum(x2, sin, 'n ... c, n c -> n ... c')
-    x = x1+x2
-    x = einops.rearrange(x, 'n1 n2 ... -> (n1 n2) ...', n2=2)
+    x1 = einops.einsum(x1, cos, 'n ... c p, n c -> n ... c p')
+    x2 = einops.einsum(x2, sin, 'n ... c p, n c -> n ... c p')
 
-    if odd:
-        return x[:-1]  # remove padding if odd
+    """Probably one could use this to make it work even if the input has a batch dimentions, but I haven't tested it.
+    x1 = einops.einsum(x1, cos, '... h c p, ... c -> ... h c p')
+    x2 = einops.einsum(x2, sin, '... h c p, ... c -> ... h c p')
+    """
+
+    x = x1+x2
+    x = einops.rearrange(x, '... n1 n2 -> ... (n1 n2)', n2=2)
+
     return x
 
 
 def make_sin_cos(shape, base=1e-5, thetas=None, device='cpu'):
 
     if thetas is None:
-        thetas = torch.logspace(0, 1, shape[-1], base, device=device)
+        thetas = torch.logspace(0, 1, shape[-2], base, device=device)
     indices = torch.arange(0, shape[0], device=device)
     phases = einops.einsum(indices, thetas, 'a, c -> a c')
 

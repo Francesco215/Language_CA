@@ -1,143 +1,49 @@
-from src.decoder import Loss
-import os
-import requests
 import torch
-from torch import nn
-from IPython.display import clear_output
+class Rotary(torch.nn.Module):
+    def __init__(self, dim, base=10000):
+        super().__init__()
+        inv_freq = 1.0 / (base ** (torch.arange(0, dim, 2).float() / dim))
+        self.register_buffer("inv_freq", inv_freq)
+        self.seq_len_cached = None
+        self.cos_cached = None
+        self.sin_cached = None
 
-from src.encoder import Encoder, GPT2Encoder
-from src.decoder import Decoder, GPT2Decoder
-from src.graph_initialization import random_unidirectional_graph_maker, linear_unidirectional_graph_maker
-from src.graphAN import GraphAttentionNetwork, BlockGenerator
-from src.data_loader import validation
-from src.tokenizer import Tokenizer
-from src.GPT2 import GPT2_Block, GPT2
-from matplotlib import pyplot as plt
-from src.utils import moving_average, grad_norm
-from torch.nn.utils import clip_grad_norm_
-import pickle
-import numpy as np
-
-
-from src.tokenizer import CharTokenizer
-
-__file__='shakespeare_data/'
-
-# download the tiny shakespeare dataset
-input_file_path = os.path.join(os.path.dirname(__file__), 'input.txt')
+    def forward(self, x, seq_dim=0):
+        seq_len = x.shape[seq_dim]
+        if seq_len != self.seq_len_cached:
+            self.seq_len_cached = seq_len
+            t = torch.arange(x.shape[seq_dim],
+                             device=x.device).type_as(self.inv_freq)
+            freqs = torch.einsum("i,j->ij", t, self.inv_freq)
+            emb = torch.cat((freqs, freqs), dim=-1).to(x.device)
+            self.cos_cached = emb.cos()[:, None, :]
+            self.sin_cached = emb.sin()[:, None, :]
+        return self.cos_cached, self.sin_cached
 
 
-#create the tokenizer
-tokenizer = CharTokenizer(input_file_path)
-#print('tokenizer vocab size:', tokenizer.vocab_size)
+# rotary pos emb helpers:
+
+def rotate_half(x):
+    x1, x2 = x[..., : x.shape[-1] // 2], x[..., x.shape[-1] // 2:]
+    return torch.cat((-x2, x1), dim=-1)
+
+#@torch.jit.script
+def apply_rotary_pos_emb(q, k, cos, sin):
+    q_rot = (q * cos) + (rotate_half(q) * sin)
+    k_rot = (k * cos) + (rotate_half(k) * sin)
+    return q_rot, k_rot
 
 
-# load the data
-with open(input_file_path, 'r') as f:
-    data = f.read()
-#print(f"length of dataset in characters: {len(data):,}")
+batch_size = 2
+seq_len = 10
+n_heads = 4
+head_dim = 16
+q = torch.randn(seq_len, n_heads, head_dim)
+k = torch.randn(seq_len, n_heads, head_dim)
 
+# define a rotary positional embedding layer
+rotary_pos_emb = Rotary(head_dim)
 
-# create the train and test splits
-n = len(data)
-train_data = data[:int(n*0.9)]
-val_data = data[int(n*0.9):]
-
-# encode both to integers
-train_ids = tokenizer(train_data)
-val_ids = tokenizer(val_data)
-#print(f"train has {len(train_ids):,} tokens")
-#print(f"val has {len(val_ids):,} tokens")
-
-# export to bin files
-torch.save(train_ids, os.path.join(os.path.dirname(__file__), 'train.bin'))
-torch.save(val_ids,   os.path.join(os.path.dirname(__file__), 'val.bin'))
-
-device = 'cpu'
-#device = 'mps'  if torch.backends.mps.is_available() else 'cpu'
-device = 'cuda' if torch.cuda.is_available() else device
-
-dV = 16
-dV = 16
-heads = 6
-d_Embedding = dV*heads
-intermediate_size=intermediate_size=2*d_Embedding
-
-
-encoder = Encoder(d_Embedding, tokenizer, dropout=0, device=device)
-decoder = Decoder(encoder)
-block_generator = BlockGenerator(GPT2_Block, d_Embedding, dV, dV, heads, intermediate_size,
-                                 dropout=0.1, split_size=2**10, device=device, rotary_encoding=True)
-
-model = GraphAttentionNetwork(tokenizer, encoder, block_generator, decoder)
-model.losses = []
-model.validation_losses = []
-
-model.load('shakespeare_data/pretrained_CE=1.3.pth')
-
-
-graph_maker = random_unidirectional_graph_maker(50, 50, device=device)
-
-loss_function = Loss(decoder)
-lr = 1e-9
-gamma = 0.99
-
-optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
-
-
-from numpy.random import randint
-def sample_shakespeare(data, lenght, starting_index=None):
-    lenght=int(lenght)
-    
-    if starting_index is None:
-        starting_index = randint(0, len(data)-lenght)
-
-    if starting_index+lenght>=len(data):
-        return data[starting_index:]    
-    
-    return data[starting_index:starting_index+lenght]
-
-
-model.eval()
-
-#data loading
-text=sample_shakespeare(val_data, 100) #sample 100 characters data from the validation set
-embeddings=tokenizer(text)# and tokenize it
-
-target=embeddings[1:] # the target is the same as the input but shifted by one
-embeddings=embeddings[:-1]# the input is the same as the target but shifted by one
-edge_index=graph_maker(embeddings.shape[0]) #this in not really important for now what it means
-
-
-#inference and loss
-logits=model.final_embedding(embeddings,edge_index) #calculate the prediction of the final embedding
-ce_loss=nn.CrossEntropyLoss()
-print('validation cross_entropy:',ce_loss(logits,target).item()) #returns about ~1.5
-
-
-#text generation
-print('\ninput text:\n',text)
-for _ in range(40): #lets generate 40 characters
-    edge_index=graph_maker(embeddings.shape[0]) #this in not really important for now what it means
-    logits=model.final_embedding(embeddings,edge_index) #calculate the prediction of the final embedding
-    logits=logits[-1] #take the last prediction
-    last_token=torch.argmax(logits) #take the token with the highest probability
-
-    embeddings=torch.cat((embeddings,last_token.unsqueeze(0))) #add the token to the input
-
-
-print('\n\ngenerated text:') 
-print(tokenizer.decode(embeddings[-40:])) #print the generated text
-
-
-
-
-logits=model.final_embedding(embeddings,edge_index)
-
-loss=F.crossentropy(logits,target)
-
-
-out=model(embeddings,edge_index)
-
-loss_function(out,target)
+# apply the rotary positional embedding to the q and k vectors
+cos, sin = rotary_pos_emb(q)
+q_rot, k_rot = apply_rotary_pos_emb(q, k, cos, sin)
