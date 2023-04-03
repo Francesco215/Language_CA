@@ -25,7 +25,7 @@ class AttentionBlock(nn.Module):
         self.split_size = split_size
 
         # Create the layers for the attention that make the keys, queries and values for each head
-        self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, rotary_encoding, device)
+        self.make_QKV = make_QKV(d_Embedding, dK, dV, heads, rotary_encoding, True, device)
 
         # Create the attention layer
         self.attention_message = AttentionMessage(split_size)

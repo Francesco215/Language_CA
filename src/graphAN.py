@@ -83,13 +83,13 @@ class GraphAttentionNetwork(nn.Module):
         if (x.dtype==torch.long): x=self.encoder(x)
 
         for _ in range(iterations):
-            for transformer in self.transformer_blocks:
-                x=transformer(x, edge_index)
+            for block in self.transformer_blocks:
+                x=block(x, edge_index)
         
         return x
     
     def final_embedding(self, x, edge_index, iterations:int=1):
-        x=self.__call__(x,edge_index,iterations)
+        x=self.__call__(x, edge_index, iterations)
         x=self.decoder(x)
 
         return x
