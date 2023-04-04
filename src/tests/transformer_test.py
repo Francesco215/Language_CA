@@ -203,7 +203,7 @@ class transformer_test(unittest.TestCase):
 
     def test_make_heads(self):
         embedding_dim=17
-        embedding_dim_K=19
+        embedding_dim_K=18
         embedding_dim_V=21
         n_nodes=13
         heads=3

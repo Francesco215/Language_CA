@@ -17,11 +17,13 @@ class CellularAutomata(GraphAttentionNetwork):
         block_generator:BlockGenerator,
         decoder:Decoder=None,
         n_blocks:int=4,
+        loss_function=None,
         ):
         super().__init__(tokenizer, encoder, block_generator, decoder, n_blocks)
 
+        if loss_function==None: self.loss_function=Loss(self.decoder)
 
-        self.loss_function=Loss(self.decoder)
+        self.loss_function=loss_function
     
     def eval_loss(self, x, edge_index, target, n_steps=10, starting_step=0, step_weight:callable=None):
         """Evaluates the loss of the graph attention network for many steps

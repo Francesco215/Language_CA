@@ -5,7 +5,7 @@ import torch
 import numpy as np
 
 from src.tokenizer import Tokenizer
-from src.encoder import make_sin_cos
+from src.positional_encoding import RotaryEncoding
 
 
 #TODO: add some kind of test for the positional encoding
@@ -71,15 +71,17 @@ class EncoderTest(unittest.TestCase):
         self.assertEqual(type(encoded),torch.Tensor)
 
     def test_sin_cos(self):
-        n,d=50,100
-        shape=(n,d)
+        positional_encoding=RotaryEncoding()
+        n,h,d,e=50,4,100,2
+        shape=(n,h,d,e)
         base=1e-5
 
-        sin,cos=make_sin_cos(shape,base)
+        sin,cos=positional_encoding.make_sin_cos(shape)
 
-        self.assertEqual(sin.shape,shape)
-        self.assertEqual(cos.shape,shape)
-        
+        self.assertEqual(sin.shape[0],shape[0])
+        self.assertEqual(sin.shape[1],shape[2])
+        self.assertEqual(sin.shape,cos.shape)
+
         for _ in range(20):
             i0=np.random.randint(0,n)
             i1=np.random.randint(0,d)

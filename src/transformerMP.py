@@ -65,7 +65,7 @@ class AttentionBlock(nn.Module):
         return x
 
 
-from src.encoder import rotary_encoding
+from src.positional_encoding import RotaryEncoding
 # Utilis function to make the code more readable. they are just to make the generation of K,Q,V
 # with multi-head and going back to the embedding much easier to read
 class make_QKV(nn.Linear):
@@ -91,6 +91,8 @@ class make_QKV(nn.Linear):
         self.dV = dV
         self.heads = heads
         self.rotary_encoding = rotary_encoding
+        if rotary_encoding:
+            self.rotary_encoding = RotaryEncoding()
 
         self.split_shape = (dK*heads, dK*heads, dV*heads)
 
@@ -119,9 +121,9 @@ class make_QKV(nn.Linear):
         V = V.view(-1, self.heads, self.dV)
 
         # apply rotary encoding if needed
-        if self.rotary_encoding:
-            Q = rotary_encoding(Q)
-            K = rotary_encoding(K)
+        if isinstance(self.rotary_encoding, RotaryEncoding):
+            Q = self.rotary_encoding(Q)
+            K = self.rotary_encoding(K)
 
         return Q, K, V
 
