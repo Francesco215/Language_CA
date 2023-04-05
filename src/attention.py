@@ -55,7 +55,7 @@ class AttentionMessageFunction(torch.autograd.Function):
 
         return out, attention
 
-    #@once_differentiable #TODO: check if this is correct, () could be missing
+    #@once_differentiable 
     @staticmethod
     def backward(ctx, grad_out, grad_attention):
         """This function calculates the gradient of the attention message function.
@@ -83,7 +83,7 @@ class AttentionMessageFunction(torch.autograd.Function):
         # calculate variables used in the gradient calculation
         if ctx.needs_input_grad[0] or ctx.needs_input_grad[1]:
             att_overlap=attention*overlaps(grad_out, V, edge_index, split_size)
-            out_grad_overlap = (out*grad_out).sum(dim=-1)
+            out_grad_overlap = einops.einsum(out, grad_out, '... i, ... i -> ...')
 
         # calculate the gradients
         if ctx.needs_input_grad[0]:
@@ -118,10 +118,7 @@ def softmax(att, receivers, n_nodes, heads):
     translation = torch.zeros(n_nodes, heads, device=receivers.device)
 
     # take the maximum value of the attention going to each node
-    translation = translation.scatter_reduce(0, receivers.repeat(heads, 1).t(), att, reduce='amax', include_self=False)
-
-    #TODO: check if this is faster
-    #translation.scatter_reduce(0, receivers.repeat(heads, 1).t(), att, reduce='amax',include_self=False)
+    translation.scatter_reduce(0, receivers.repeat(heads, 1).t(), att, reduce='amax',include_self=False)
 
     # subtract the maximum value from the attention of each edge going to that node
     att = att-translation[receivers]

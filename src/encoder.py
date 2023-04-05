@@ -1,6 +1,5 @@
 import torch
 from torch import nn
-import einops
 
 from src.tokenizer import Tokenizer
 
@@ -88,3 +87,40 @@ class GPT2Encoder(Encoder):
         self.embedding.weight = weight_token_embedding.weight
         self.positional_encoding.weight = weight_positional_embedding.weight
 
+
+
+class NoiseEncoder(Encoder):
+    def __init__(self,
+                 d_Embedding: int = 512,
+                 # defaults to the bert-base dictionary size,
+                 tokenizer=Tokenizer('gpt2'),
+                 noise_encoder:nn.Module=None,
+                 dropout: float = 0.1,
+                 device: str = 'cpu'
+                 ):
+        super().__init__(d_Embedding, tokenizer, dropout, device)
+
+        self.noise_encoder=noise_encoder
+        if noise_encoder is None:
+            self.noise_encoder=nn.Sequential(
+                nn.Linear(1,d_Embedding//4),
+                nn.ReLU(),
+                nn.Linear(d_Embedding//4,d_Embedding),
+            )
+        
+
+    def forward(self, x, noise):
+        
+        if type(noise) == float:
+            noise = torch.tensor(noise, device=self.device)
+        
+        assert noise.dim()==0, f"noise should be a scalar tensor, got a {noise.dim()}-dimensional tensor"
+        assert 0<=noise.item()<=1, f"noise should be between 0 and 1, got {noise}"
+        
+
+        noise_encoding = self.noise_encoder(noise)
+        clean_encoding = super().forward(x) 
+        noised_encoding = clean_encoding*torch.sqrt(1-noise) + torch.randn_like(clean_encoding)*torch.sqrt(noise) + noise_encoding
+        clean_encoding = clean_encoding + noise_encoding
+
+        return noised_encoding, clean_encoding, noise_encoding

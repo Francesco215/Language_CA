@@ -3,6 +3,7 @@ import einops
 from torch import nn
 
 class RotaryEncoding(nn.Module):
+    #source paper: https://arxiv.org/pdf/2212.10554.pdf
     
     def __init__(self, base=1e-5, thetas=None):
         super().__init__()
@@ -31,7 +32,7 @@ class RotaryEncoding(nn.Module):
         assert x.shape[-1] % 2 == 0, 'the last dimension must be even'
 
         #pair up consecutive elements
-        x1 = einops.rearrange(x, '... (n1 n2) -> ... n1 n2', n2=2)
+        x1 = einops.rearrange(x, '... (c p) -> ... c p', p=2)
 
         #pair up elements and swap them
         x2 = x1[..., torch.tensor([1, 0])]
@@ -50,7 +51,7 @@ class RotaryEncoding(nn.Module):
         """
 
         x = x1+x2
-        x = einops.rearrange(x, '... n1 n2 -> ... (n1 n2)', n2=2)
+        x = einops.rearrange(x, '... c p -> ... (c p)')
 
         return x
 
@@ -65,7 +66,7 @@ class RotaryEncoding(nn.Module):
         """
 
         sequence_lenght, n_heads, d_embedding, extra_index = shape
-        assert extra_index==2, 'this shoud be equal to 2, but is {}'.format(extra_index)
+        assert extra_index==2, f'this shoud be equal to 2, but is equal to {extra_index}'
 
         if sequence_lenght <= self.cached_shape[0] and shape[1:] == self.cached_shape[1:]:
             return self.cached_rotary_encoding[:,:sequence_lenght]
@@ -102,12 +103,13 @@ class RotaryEncoding(nn.Module):
             float: The best gamma.
         """
 
-        _,cos=self.make_sin_cos(shape,device).sum(dim=-1)
+        _, cos=self.make_sin_cos(shape,device).sum(dim=-1)
 
         self.gamma=0
         best_resolution=0
 
-        for gamma in torch.linspace(0,1,100,device=device):
+        #TODO: this can be done in a better way with gradient descent or binary search
+        for gamma in torch.logspace(-2,0,100,10,device=device):
             resolution_=resolution(cos)
             if resolution_>best_resolution:
                 best_resolution=resolution_
