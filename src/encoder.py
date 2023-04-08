@@ -108,15 +108,14 @@ class NoiseEncoder(Encoder):
                 nn.Linear(d_Embedding//4,d_Embedding),
             )
         
+    def forward(self, x, noise=torch.rand(())):
 
-    def forward(self, x, noise):
-        
         if type(noise) == float:
             noise = torch.tensor(noise, device=self.device)
         
         assert noise.dim()==0, f"noise should be a scalar tensor, got a {noise.dim()}-dimensional tensor"
         assert 0<=noise.item()<=1, f"noise should be between 0 and 1, got {noise}"
-        
+        noise=noise.view(1)
 
         noise_encoding = self.noise_encoder(noise)
         clean_encoding = super().forward(x) 

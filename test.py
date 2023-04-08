@@ -53,6 +53,9 @@ torch.save(train_ids, dir_path+'train.bin')
 torch.save(val_ids,   dir_path+'val.bin')
 
 
+from src.encoder import NoiseEncoder
+
+
 device = 'cpu'
 #device = 'mps'  if torch.backends.mps.is_available() else 'cpu'
 device = 'cuda' if torch.cuda.is_available() else device
@@ -64,7 +67,7 @@ d_Embedding = dV*heads
 intermediate_size=intermediate_size=d_Embedding
 
 
-encoder = Encoder(d_Embedding, tokenizer, dropout=0, device=device)
+encoder = NoiseEncoder(d_Embedding, tokenizer, dropout=0, device=device)
 decoder = Decoder(encoder)
 block_generator = BlockGenerator(GPT2_Block, d_Embedding, dK, dV, heads, intermediate_size,
                                  dropout=0.1, split_size=2**10, device=device, rotary_encoding=True)
@@ -74,8 +77,7 @@ model.losses = []
 model.validation_losses = []
 model.tokens_seen=0
 
-
-#model.load('shakespeare_data/pretrained_CE=1.3.pth')
+graph_maker = linear_unidirectional_graph_maker(64, device=device)
 
 print(f'number of parameters:{model.n_parameters}')
 
@@ -83,8 +85,7 @@ lr = 1e-3
 gamma = 0.99
 
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
-scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, self.gamma)
-
+scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
 
 from numpy.random import randint
 def sample_shakespeare(data, lenght, starting_index=None):
@@ -99,3 +100,25 @@ def sample_shakespeare(data, lenght, starting_index=None):
     return data[starting_index:starting_index+lenght]
 
 
+
+n_epochs = int(2000)
+model.train()
+context_size=400
+model.train()
+
+edge_index=graph_maker(context_size)
+
+for i in range(n_epochs):
+    noise=torch.rand(())
+    
+    nodes=sample_shakespeare(train_ids, context_size)
+
+    loss, losses = model.eval_loss(nodes, edge_index,noise)
+
+    print(loss)
+
+    clip_grad_norm_(model.parameters(), 4*loss.item())
+
+    optimizer.step()
+    optimizer.zero_grad()  # reinitialize the gradient to zero
+    model.tokens_seen+=context_size

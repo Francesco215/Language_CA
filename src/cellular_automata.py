@@ -24,10 +24,9 @@ class CellularAutomata(GraphAttentionNetwork):
         super().__init__(tokenizer, encoder, block_generator, decoder, n_blocks)
 
         if loss_function==None: self.loss_function=DiffusionLoss(self.decoder)
-
-        self.loss_function=loss_function
+        else: self.loss_function=loss_function
     
-    def eval_loss(self, x, edge_index, noise, n_steps=10, starting_step=0, step_weight:callable=None):
+    def eval_loss(self, x, edge_index, noise=torch.rand(()), n_steps=10, starting_step=0, step_weight:callable=None):
         """Evaluates the loss of the graph attention network for many steps
         
             Args:
@@ -35,10 +34,10 @@ class CellularAutomata(GraphAttentionNetwork):
                 if x.dtype==torch.int64: x is a list of tokenized text
                 else: x is a list of embeddings
             edge_index (torch.Tensor): Adjacency matrix of the graph
-            target (torch.Tensor): Target graph
-            n_steps (int, optional): Number of steps to take. Defaults to 10.
-            starting_step (int, optional): Step to start the loss calculation. Defaults to 0.
-            step_weight (callable, optional): Function that takes in the step number and returns a weight for that step. Defaults to None.
+            noise (float | torch.Tensor): Noise level for the encoder
+            n_steps (int): Number of steps to do
+            starting_step (int): Starting step for the step weight
+            step_weight (callable): Function that takes the step number and returns a weight
 
             Returns:  
             torch.Tensor: The loss scalar. dtype: torch.float
