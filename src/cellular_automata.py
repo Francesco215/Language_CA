@@ -25,9 +25,11 @@ class CellularAutomata(GraphAttentionNetwork):
 
         if loss_function==None: self.loss_function=DiffusionLoss(self.decoder)
         else: self.loss_function=loss_function
-    
-    def eval_loss(self, x, edge_index, noise=torch.rand(()), n_steps=10, starting_step=0, step_weight:callable=None):
-        """Evaluates the loss of the graph attention network for many steps
+
+        
+
+    def denoise(self, x, edge_index, noise =torch.tensor(1.), n_steps=10, starting_step=0, step_weight:callable=None):
+        """Denoises a graph
         
             Args:
             x (torch.Tensor): Tokenized graph
@@ -40,30 +42,21 @@ class CellularAutomata(GraphAttentionNetwork):
             step_weight (callable): Function that takes the step number and returns a weight
 
             Returns:  
-            torch.Tensor: The loss scalar. dtype: torch.float
-            torch.Tensor: The loss for each step. dtype: torch.float 
+            torch.Tensor: The denoised graph
         """
 
-        target = x.clone()
         if x.dtype==torch.long:
             x, clean_encoding, noise_encoding = self.encoder(x, noise)
         
-        #initialize loss
-        step_loss=torch.empty(n_steps, device=self.device)
-
         #do n steps 
         for i in range(n_steps):
             #make a forward pass
-            x = super().forward(x, edge_index)
-            #compute loss
-            step_loss[i]=self.loss_function(x, target, clean_encoding, noise_encoding)
+            x = self.forward(x, edge_index)
             #apply step weight if given
             if step_weight is not None:
-                step_loss[i]*=step_weight(i+starting_step)
+                x = x*step_weight(i+starting_step) + clean_encoding*(1-step_weight(i+starting_step))
 
-        return step_loss.mean(), step_loss
-    
-
+        return x
 
 def simple_step_weight(step,starting_step=2):
     return step>=starting_step
