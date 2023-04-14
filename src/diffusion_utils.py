@@ -21,7 +21,7 @@ def linear_schedule(t:float ,t_max:float, bits=BITS):
 
     s=1/bits
 
-    return (t/t_max+s)/(1+s)
+    return torch.tensor((t/t_max+s)/(1+s),dtype=torch.float).view(1)
 
 #TODO: check if this function is consistend with the reverse step definition
 def cosine_schedule(t:float ,t_max:float, bits=BITS):
@@ -38,7 +38,7 @@ def cosine_schedule(t:float ,t_max:float, bits=BITS):
     s=1/bits
 
     #TODO: check if using the torch implementation for the cosine function is better
-    return np.cos((t/t_max+s)/(1+s)*np.pi/2)**2
+    return torch.tensor(np.cos((t/t_max+s)/(1+s)*np.pi/2)**2,dtype=torch.float).view(1)
 
 
 
@@ -57,7 +57,7 @@ def denoise(model, reverse_step_function, x, time, timesteps, schedule, **kwargs
     """
     #TODO: check the last step
     alpha_old = schedule(time, timesteps)
-    alpha_next=schedule(time-1,timesteps)*torch.ones(len(x)).to(x.device)
+    alpha_next=schedule(time-1,timesteps)
 
     for t in range(time-2,0,-1):
         # predict
@@ -66,7 +66,7 @@ def denoise(model, reverse_step_function, x, time, timesteps, schedule, **kwargs
 
 
         alpha_old=alpha_next
-        alpha_next=schedule(t,timesteps)*torch.ones(len(x)).to(x.device)
+        alpha_next=schedule(t,timesteps)
 
         # reverse step
         x=reverse_step_function(x, x_0, alpha_old, alpha_next)

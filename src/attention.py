@@ -48,7 +48,7 @@ class AttentionMessageFunction(torch.autograd.Function):
 
         # softmax*V
         out = mult_att(attention, V, senders, receivers, split_size)
-       
+    
         # save the tensors for the backward
         split_size=torch.tensor([split_size])
         ctx.save_for_backward(out,attention, Q, K, V, edge_index, split_size)

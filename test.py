@@ -15,12 +15,13 @@ from torch.nn.utils import clip_grad_norm_
 import pickle
 import numpy as np
 from termcolor import colored
+from torch.nn import functional as F
 
 
 
 import torch
 
-from src.cellular_automata import CellularAutomata
+from src.cellular_automata import CellularAutomata, DiffusionLoss
 from src.tokenizer import CharTokenizer
 
 dir_path='shakespeare_data/'
@@ -63,7 +64,7 @@ device = 'cuda' if torch.cuda.is_available() else device
 dK = 32
 dV = 32
 heads = 4
-d_Embedding = dV*heads
+d_Embedding = dV
 intermediate_size=intermediate_size=d_Embedding
 
 
@@ -74,6 +75,7 @@ block_generator = BlockGenerator(GPT2_Block, d_Embedding, dK, dV, heads, interme
 
 model = CellularAutomata(tokenizer, encoder, block_generator, decoder, n_blocks=2)
 model.losses = []
+model.logs=[]
 model.validation_losses = []
 model.tokens_seen=0
 
@@ -99,26 +101,79 @@ def sample_shakespeare(data, lenght, starting_index=None):
     
     return data[starting_index:starting_index+lenght]
 
+step_weight = None
 
 
-n_epochs = int(2000)
+n_epochs = int(5)
 model.train()
-context_size=400
+context_size = 400
 model.train()
+n_steps = 10
 
-edge_index=graph_maker(context_size)
+edge_index = graph_maker(context_size)
+
+loss_function=DiffusionLoss(decoder)
 
 for i in range(n_epochs):
-    noise=torch.rand(())
-    
-    nodes=sample_shakespeare(train_ids, context_size)
+    noise = torch.rand(())
 
-    loss, losses = model.eval_loss(nodes, edge_index,noise)
+    target = sample_shakespeare(train_ids, context_size)
 
-    print(loss)
+    prediction, clean_encoding, noise_encoding = encoder(target, noise)
 
+    step_loss = torch.empty(n_steps, device=device)
+
+    #do n steps
+    for j in range(n_steps):
+        #make a forward pass
+        prediction = model(prediction, edge_index)
+
+        #compute loss
+        step_loss[j] = loss_function(
+            prediction, target, clean_encoding, noise_encoding)
+        #apply step weight if given
+        if step_weight is not None:
+            step_loss[j] *= step_weight(j)
+
+    #compute the total loss
+    loss = step_loss.mean()
+    best_possible_loss = F.cross_entropy(decoder(clean_encoding), target)
+
+    model.logs.append({'noise': noise,
+                       'loss': loss.item(),
+                       'best_possible_loss': best_possible_loss.item(),
+                       'step_loss': step_loss.detach().cpu().numpy()})
+
+    loss.backward()
     clip_grad_norm_(model.parameters(), 4*loss.item())
 
     optimizer.step()
     optimizer.zero_grad()  # reinitialize the gradient to zero
-    model.tokens_seen+=context_size
+    model.tokens_seen += context_size
+
+    model.losses.append(loss.item())
+
+    logging_interval = 30
+    if i % logging_interval == logging_interval-1:
+        clear_output(wait=True)
+
+        m_av = moving_average(model.losses, logging_interval-1)
+
+        plt.plot(model.losses, label='loss',
+                 color='orange', alpha=0.5, linewidth=0.5)
+        plt.plot(m_av, label='moving average', color='red')
+
+        plt.legend()
+        plt.ylabel('loss')
+        plt.xlabel('iteration')
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.show()
+
+
+from src.diffusion_utils import denoise,reverse_DDIM,cosine_schedule
+
+x=torch.randn(200,model.d_Embedding)
+edge_index=graph_maker(x.shape[0])
+
+denoise(model, reverse_DDIM, x, 10,10, cosine_schedule,edge_index=edge_index)
