@@ -99,7 +99,6 @@ class AttentionMessageFunction(torch.autograd.Function):
 
 
 
-
 def softmax(att, receivers, n_nodes, heads):
     """
     This function calculates the softmax of the attention.
@@ -129,7 +128,6 @@ def softmax(att, receivers, n_nodes, heads):
 
     # and normalize it to get the softmax
     return normalize_strength(att, receivers, n_nodes, heads)
-
 
 def normalize_strength(strength, receivers, n_nodes, heads):
     """ This function normalizes the strength of each connection by dividing it by the sum of the
@@ -233,7 +231,6 @@ def overlaps(Q, K, edge_index, split_size=2**15):
 
 
 
-
 def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receivers, split_size):
     """ This function calculates the gradient of the output with respect to the queries.
 
@@ -256,7 +253,6 @@ def compute_grad_Q(attention, K, att_overlap, out_grad_overlap, senders, receive
     out = out - einops.einsum(out_grad_overlap, K, '... , ... c -> ... c')
 
     return  out
-
 
 
 def compute_grad_K(attention, Q, att_overlap, out_grad_overlap, senders, receivers, split_size):

@@ -64,12 +64,34 @@ def simple_step_weight(step,starting_step=2):
 
 
 class DiffusionLoss(Loss):
-    def __init__(self, decoder: Decoder):
+    def __init__(self, decoder: Decoder, decoder_loss_weight=1):
+        """Initializes the loss class for the diffusion model
+
+        Args:
+            decoder (Decoder): The decoder function
+            decoder_loss_weight (int, optional): The weight of the decoder loss.
+                It determines how much the decoder loss contributes to the total loss.
+                Defaults to 1.
+        """
         loss_function=nn.CrossEntropyLoss()
         super().__init__(decoder, loss_function)
         self.embedding_loss=nn.MSELoss()
 
+        #this is a parameter that determines how much the decoder loss contributes to the total loss
+        self.decoder_loss_weight=decoder_loss_weight
 
-    def forward(self, x, target, clean_encoding, noise_encoding):
-        logits=self.decoder(x-noise_encoding)
-        return self.embedding_loss(x, clean_encoding) + self.loss(logits, target)
+
+    def forward(self, encoding_prediction, target, clean_encoding, noise_encoding):
+        """Evaluates the simplified loss function for the diffusion model with a given decoder
+        
+        Args:
+            encoding_prediction (torch.Tensor): the prediction of the encoding (dtype=torch.float)
+            target (torch.Tensor): the target of the decoder (dtype=torch.long)
+            clean_encoding (torch.Tensor): the encoding without noise applied (dtype=torch.float)
+            noise_encoding (torch.Tensor): the encoding of the noise itself (dtype=torch.float)
+
+        Returns:
+            torch.Tensor: The loss
+        """
+        logits=self.decoder(encoding_prediction-noise_encoding)
+        return self.embedding_loss(encoding_prediction, clean_encoding) + self.decoder_loss_weight*self.loss(logits, target)

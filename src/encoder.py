@@ -106,7 +106,7 @@ class NoiseEncoder(Encoder):
                 nn.Linear(1,d_Embedding//4),
                 nn.ReLU(),
                 nn.Linear(d_Embedding//4,d_Embedding),
-            )
+            ).to(self.device)
         
     def forward(self, x, noise=torch.rand(())):
 
@@ -117,8 +117,11 @@ class NoiseEncoder(Encoder):
         assert 0<=noise.item()<=1, f"noise should be between 0 and 1, got {noise}"
         noise=noise.view(1)
 
-        noise_encoding = self.noise_encoder(noise)
+        noise_encoding = self.noise_encoder(noise) #this is the encoding of the noise itself
+        #this is the encoding of the input x
         clean_encoding = super().forward(x) 
+
+        #this is the encoding of the input x with noise applied
         noised_encoding = clean_encoding*torch.sqrt(1-noise) + torch.randn_like(clean_encoding)*torch.sqrt(noise) + noise_encoding
         clean_encoding = clean_encoding + noise_encoding
 
