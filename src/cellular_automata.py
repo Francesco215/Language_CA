@@ -1,6 +1,6 @@
 from src.tokenizer import Tokenizer
 from src.encoder import Encoder, NoiseEncoder
-from src.decoder import Decoder, Loss
+from src.decoder import Decoder, DinstinctionLoss, Loss
 
 
 import torch
@@ -64,7 +64,7 @@ def simple_step_weight(step,starting_step=2):
 
 
 class DiffusionLoss(Loss):
-    def __init__(self, decoder: Decoder, decoder_loss_weight=1):
+    def __init__(self, decoder: Decoder, decoder_loss_weight=1, dinstinction_loss_weight=1):
         """Initializes the loss class for the diffusion model
 
         Args:
@@ -76,9 +76,11 @@ class DiffusionLoss(Loss):
         loss_function=nn.CrossEntropyLoss()
         super().__init__(decoder, loss_function)
         self.embedding_loss=nn.MSELoss()
+        self.dinstinction_loss = DinstinctionLoss(decoder)
 
         #this is a parameter that determines how much the decoder loss contributes to the total loss
         self.decoder_loss_weight=decoder_loss_weight
+        self.dinstinction_loss_weight=dinstinction_loss_weight
 
 
     def forward(self, encoding_prediction, target, clean_encoding, noise_encoding):
@@ -94,4 +96,8 @@ class DiffusionLoss(Loss):
             torch.Tensor: The loss
         """
         logits=self.decoder(encoding_prediction-noise_encoding)
-        return self.embedding_loss(encoding_prediction, clean_encoding) + self.decoder_loss_weight*self.loss(logits, target)
+        loss  = self.embedding_loss(encoding_prediction, clean_encoding)
+        loss += self.decoder_loss_weight * self.loss(logits, target)
+        loss += self.dinstinction_loss_weight * self.dinstinction_loss(target,clean_encoding)
+
+        return loss

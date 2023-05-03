@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from src.tokenizer import Tokenizer
 
-from src.encoder import Encoder, GPT2Encoder
+from src.encoder import Encoder, GPT2Encoder, NoiseEncoder
 import torch.nn.functional as F
 
 class Decoder(nn.Module):
@@ -61,6 +61,34 @@ class Loss(nn.Module):
         embeddings=self.decoder(embeddings)
         return self.loss(embeddings, targets)
 
+
+class DinstinctionLoss(nn.Module):
+    """
+        This is a loss function that makes sure that the encoder encodes the inputs
+        in such a way that are distinguishable for the decoder.
+
+    """
+
+    def __init__(self,decoder: Decoder):
+
+        super().__init__()
+
+        self.decoder=decoder
+        self.encoder=decoder.encoder
+
+        self.loss=nn.CrossEntropyLoss()
+
+
+    def forward(self, targets, clean_encoding=None):
+        assert targets.dtype==torch.long, "the targets must be of type torch.long"
+
+        if clean_encoding==None:
+            clean_encoding=self.encoder(targets)
+            if isinstance(self.encoder, NoiseEncoder):
+                clean_encoding=clean_encoding[1]
+        
+        out=self.decoder(clean_encoding)
+        return self.loss(out, targets)
 
 
 class GPT2Decoder(Decoder):

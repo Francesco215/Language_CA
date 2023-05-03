@@ -112,7 +112,7 @@ n_steps = 10
 
 edge_index = graph_maker(context_size)
 
-loss_function=DiffusionLoss(decoder)
+loss_function=DiffusionLoss(decoder,1e-2,1e-2)
 
 for i in range(n_epochs):
     noise = torch.rand(())
