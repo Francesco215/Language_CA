@@ -109,7 +109,18 @@ class NoiseEncoder(Encoder):
             ).to(self.device)
         
     def forward(self, x, noise=torch.rand(())):
+        """Encodes the input x and adds a noise to it 
 
+        Args:
+            x (torch.Tensor): the input tensor, (dtype=torch.long)
+            noise (float || torch.Tensor, optional): The noise level.
+                If otherways specified defaults to a random value between 0 and 1.
+
+        Returns:
+            noised_encoding: the encoding of x, with noise and noise encoding applied
+            clean_encoding : the encoding of x, with just noise encoding applied
+            noise_encoding : the encodign of the noise itself
+        """
         if type(noise) == float:
             noise = torch.tensor(noise, device=self.device)
         

@@ -39,7 +39,8 @@ class Loss(nn.Module):
         """
         super().__init__()
 
-        self.decoder=decoder 
+        self.decoder=decoder
+        self.encoder=decoder.encoder
 
         self.loss=loss_function #TODO: check if it computes the loss in the correct channels
 
@@ -64,6 +65,8 @@ class Loss(nn.Module):
 
 class DinstinctionLoss(nn.Module):
     """
+        Not used, for now its not useful
+    
         This is a loss function that makes sure that the encoder encodes the inputs
         in such a way that are distinguishable for the decoder.
 
@@ -85,7 +88,7 @@ class DinstinctionLoss(nn.Module):
         if clean_encoding==None:
             clean_encoding=self.encoder(targets)
             if isinstance(self.encoder, NoiseEncoder):
-                clean_encoding=clean_encoding[1]
+                clean_encoding=clean_encoding[1]-clean_encoding[2]
         
         out=self.decoder(clean_encoding)
         return self.loss(out, targets)

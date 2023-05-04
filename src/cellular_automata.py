@@ -69,19 +69,22 @@ class DiffusionLoss(Loss):
 
         Args:
             decoder (Decoder): The decoder function
-            decoder_loss_weight (int, optional): The weight of the decoder loss.
+            decoder_loss_weight (float, optional): The weight of the decoder loss.
                 It determines how much the decoder loss contributes to the total loss.
+                Defaults to 1.
+            dinstinction_loss_weight (float, optional): The weight of the dinstinction loss.
+                the dinstinction loss makes sure that the encoder encodes the inputs in such
+                a way that are distinguishable for the decoder. 
                 Defaults to 1.
         """
         loss_function=nn.CrossEntropyLoss()
         super().__init__(decoder, loss_function)
+        assert isinstance(self.encoder, NoiseEncoder), f"The encoder must be a of type NoiseEncoder, instead got {type(self.encoder)}"
+
         self.embedding_loss=nn.MSELoss()
-        self.dinstinction_loss = DinstinctionLoss(decoder)
 
-        #this is a parameter that determines how much the decoder loss contributes to the total loss
-        self.decoder_loss_weight=decoder_loss_weight
-        self.dinstinction_loss_weight=dinstinction_loss_weight
-
+        self.weights=torch.tensor([1, decoder_loss_weight, dinstinction_loss_weight])
+        self.weights=self.weights/self.weights.sum()
 
     def forward(self, encoding_prediction, target, clean_encoding, noise_encoding):
         """Evaluates the simplified loss function for the diffusion model with a given decoder
@@ -95,9 +98,20 @@ class DiffusionLoss(Loss):
         Returns:
             torch.Tensor: The loss
         """
-        logits=self.decoder(encoding_prediction-noise_encoding)
-        loss  = self.embedding_loss(encoding_prediction, clean_encoding)
-        loss += self.decoder_loss_weight * self.loss(logits, target)
-        loss += self.dinstinction_loss_weight * self.dinstinction_loss(target,clean_encoding)
+        losses=torch.empty([3])
 
-        return loss
+        #MSE loss over the embedding space
+        losses[0]  = self.embedding_loss(encoding_prediction, clean_encoding)
+        
+        #The loss relative to the decoding
+        logits=self.decoder(encoding_prediction-noise_encoding)
+        losses[1] = self.loss(logits, target)
+        
+        #This is a loss function that makes sure that the encoder encodes the inputs
+        #in such a way that are distinguishable for the decoder.
+        clean_logits=self.decoder(clean_encoding-noise_encoding)
+        losses[2] = self.loss(clean_logits,target)
+
+        total_loss=torch.dot(losses,self.weights)
+
+        return total_loss, losses
