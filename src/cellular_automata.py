@@ -7,7 +7,6 @@ import torch
 import torch.nn as nn
 
 from src.graphAN import BlockGenerator, GraphAttentionNetwork
-from src.diffusion_utils import denoise, generate_from_noise
 
 class CellularAutomata(GraphAttentionNetwork):
 
@@ -101,7 +100,7 @@ class DiffusionLoss(Loss):
         losses=torch.empty([3])
 
         #MSE loss over the embedding space
-        losses[0]  = self.embedding_loss(encoding_prediction, clean_encoding)
+        losses[0] = self.embedding_loss(encoding_prediction, clean_encoding)
         
         #The loss relative to the decoding
         logits=self.decoder(encoding_prediction-noise_encoding)

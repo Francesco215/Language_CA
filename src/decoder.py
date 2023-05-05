@@ -18,8 +18,10 @@ class Decoder(nn.Module):
         self.vocab_size=encoder.vocab_size
         self.n_parameters=encoder.n_parameters
         self.device=encoder.device
+        self.one_hot=encoder.one_hot
 
     def forward(self, x: torch.Tensor) -> torch.Tensor:
+        if self.one_hot: return x[..., :self.vocab_size]
         return F.linear(x, self.weight)
 
     @property

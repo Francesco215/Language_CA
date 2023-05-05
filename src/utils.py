@@ -1,7 +1,7 @@
 import numpy as np
-import torch
-from src.encoder import Encoder, Tokenizer
-from src.GPT2 import GPT2
+from torch import nn
+
+from torch.nn import functional as F
 
 
 def moving_average(a, n=3):
@@ -18,3 +18,10 @@ def grad_norm(model):
     return total_norm ** 0.5
 
 
+class OneHot(nn.Module):
+    def __init__(self, d_Embedding):
+        super().__init__()
+        self.d_Embedding = d_Embedding
+
+    def forward(self, x):
+        return F.one_hot(x, self.d_Embedding).float()*5

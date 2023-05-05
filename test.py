@@ -4,7 +4,7 @@ from IPython.display import clear_output
 
 from src.encoder import Encoder, GPT2Encoder
 from src.decoder import Decoder, GPT2Decoder
-from src.graph_initialization import random_unidirectional_graph_maker, linear_unidirectional_graph_maker
+from src.graph_initialization import random_unidirectional_graph_maker, linear_bidirectional_graph_maker
 from src.graphAN import GraphAttentionNetwork, BlockGenerator
 from src.data_loader import validation
 from src.tokenizer import Tokenizer
@@ -16,20 +16,19 @@ import pickle
 import numpy as np
 from termcolor import colored
 from torch.nn import functional as F
-
-
+import einops
 
 import torch
 
-from src.cellular_automata import CellularAutomata, DiffusionLoss
+from src.cellular_automata import CellularAutomata
 from src.tokenizer import CharTokenizer
 
-dir_path='shakespeare_data/'
-input_file_path=dir_path+'input.txt'
+dir_path = 'shakespeare_data/'
+input_file_path = dir_path+'input.txt'
 
 
 #create the tokenizer
-tokenizer=CharTokenizer(input_file_path)
+tokenizer = CharTokenizer(input_file_path)
 print('tokenizer vocab size:', tokenizer.vocab_size)
 
 # load the data
@@ -54,6 +53,9 @@ torch.save(train_ids, dir_path+'train.bin')
 torch.save(val_ids,   dir_path+'val.bin')
 
 
+
+from src.cellular_automata import DiffusionLoss
+from src.decoder import Loss
 from src.encoder import NoiseEncoder
 
 
@@ -61,33 +63,37 @@ device = 'cpu'
 #device = 'mps'  if torch.backends.mps.is_available() else 'cpu'
 device = 'cuda' if torch.cuda.is_available() else device
 
-dK = 32
-dV = 32
+dK = 16
+dV = 16
 heads = 4
-d_Embedding = dV
-intermediate_size=intermediate_size=d_Embedding
+d_Embedding = 65
+intermediate_size=2*d_Embedding
 
-
-encoder = NoiseEncoder(d_Embedding, tokenizer, dropout=0, device=device)
+encoder = NoiseEncoder(d_Embedding, tokenizer, dropout=0, device=device, one_hot=True)
 decoder = Decoder(encoder)
 block_generator = BlockGenerator(GPT2_Block, d_Embedding, dK, dV, heads, intermediate_size,
                                  dropout=0.1, split_size=2**10, device=device, rotary_encoding=True)
 
 model = CellularAutomata(tokenizer, encoder, block_generator, decoder, n_blocks=2)
-model.losses = []
-model.logs=[]
-model.validation_losses = []
+model.logs={'loss':[],'step_loss':[], 'loss_components':[[],[],[]]}
 model.tokens_seen=0
 
-graph_maker = linear_unidirectional_graph_maker(64, device=device)
+graph_maker = linear_bidirectional_graph_maker(64, device=device)
 
 print(f'number of parameters:{model.n_parameters}')
 
-lr = 1e-3
+lr = 2e-2
 gamma = 0.99
 
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
+
+step_weight=None
+
+
+loss_function=DiffusionLoss(decoder,1e-2,1e-1)
+
+
 
 from numpy.random import randint
 def sample_shakespeare(data, lenght, starting_index=None):
@@ -101,79 +107,48 @@ def sample_shakespeare(data, lenght, starting_index=None):
     
     return data[starting_index:starting_index+lenght]
 
-step_weight = None
+
+def sample_minibatched_shakespeare(train_ids, context_size, batch_size):
+    target = []
+    prediction = []
+    clean_encoding = []
+    noise_encoding = []
+
+    for _ in range(batch_size):
+        targ=sample_shakespeare(train_ids, context_size)
+        target.append(targ)
+        noise=torch.rand(())
+
+        pred, clean, nois = encoder(targ, noise)
+
+        prediction.append(pred)
+        clean_encoding.append(clean)
+        noise_encoding.append(nois.repeat(pred.shape[0], 1))
+        
+    target = torch.cat(target, dim=0)
+    prediction = torch.cat(prediction, dim=0)
+    clean_encoding = torch.cat(clean_encoding, dim=0)
+    noise_encoding = torch.cat(noise_encoding, dim=0)
+
+    return prediction, clean_encoding, noise_encoding, target
 
 
-n_epochs = int(5)
+batch_size=10
+
+n_epochs = int(2000)
 model.train()
-context_size = 400
+context_size=100
 model.train()
-n_steps = 10
+n_steps=10
 
 edge_index = graph_maker(context_size)
-
-loss_function=DiffusionLoss(decoder,1e-2,1e-2)
-
-for i in range(n_epochs):
-    noise = torch.rand(())
-
-    target = sample_shakespeare(train_ids, context_size)
-
-    prediction, clean_encoding, noise_encoding = encoder(target, noise)
-
-    step_loss = torch.empty(n_steps, device=device)
-
-    #do n steps
-    for j in range(n_steps):
-        #make a forward pass
-        prediction = model(prediction, edge_index)
-
-        #compute loss
-        step_loss[j] = loss_function(
-            prediction, target, clean_encoding, noise_encoding)
-        #apply step weight if given
-        if step_weight is not None:
-            step_loss[j] *= step_weight(j)
-
-    #compute the total loss
-    loss = step_loss.mean()
-    best_possible_loss = F.cross_entropy(decoder(clean_encoding), target)
-
-    model.logs.append({'noise': noise,
-                       'loss': loss.item(),
-                       'best_possible_loss': best_possible_loss.item(),
-                       'step_loss': step_loss.detach().cpu().numpy()})
-
-    loss.backward()
-    clip_grad_norm_(model.parameters(), 4*loss.item())
-
-    optimizer.step()
-    optimizer.zero_grad()  # reinitialize the gradient to zero
-    model.tokens_seen += context_size
-
-    model.losses.append(loss.item())
-
-    logging_interval = 30
-    if i % logging_interval == logging_interval-1:
-        clear_output(wait=True)
-
-        m_av = moving_average(model.losses, logging_interval-1)
-
-        plt.plot(model.losses, label='loss',
-                 color='orange', alpha=0.5, linewidth=0.5)
-        plt.plot(m_av, label='moving average', color='red')
-
-        plt.legend()
-        plt.ylabel('loss')
-        plt.xlabel('iteration')
-        plt.yscale('log')
-        plt.xscale('log')
-        plt.show()
+edge_slide = torch.repeat_interleave(torch.arange(batch_size)*context_size, edge_index.shape[-1]).repeat(2,1)
+edge_index=edge_index.repeat(1, batch_size) + edge_slide
 
 
-from src.diffusion_utils import denoise,reverse_DDIM,cosine_schedule
 
-x=torch.randn(200,model.d_Embedding)
-edge_index=graph_maker(x.shape[0])
+prediction, clean_encoding, noise_encoding, target = sample_minibatched_shakespeare(train_ids, context_size, batch_size)
 
-denoise(model, reverse_DDIM, x, 10,10, cosine_schedule,edge_index=edge_index)
+
+#do n steps 
+step_loss, loss_components=loss_function(prediction, target, clean_encoding, noise_encoding)

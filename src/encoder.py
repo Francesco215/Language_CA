@@ -2,6 +2,7 @@ import torch
 from torch import nn
 
 from src.tokenizer import Tokenizer
+from src.utils import OneHot
 
 class Encoder(nn.Module):
     """Layer to turn tokens into word embeddings"""
@@ -10,7 +11,8 @@ class Encoder(nn.Module):
                  d_Embedding: int = 512,
                  tokenizer=Tokenizer('gpt2'),  # defaults to the bert-base dictionary size,
                  dropout: float = 0.1,
-                 device: str = 'cpu'
+                 device: str = 'cpu',
+                 one_hot=False
                  ):
         """
         This funciton takes the tokens and turns them into word embeddings.
@@ -28,9 +30,15 @@ class Encoder(nn.Module):
         self.vocab_size = tokenizer.vocab_size
         self.d_Embedding = d_Embedding
         self.device=device
+        self.one_hot=one_hot
 
         #the embedding layer turns each token into a vector of size d_Embedding
-        self.embedding = nn.Embedding(self.vocab_size, d_Embedding,device=device)
+        if one_hot:
+            assert d_Embedding>=self.vocab_size, f"The embedding dimension ({d_Embedding}) must be greater than the vocabulary size ({self.vocab_size})"
+            self.embedding = OneHot(d_Embedding)
+        else:
+            self.embedding = nn.Embedding(self.vocab_size, d_Embedding,device=device)
+        
         self.dropout = nn.Dropout(dropout)
 
         #the number of parameters is the number of tokens times the embedding dimention
@@ -96,9 +104,10 @@ class NoiseEncoder(Encoder):
                  tokenizer=Tokenizer('gpt2'),
                  noise_encoder:nn.Module=None,
                  dropout: float = 0.1,
-                 device: str = 'cpu'
+                 device: str = 'cpu',
+                 one_hot=False
                  ):
-        super().__init__(d_Embedding, tokenizer, dropout, device)
+        super().__init__(d_Embedding, tokenizer, dropout, device, one_hot)
 
         self.noise_encoder=noise_encoder
         if noise_encoder is None:
