@@ -66,6 +66,8 @@ class SamplePool(Dataset):
             indexes_max_loss_size (int, optional): Maximum number of texts to 
                 replace with freshly sampled texts. Defaults to 32.
         """
+        assert generator.device==device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {device}'
+
         self.size = pool_size
         self.generator = generator
         self.transform = transform
@@ -77,8 +79,6 @@ class SamplePool(Dataset):
             self.data[i] = generator()
 
         self.all_indexes = set(range(pool_size))
-        self.indexes_max_loss = set()
-
         self.evolutions_per_datapoint = np.zeros(pool_size, dtype=int)
 
     def __len__(self) -> int:
@@ -108,3 +108,40 @@ class SamplePool(Dataset):
         #TODO: maybe concatenate?
         return self.transform(self.data[idx]).clone(), idx 
 
+    def update_evolution_iters(self, indexes: List[int], evolution_iters):
+        if evolution_iters is not None:
+            self.evolutions_per_datapoint[indexes] += evolution_iters
+
+    def replace_idx(self, indexes: List[int], idx_to_replace: List[int]):
+        if idx_to_replace is not None:
+            idx_to_replace = [indexes[i] for i in idx_to_replace]
+            self.generate_data(idx_to_replace)
+
+    def generate_data(self,indexes):
+        self.evolutions_per_datapoint[indexes]*=0
+        for i in indexes:
+            self.data[i]=self.generator()
+
+    def reset(self):
+        self.evolutions_per_datapoint *= 0
+        for i in range(self.size):
+            self.data[i] = self.generator()
+
+    def update(self, indexes: List[int],
+                data: torch.Tensor,
+                idx_to_replace: List[int] = None,
+                evolution_iters=None) -> None:
+        """Updates the data in the pool with new data at the given indexes.
+
+        Args:
+            indexes (List[int]): Indexes of the data to update
+            data (torch.Tensor): New data to insert at the given indexes
+            indexes_max_loss (List[int], optional): Indexes of the data with
+                maximum loss, these data will be replaced with seed states.
+                Default None, no data will be resampled
+        """
+        self.data[indexes] = data.detach().to(self.device)
+
+        self.update_evolution_iters(indexes, evolution_iters)
+
+        self.replace_idx(indexes, idx_to_replace)
