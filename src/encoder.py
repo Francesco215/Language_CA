@@ -24,6 +24,8 @@ class Encoder(nn.Module):
             tokenizer (Tokenizer, optional): The tokenizer to use. Defaults to Tokenizer('gpt2').
             dropout (float, optional): The dropout rate. Defaults to 0.1.
             device (str, optional): The device to use. Defaults to 'cpu'.
+            one_hot (bool, optional): If true, each element of the tokenizer's dictionary is
+                encoded into his own versors. Defaults to False.
         """
         super().__init__()
         self.tokenizer = tokenizer
@@ -107,7 +109,21 @@ class NoiseEncoder(Encoder):
                  device: str = 'cpu',
                  one_hot=False
                  ):
+        """
+        This function encodes the input and adds noise to it
+
+        Args:
+            d_Embedding (int, optional): the dimention of the embedding. Defaults to 512.
+            tokenizer (Tokenizer, optional): The tokenizer. Defaults to Tokenizer('gpt2').
+            noise_encoder (nn.Module, optional): Its a small NN that encodes the noise level, its useful for diffusion models.
+                Defaults to None.
+            dropout (float, optional): The dropout rate. Defaults to 0.1.
+            device (str, optional): The device to use. Defaults to 'cpu'.
+            one_hot (bool, optional): If true, each element of the tokenizer's dictionary is
+                encoded into his own versors. Defaults to False.
+        """
         super().__init__(d_Embedding, tokenizer, dropout, device, one_hot)
+
 
         self.noise_encoder=noise_encoder
         if noise_encoder is None:
@@ -128,7 +144,7 @@ class NoiseEncoder(Encoder):
         Returns:
             noised_encoding: the encoding of x, with noise and noise encoding applied
             clean_encoding : the encoding of x, with just noise encoding applied
-            noise_encoding : the encodign of the noise itself
+            noise_encoding : the encoding of the noise itself
         """
         if type(noise) == float:
             noise = torch.tensor(noise, device=self.device)
