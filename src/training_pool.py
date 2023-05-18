@@ -60,13 +60,6 @@ class TextGenerator:
 
 
 class SamplePool(Dataset):
-    """TODO:
-    This class has several inefficiencies
-
-    - self.data is a python list which contains tuples of torch tensors of different shapes, yeah
-    - it doesn't know how to handle well batches
-    
-    """
     def __init__(self,
                  pool_size: int,
                  generator: TextGenerator,
@@ -94,11 +87,11 @@ class SamplePool(Dataset):
         self.device = device
         self.indexes_max_loss_size = indexes_max_loss_size
 
-        self.clean_texts       = torch.tensor((pool_size,generator.datapoint_shape[0]))
+        self.clean_texts       = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
         self.clean_embeddings  = torch.empty((pool_size,*generator.datapoint_shape))
-        self.noised_embeddigns = torch.empty((pool_size,*generator.datapoint_shape))
+        self.noised_embeddings = torch.empty((pool_size,*generator.datapoint_shape))
         self.noise_level       = torch.rand(pool_size)
-        self.noise_encoding    = torch.empty(pool_size)
+        self.noise_encoding    = torch.empty(pool_size,generator.datapoint_shape[1])
 
         self.reset()
 
@@ -135,7 +128,7 @@ class SamplePool(Dataset):
         return clean_texts, noised_embeddings, clean_embeddings, noise_encoding, idx, noise_level
 
     
-
+    #TODO vedi se serve oppure posso usare direttamente usare generate_data
     def replace_idx(self, indexes: List[int], idx_to_replace: List[int]):
         if idx_to_replace is not None:
             idx_to_replace = [indexes[i] for i in idx_to_replace]
@@ -145,8 +138,7 @@ class SamplePool(Dataset):
         self.evolutions_per_datapoint[indexes]*=0
         for i in indexes:
             self.clean_texts[i] = self.generator()
-            self.noised_embeddigns[i], self.clean_embeddings[i], self.noise_encoding[i] = self.encoder(
-                self.clean_texts[i], self.noise_level[i])
+            self.noised_embeddings[i], self.clean_embeddings[i], self.noise_encoding[i] = self.encoder(self.clean_texts[i], self.noise_level[i])
 
     def reset(self):
         self.evolutions_per_datapoint = torch.zeros(self.size, dtype=torch.long)
@@ -165,7 +157,7 @@ class SamplePool(Dataset):
                 maximum loss, these data will be resampled.
                 Default None, no data will be resampled
         """
-        self.noised_embeddigns[indexes] = denoised_embeddings.detach().to(self.device)
+        self.noised_embeddings[indexes] = denoised_embeddings.detach().to(self.device)
 
         if evolution_iters is not None:
             self.evolutions_per_datapoint[indexes] += evolution_iters
