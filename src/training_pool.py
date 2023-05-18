@@ -87,7 +87,7 @@ class SamplePool(Dataset):
         self.device = device
         self.indexes_max_loss_size = indexes_max_loss_size
 
-        self.clean_texts       = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
+        self.target_tokens       = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
         self.clean_embeddings  = torch.empty((pool_size,*generator.datapoint_shape))
         self.noised_embeddings = torch.empty((pool_size,*generator.datapoint_shape))
         self.noise_level       = torch.rand(pool_size)
@@ -101,7 +101,7 @@ class SamplePool(Dataset):
         return self.size
 
     def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
-        return self.clean_texts[idx], self.noised_embeddings[idx], self.clean_embeddings[idx], self.noise_encoding[idx], self.noise_level[idx]
+        return self.target_tokens[idx], self.noised_embeddings[idx].detach(), self.clean_embeddings[idx].detach(), self.noise_encoding[idx].detach(), self.noise_level[idx]
 
     def sample(self, batch_size: int=1) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -137,8 +137,8 @@ class SamplePool(Dataset):
     def generate_data(self,indexes):
         self.evolutions_per_datapoint[indexes]*=0
         for i in indexes:
-            self.clean_texts[i] = self.generator()
-            self.noised_embeddings[i], self.clean_embeddings[i], self.noise_encoding[i] = self.encoder(self.clean_texts[i], self.noise_level[i])
+            self.target_tokens[i] = self.generator().detach()
+            self.noised_embeddings[i], self.clean_embeddings[i], self.noise_encoding[i] = self.encoder(self.target_tokens[i], self.noise_level[i])
 
     def reset(self):
         self.evolutions_per_datapoint = torch.zeros(self.size, dtype=torch.long)

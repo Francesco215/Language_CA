@@ -23,6 +23,12 @@ import torch
 from src.cellular_automata import CellularAutomata
 from src.tokenizer import CharTokenizer
 
+from src.cellular_automata import DiffusionLoss
+from src.decoder import Loss
+from src.encoder import NoiseEncoder
+from src.training_pool import SamplePool, TextGenerator
+
+
 dir_path = 'shakespeare_data/'
 input_file_path = dir_path+'input.txt'
 
@@ -32,32 +38,6 @@ tokenizer = CharTokenizer(input_file_path)
 print('tokenizer vocab size:', tokenizer.vocab_size)
 
 # load the data
-with open(input_file_path, 'r') as f:
-    data = f.read()
-print(f"length of dataset in characters: {len(data):,}")
-
-
-# create the train and test splits
-n = len(data)
-train_data = data[:int(n*0.9)]
-val_data = data[int(n*0.9):]
-
-# encode both to integers
-train_ids = tokenizer(train_data)
-val_ids = tokenizer(val_data)
-print(f"train has {len(train_ids):,} tokens")
-print(f"val has {len(val_ids):,} tokens")
-
-# export to bin files
-torch.save(train_ids, dir_path+'train.bin')
-torch.save(val_ids,   dir_path+'val.bin')
-
-
-
-from src.cellular_automata import DiffusionLoss
-from src.decoder import Loss
-from src.encoder import NoiseEncoder
-
 
 device = 'cpu'
 #device = 'mps'  if torch.backends.mps.is_available() else 'cpu'
@@ -87,68 +67,105 @@ gamma = 0.99
 
 optimizer = torch.optim.Adam(model.parameters(), lr=lr)
 scheduler = torch.optim.lr_scheduler.ExponentialLR(optimizer, gamma)
-
 step_weight=None
 
 
 loss_function=DiffusionLoss(decoder,1e-2,1e-1)
 
+sequence_lenght=100
+text_generator=TextGenerator(input_file_path, lenght=sequence_lenght, encoder=encoder)
+pool=SamplePool(pool_size=30, generator=text_generator, encoder=encoder, indexes_max_loss_size=5)
 
 
-from numpy.random import randint
-def sample_shakespeare(data, lenght, starting_index=None):
-    lenght=int(lenght)
-    
-    if starting_index is None:
-        starting_index = randint(0, len(data)-lenght)
+#@title {vertical-output: true}
+#@markdown # Training
+#@markdown the loss function is cross entropy ❌🎲
 
-    if starting_index+lenght>=len(data):
-        return data[starting_index:]    
-    
-    return data[starting_index:starting_index+lenght]
+edge_index = graph_maker(sequence_lenght)
 
-
-def sample_minibatched_shakespeare(train_ids, context_size, batch_size):
-    target = []
-    prediction = []
-    clean_encoding = []
-    noise_encoding = []
-
-    for _ in range(batch_size):
-        targ=sample_shakespeare(train_ids, context_size)
-        target.append(targ)
-        noise=torch.rand(())
-
-        pred, clean, nois = encoder(targ, noise)
-
-        prediction.append(pred)
-        clean_encoding.append(clean)
-        noise_encoding.append(nois.repeat(pred.shape[0], 1))
-        
-    target = torch.cat(target, dim=0)
-    prediction = torch.cat(prediction, dim=0)
-    clean_encoding = torch.cat(clean_encoding, dim=0)
-    noise_encoding = torch.cat(noise_encoding, dim=0)
-
-    return prediction, clean_encoding, noise_encoding, target
-
-
-batch_size=10
 
 n_epochs = int(2000)
 model.train()
-context_size=100
-model.train()
 n_steps=10
+for i in range(n_epochs):
+    idx=np.random.randint(pool.size)
+    print(idx)
+    target_tokens, prediction, clean_embeddings, noise_encoding, noise_level = pool[idx]
 
-edge_index = graph_maker(context_size)
-edge_slide = torch.repeat_interleave(torch.arange(batch_size)*context_size, edge_index.shape[-1]).repeat(2,1)
-edge_index=edge_index.repeat(1, batch_size) + edge_slide
+    step_loss=torch.empty(n_steps+1, device=device)
+    loss_components=torch.empty([n_steps+1,3], device=device)
+
+    #do n steps 
+    step_loss[0], loss_components[0]=loss_function(prediction, target_tokens, clean_embeddings, noise_encoding)
+    for j in range(1,n_steps+1):
+        #make a forward pass
+        prediction = model(prediction, edge_index)
+        
+        #compute loss
+        step_loss[j], loss_components[j] = loss_function(prediction, target_tokens, clean_embeddings, noise_encoding)
+        #apply step weight if given
+        if step_weight is not None:
+            step_loss[j]*=step_weight(j)
+
+    #compute the total loss
+
+    loss = step_loss.mean()
+
+    model.logs['loss'].append(loss.item())
+    model.logs['step_loss'].append(step_loss.detach().cpu().numpy())
+    for log,l in zip(model.logs['loss_components'],loss_components.mean(dim=0)):
+        log.append(l.item())
+
+    
+    loss.backward()
+    clip_grad_norm_(model.parameters(), 4*loss.item())
+
+
+    optimizer.step()
+    optimizer.zero_grad()  # reinitialize the gradient to zero
+    model.tokens_seen+=sequence_lenght
+
+
+    logging_interval=30
+    if i%logging_interval==logging_interval-1:
+        clear_output(wait=True)
+        
+        m_av = moving_average(model.logs['loss'], logging_interval-1)
+        
+        plt.plot(model.logs['loss'], label='loss', color='grey', alpha=0.5, linewidth=0.5)
+        plt.plot(m_av, label='moving average', color='black')
+
+        
+        plt.title("training loss")
+        plt.legend()
+        plt.ylabel('loss')
+        plt.xlabel('iteration')
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.show()
+
+        prediction, clean_embeddings, noise_encoding, target_tokens = sample_minibatched_shakespeare(train_ids, sequence_lenght, batch_size)
+
+        
+
+        plt.plot(model.logs['loss'], label='loss', color='grey', alpha=0.5, linewidth=0.5)
+        plt.plot(m_av, label='moving average', color='black')
+
+        labels=["mse","reconstruction","dinstinction"]
+        colors=[["red","orange"], ["blue", "cyan"], ["green", "lime"]]
+        for log, label, color in zip(model.logs['loss_components'], labels, colors):
+            m_av = moving_average(log, logging_interval-1)
+            plt.plot(m_av, label=f'moving {label}', color=color[0])
+            plt.plot(log, label=label, color=color[1], alpha=0.5, linewidth=0.5)
 
 
 
-prediction, clean_encoding, noise_encoding, target = sample_minibatched_shakespeare(train_ids, context_size, batch_size)
-
-
-#do n steps 
-step_loss, loss_components=loss_function(prediction, target, clean_encoding, noise_encoding)
+        plt.title("validation")
+        plt.legend()
+        plt.ylabel('loss')
+        plt.xlabel('iteration')
+        plt.yscale('log')
+        plt.xscale('log')
+        plt.ylim(bottom=5e-2)
+        plt.show()
+        

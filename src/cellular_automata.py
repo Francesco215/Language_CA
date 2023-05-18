@@ -85,18 +85,22 @@ class DiffusionLoss(Loss):
         self.weights=torch.tensor([1, decoder_loss_weight, dinstinction_loss_weight])
         self.weights=self.weights/self.weights.sum()
 
-    def forward(self, encoding_prediction, target, clean_encoding, noise_encoding):
+    def forward(self, encoding_prediction, target_tokens, clean_encoding, noise_encoding):
         """Evaluates the simplified loss function for the diffusion model with a given decoder
         
         Args:
             encoding_prediction (torch.Tensor): the prediction of the encoding (dtype=torch.float)
-            target (torch.Tensor): the target of the decoder (dtype=torch.long)
+            target_tokens (torch.Tensor): the target of the decoder (dtype=torch.long)
             clean_encoding (torch.Tensor): the encoding without noise applied (dtype=torch.float)
             noise_encoding (torch.Tensor): the encoding of the noise itself (dtype=torch.float)
 
         Returns:
             torch.Tensor: The loss
         """
+        assert encoding_prediction.shape[:-1]==target_tokens.shape, f'the shape of the first dimentions of the encoding_prediction must match the one of target_tokens, instead got {encoding_prediction.shape} and {target_tokens.shape}'
+        assert encoding_prediction.shape==clean_encoding.shape, f'The shape of encoding_prediction must match the one of the clean_encoding, instead got {encoding_prediction.shape} and {clean_encoding.shape}'
+        assert encoding_prediction.shape[-1]==noise_encoding.shape[-1], f'basta un c\' fazz chiù'
+
         losses=torch.empty([3])
 
         #MSE loss over the embedding space
@@ -104,12 +108,12 @@ class DiffusionLoss(Loss):
         
         #The loss relative to the decoding
         logits=self.decoder(encoding_prediction-noise_encoding)
-        losses[1] = self.loss(logits, target)
+        losses[1] = self.loss(logits, target_tokens)
         
         #This is a loss function that makes sure that the encoder encodes the inputs
         #in such a way that are distinguishable for the decoder.
         clean_logits=self.decoder(clean_encoding-noise_encoding)
-        losses[2] = self.loss(clean_logits,target)
+        losses[2] = self.loss(clean_logits,target_tokens)
 
         total_loss=torch.dot(losses,self.weights)
 
