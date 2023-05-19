@@ -149,13 +149,13 @@ class NoiseEncoder(Encoder):
         if type(noise) == float:
             noise = torch.tensor(noise, device=self.device)
         
-        assert noise.dim()==0, f"noise should be a scalar tensor, got a {noise.dim()}-dimensional tensor"
-        assert 0<=noise.item()<=1, f"noise should be between 0 and 1, got {noise}"
+        assert noise.dim()==0 or noise.shape==(1,), f"noise should be a scalar tensor, got a {noise.dim()}-dimensional tensor"
+        assert torch.logical_and(0<=noise,noise<=1).all(), f"noise should be between 0 and 1, got {noise}"
         noise=noise.view(1)
 
         noise_encoding = self.noise_encoder(noise) #this is the encoding of the noise itself
         #this is the encoding of the input x
-        clean_encoding = super().forward(x) 
+        clean_encoding = super().forward(x)
 
         #this is the encoding of the input x with noise applied
         noised_encoding = clean_encoding*torch.sqrt(1-noise) + torch.randn_like(clean_encoding)*torch.sqrt(noise) + noise_encoding

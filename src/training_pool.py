@@ -77,21 +77,21 @@ class SamplePool(Dataset):
                 replace with freshly sampled texts. Defaults to 32.
         """
         assert generator.device==device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {device}'
-        assert isinstance(
-            encoder, NoiseEncoder), f"The encoder must be an instance of NoiseEncoder, got {type(encoder)} instead"
+        assert isinstance(encoder, NoiseEncoder), f"The encoder must be an instance of NoiseEncoder, got {type(encoder)} instead"
 
         self.size = pool_size
         self.generator = generator
         self.encoder=encoder
+        self.noise_encoder=encoder.noise_encoder
         self.device=encoder.device
         self.device = device
         self.indexes_max_loss_size = indexes_max_loss_size
 
-        self.target_tokens       = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
+        self.target_tokens     = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
         self.clean_embeddings  = torch.empty((pool_size,*generator.datapoint_shape))
         self.noised_embeddings = torch.empty((pool_size,*generator.datapoint_shape))
-        self.noise_level       = torch.rand(pool_size)
-        self.noise_encoding    = torch.empty(pool_size,generator.datapoint_shape[1])
+        self.noise_level       = torch.rand(pool_size,1)
+        self.losses            = torch.zeros(pool_size)
 
         self.reset()
 
@@ -101,7 +101,9 @@ class SamplePool(Dataset):
         return self.size
 
     def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
-        return self.target_tokens[idx], self.noised_embeddings[idx].detach(), self.clean_embeddings[idx].detach(), self.noise_encoding[idx].detach(), self.noise_level[idx]
+        assert type(idx)==int or idx.dim==0 or idx.shape==(1,), f"This function is not yet implemented only if the shape of idx==(1,)"
+
+        return self.target_tokens[idx], self.noised_embeddings[idx], self.clean_embeddings[idx], self.noise_encoder(self.noise_level[idx]), self.noise_level[idx]
 
     def sample(self, batch_size: int=1) -> Tuple[torch.Tensor, torch.Tensor]:
         """
@@ -127,27 +129,44 @@ class SamplePool(Dataset):
 
         return clean_texts, noised_embeddings, clean_embeddings, noise_encoding, idx, noise_level
 
-    
-    #TODO vedi se serve oppure posso usare direttamente usare generate_data
-    def replace_idx(self, indexes: List[int], idx_to_replace: List[int]):
-        if idx_to_replace is not None:
-            idx_to_replace = [indexes[i] for i in idx_to_replace]
-            self.generate_data(idx_to_replace)
-
+    @torch.no_grad()
     def generate_data(self,indexes):
         self.evolutions_per_datapoint[indexes]*=0
         for i in indexes:
-            self.target_tokens[i] = self.generator().detach()
-            self.noised_embeddings[i], self.clean_embeddings[i], self.noise_encoding[i] = self.encoder(self.target_tokens[i], self.noise_level[i])
+            self.target_tokens[i] = self.generator()
+            self.noised_embeddings[i], self.clean_embeddings[i], _ = self.encoder(self.target_tokens[i], self.noise_level[i])
 
     def reset(self):
         self.evolutions_per_datapoint = torch.zeros(self.size, dtype=torch.long)
         self.generate_data(range(self.size))
 
+    def clean_worst_performers(self, cutoff=None):
+        """cleans the worst performers of the pool
+
+        Args:
+            cutoff (Callable, optional): A function that has as arguments the losses of the training pool,
+                and returns a Bool torch.tensor.
+                Defaults to cutting off all the datapoints with loss higher than a 1/10 of the highest one.
+        """
+        worst_performers = torch.arange(0,self.size)[self.cutoff()]
+        self.generate_data(worst_performers)
+
+    def cutoff(self):
+        losses=self.losses[self.evolutions_per_datapoint>0]
+        high,low=losses.max(),losses.min()
+        max_allowed=2.
+
+        c1=self.losses>max_allowed
+        c2=self.losses>high/10
+        c3=self.losses>low*4
+
+        return c1*c2*c3
+
+    @torch.no_grad()
     def update(self, indexes: List[int],
                 denoised_embeddings: torch.Tensor,
-                idx_to_replace: List[int] = None,
-                evolution_iters=None) -> None:
+                evolution_iters=None,
+                losses=None) -> None:
         """Updates the data in the pool with new data at the given indexes.
 
         Args:
@@ -157,9 +176,11 @@ class SamplePool(Dataset):
                 maximum loss, these data will be resampled.
                 Default None, no data will be resampled
         """
-        self.noised_embeddings[indexes] = denoised_embeddings.detach().to(self.device)
+        self.noised_embeddings[indexes] = denoised_embeddings.to(self.device)
 
         if evolution_iters is not None:
             self.evolutions_per_datapoint[indexes] += evolution_iters
 
-        self.replace_idx(indexes, idx_to_replace)
+        if losses is not None:
+            self.losses[indexes]=losses
+
