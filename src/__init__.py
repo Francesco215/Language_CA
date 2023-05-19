@@ -8,4 +8,4 @@ from .graphAN import GraphAttentionNetwork, BlockGenerator
 from .cellular_automata import CellularAutomata
 from .training_pool import TextGenerator, SamplePool
 from .GPT2 import GPT2
-from .utils import moving_average, grad_norm
+from .utils import moving_average, grad_norm, highlight_denoising, highlight_noising
