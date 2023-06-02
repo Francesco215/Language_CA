@@ -4,6 +4,9 @@ import torch
 from torch.utils.data import Dataset
 
 import numpy as np
+
+from src.cellular_automata import CellularAutomata
+from src.training_pool import TextGenerator
 from .encoder import NoiseEncoder
 
 from typing import Any, Iterable, List, Tuple, Callable
@@ -39,7 +42,7 @@ class TextGenerator:
         self.train_data = data[:int(n*0.9)]
         self.val_data = data[int(n*0.9):]
 
-    def __call__(self,train=True):
+    def __call__(self,lenght=None,train=True):
         """Samples text and encodes it
 
         Args:
@@ -49,22 +52,22 @@ class TextGenerator:
         Returns:
             torch.Tensor: The encoded text
         """
+        if lenght is None: lenght=self.lenght
         data = self.train_data if train else self.val_data
         
-        starting_index=randint(0,len(data)-self.lenght)
+        starting_index=randint(0,len(data)-lenght)
 
-        if starting_index+self.lenght >= len(data):
+        if starting_index+lenght >= len(data):
             return self.tokenizer(data[starting_index:])
 
-        return self.tokenizer(data[starting_index:starting_index+self.lenght])
+        return self.tokenizer(data[starting_index:starting_index+lenght])
 
 
 class SamplePool(Dataset):
     def __init__(self,
                  pool_size: int,
                  generator: TextGenerator,
-                 encoder: NoiseEncoder,
-                 device: torch.device = "cpu",
+                 model: CellularAutomata,
                  indexes_max_loss_size=32) -> None:
         """Initializes the sample pool
 
@@ -76,22 +79,24 @@ class SamplePool(Dataset):
             indexes_max_loss_size (int, optional): Maximum number of texts to 
                 replace with freshly sampled texts. Defaults to 32.
         """
-        assert generator.device==device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {device}'
-        assert isinstance(encoder, NoiseEncoder), f"The encoder must be an instance of NoiseEncoder, got {type(encoder)} instead"
+        assert generator.device==model.device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {device}'
+        assert isinstance(model, CellularAutomata), f"The encoder must be an instance of NoiseEncoder, got {type(model)} instead"
 
         self.size = pool_size
         self.generator = generator
-        self.encoder=encoder
-        self.noise_encoder=encoder.noise_encoder
-        self.device=encoder.device
-        self.device = device
+        self.encoder=model.encoder
+        self.noise_encoder=model.encoder.noise_encoder
+        self.loss_function=model.loss_function
+        self.device=model.device
         self.indexes_max_loss_size = indexes_max_loss_size
 
-        self.target_tokens     = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long)
-        self.clean_embeddings  = torch.empty((pool_size,*generator.datapoint_shape))
-        self.noised_embeddings = torch.empty((pool_size,*generator.datapoint_shape))
-        self.noise_level       = torch.rand(pool_size,1)
-        self.losses            = torch.zeros(pool_size)
+        self.target_tokens     = torch.empty((pool_size,generator.datapoint_shape[0]),dtype=torch.long, device=self.device)
+        self.clean_embeddings  = torch.empty((pool_size,*generator.datapoint_shape),device=self.device)
+        self.noised_embeddings = torch.empty((pool_size,*generator.datapoint_shape),device=self.device)
+        self.noise_level       = torch.rand(pool_size,1).to(self.device)
+        
+        self.original_losses   = torch.zeros(pool_size, device=self.device)
+        self.losses            = torch.zeros(pool_size, device=self.device)
 
         self.reset()
 
@@ -131,42 +136,23 @@ class SamplePool(Dataset):
 
     @torch.no_grad()
     def generate_data(self,indexes):
+        if type(indexes)==int: indexes=[indexes]
+        if indexes==None: return
         self.evolutions_per_datapoint[indexes]*=0
         for i in indexes:
             self.target_tokens[i] = self.generator()
-            self.noised_embeddings[i], self.clean_embeddings[i], _ = self.encoder(self.target_tokens[i], self.noise_level[i])
+            self.noised_embeddings[i], self.clean_embeddings[i], noise_encoding = self.encoder(self.target_tokens[i], self.noise_level[i])
+            self.original_losses[i], _ = self.loss_function(self.noised_embeddings[i], self.target_tokens[i], self.clean_embeddings[i], noise_encoding)
 
     def reset(self):
-        self.evolutions_per_datapoint = torch.zeros(self.size, dtype=torch.long)
+        self.evolutions_per_datapoint = torch.zeros(self.size, dtype=torch.long,device=self.device)
         self.generate_data(range(self.size))
-
-    def clean_worst_performers(self, cutoff=None):
-        """cleans the worst performers of the pool
-
-        Args:
-            cutoff (Callable, optional): A function that has as arguments the losses of the training pool,
-                and returns a Bool torch.tensor.
-                Defaults to cutting off all the datapoints with loss higher than a 1/10 of the highest one.
-        """
-        worst_performers = torch.arange(0,self.size)[self.cutoff()]
-        self.generate_data(worst_performers)
-
-    def cutoff(self):
-        losses=self.losses[self.evolutions_per_datapoint>0]
-        high,low=losses.max(),losses.min()
-        max_allowed=2.
-
-        c1=self.losses>max_allowed
-        c2=self.losses>high/10
-        c3=self.losses>low*4
-
-        return c1*c2*c3
 
     @torch.no_grad()
     def update(self, indexes: List[int],
                 denoised_embeddings: torch.Tensor,
-                evolution_iters=None,
-                losses=None) -> None:
+                evolution_iters,
+                losses):
         """Updates the data in the pool with new data at the given indexes.
 
         Args:
@@ -176,11 +162,15 @@ class SamplePool(Dataset):
                 maximum loss, these data will be resampled.
                 Default None, no data will be resampled
         """
+
         self.noised_embeddings[indexes] = denoised_embeddings.to(self.device)
 
-        if evolution_iters is not None:
-            self.evolutions_per_datapoint[indexes] += evolution_iters
+        self.evolutions_per_datapoint[indexes] += evolution_iters
 
-        if losses is not None:
-            self.losses[indexes]=losses
+        if type(indexes)==int:
+            idx_to_generate=indexes if (losses>self.original_losses[indexes]/2).item() else None
+        else: idx_to_generate=indexes[losses>self.original_losses[indexes]]
 
+        self.losses[indexes]=losses
+
+        self.generate_data(idx_to_generate)

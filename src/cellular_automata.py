@@ -19,7 +19,7 @@ class CellularAutomata(GraphAttentionNetwork):
         loss_function=None,
         ):
         
-        assert isinstance(encoder,NoiseEncoder), "encoder must be of type NoiseEncoder"
+        assert isinstance(encoder, NoiseEncoder), "encoder must be of type NoiseEncoder"
         super().__init__(tokenizer, encoder, block_generator, decoder, n_blocks)
 
         if loss_function==None: self.loss_function=DiffusionLoss(self.decoder)

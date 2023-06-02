@@ -79,3 +79,8 @@ def highlight_denoising(original,noised,denoised):
             highlighted_chars.append(s3)
 
     return ''.join(highlighted_chars)
+
+
+def highlight_outputs(original,noised,denoised):
+
+    return highlight_noising(original,noised), highlight_denoising(original,noised,denoised)
