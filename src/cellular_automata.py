@@ -1,3 +1,4 @@
+import einops
 from src.tokenizer import Tokenizer
 from src.encoder import Encoder, NoiseEncoder
 from src.decoder import Decoder, DinstinctionLoss, Loss
@@ -97,9 +98,16 @@ class DiffusionLoss(Loss):
         Returns:
             torch.Tensor: The loss
         """
-        assert encoding_prediction.shape[:-1]==target_tokens.shape, f'the shape of the first dimentions of the encoding_prediction must match the one of target_tokens, instead got {encoding_prediction.shape} and {target_tokens.shape}'
-        assert encoding_prediction.shape==clean_encoding.shape, f'The shape of encoding_prediction must match the one of the clean_encoding, instead got {encoding_prediction.shape} and {clean_encoding.shape}'
-        assert encoding_prediction.shape[-1]==noise_encoding.shape[-1], f'basta un c\' fazz chiù'
+        assert encoding_prediction.dim() <= 2, f'this function has only been implemented for a shape of (sequence_lenght, d_Embedding), instead got{encoding_prediction.shape}, make sure it generalizes well if you are going to expand it'
+        assert encoding_prediction.shape[:-1] == target_tokens.shape, f'the shape of the first dimentions of the encoding_prediction must match the one of target_tokens, instead got {encoding_prediction.shape} and {target_tokens.shape}'
+        assert encoding_prediction.shape == clean_encoding.shape, f'The shape of encoding_prediction must match the one of the clean_encoding, instead got {encoding_prediction.shape} and {clean_encoding.shape}'
+        assert encoding_prediction.shape[-1] == noise_encoding.shape[-1], f'The noise encoding must have the same last dimention as d_Embedding'
+
+        if noise_encoding.dim()>=2:
+            assert target_tokens.shape[-1] % noise_encoding.shape[-2] == 0, f'the input sequence must be divisible by the number of minibatches'
+
+            batch_size=target_tokens.shape[-1] // noise_encoding.shape[-2]
+            noise_encoding = torch.repeat_interleave(noise_encoding, batch_size, 0)
 
         losses=torch.empty([3])
 

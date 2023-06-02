@@ -1,13 +1,11 @@
+import einops
 from numpy.random import randint
 import random
 import torch
 from torch.utils.data import Dataset
 
-import numpy as np
 
 from src.cellular_automata import CellularAutomata
-from src.training_pool import TextGenerator
-from .encoder import NoiseEncoder
 
 from typing import Any, Iterable, List, Tuple, Callable
 
@@ -68,7 +66,8 @@ class SamplePool(Dataset):
                  pool_size: int,
                  generator: TextGenerator,
                  model: CellularAutomata,
-                 indexes_max_loss_size=32) -> None:
+                 indexes_max_loss_size=32,
+                 graph_maker=None) -> None:
         """Initializes the sample pool
 
         Args:
@@ -79,7 +78,7 @@ class SamplePool(Dataset):
             indexes_max_loss_size (int, optional): Maximum number of texts to 
                 replace with freshly sampled texts. Defaults to 32.
         """
-        assert generator.device==model.device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {device}'
+        assert generator.device == model.device, f'The device of the generator must be the same of the sample pool, instead got {generator.device}, {model.device}'
         assert isinstance(model, CellularAutomata), f"The encoder must be an instance of NoiseEncoder, got {type(model)} instead"
 
         self.size = pool_size
@@ -106,8 +105,6 @@ class SamplePool(Dataset):
         return self.size
 
     def __getitem__(self, idx: torch.Tensor) -> torch.Tensor:
-        assert type(idx)==int or idx.dim==0 or idx.shape==(1,), f"This function is not yet implemented only if the shape of idx==(1,)"
-
         return self.target_tokens[idx], self.noised_embeddings[idx], self.clean_embeddings[idx], self.noise_encoder(self.noise_level[idx]), self.noise_level[idx]
 
     def sample(self, batch_size: int=1) -> Tuple[torch.Tensor, torch.Tensor]:
@@ -127,10 +124,10 @@ class SamplePool(Dataset):
         
         clean_texts, noised_embeddings, clean_embeddings, noise_encoding, noise_level=self.__getitem__(idx) 
 
-        clean_texts = torch.cat(clean_texts, dim=0)
-        noised_embeddings = torch.cat(noised_embeddings, dim=0)
-        clean_embeddings = torch.cat(clean_embeddings, dim=0)
-        noise_encoding = torch.cat(noise_encoding, dim=0)
+        clean_texts       = einops.rearrange(clean_texts,       'b n ... -> (b n) ...')
+        noised_embeddings = einops.rearrange(noised_embeddings, 'b n ... -> (b n) ...')
+        clean_embeddings  = einops.rearrange(clean_embeddings,  'b n ... -> (b n) ...')
+        noise_encoding    = einops.rearrange(noise_encoding,    'b e ... -> (b e) ...')
 
         return clean_texts, noised_embeddings, clean_embeddings, noise_encoding, idx, noise_level
 
@@ -162,6 +159,8 @@ class SamplePool(Dataset):
                 maximum loss, these data will be resampled.
                 Default None, no data will be resampled
         """
+        if indexes!= int and len(indexes!=1):
+            denoised_embeddings=einops.rearrange(denoised_embeddings,'(b n) ... -> b n ...', b=len(indexes))
 
         self.noised_embeddings[indexes] = denoised_embeddings.to(self.device)
 
