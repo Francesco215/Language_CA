@@ -1,0 +1,448 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+\usepackage{ dsfont }
+\usepackage{amsthm}
+\usepackage{amsmath}
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{example}{Example}[section]
+\theoremstyle{remark}
+\newtheorem*{remark}{Remark}
+
+\usepackage[backend=bibtex,bibstyle=ieee,citestyle=numeric-comp]{biblatex}
+\addbibresource{bibliography.bib}
+
+\newcommand{\avg}[1]{\left \langle #1 \right \rangle}
+
+\title{Binary convolutions}
+\date{May 2023}
+
+\begin{document}
+\section{1D Case}
+\label{sec:1d}
+\begin{definition}[Potts chain]
+    A Potts chain is $\mathcal C$ chain of spins $s_i$ with $i \in \mathds{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$.
+\end{definition}
+Later on, to highlight links with Natural Language Processing (NLP) we will use interchangeably the word spins and tokens.
+\begin{definition}[Windowed Hamiltonian]
+    A windowed Hamiltonian $H_i$ is an Hamiltonian that acts only on the spins inside his finite window of interaction $\mathcal W_i$. Without loss of generality, we are going to assume that the lowest energy state has a value of zero
+\end{definition}
+\begin{definition}[Pseudo-Convolutional Hamiltonian]
+    A pseudo-convolutional Hamiltonian $H=\sum_i H_i$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window width $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i<E^\textrm{max}$
+\end{definition}
+Pseudo-convolutional Hamiltonians, in matrix form, are band matrices, meaning that after a certain distance from the diagonal, all of their elements are equal to zero. An example of a band matrix is the matrix $B$ in equation \ref{eq:band_matrix}
+\begin{equation}
+\label{eq:band_matrix}
+B=    
+\begin{bmatrix}
+ B_{11} & B_{12} & 0      & \cdots & \cdots & 0 \\
+ B_{21} & B_{22} & B_{23} & \ddots & \ddots & \vdots \\
+  0     & B_{32} & B_{33} & B_{34} & \ddots & \vdots \\
+ \vdots & \ddots & B_{43} & B_{44} & B_{45} & 0 \\
+ \vdots & \ddots & \ddots & B_{54} & B_{55} & B_{56} \\
+ 0      & \cdots & \cdots & 0      & B_{65} & B_{66}
+\end{bmatrix}
+\end{equation}
+
+\begin{definition}[Stored Pattern]
+    A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots,s_{-1},s_0,s_1,\dots)$ such that the energy of the pseudo-convolutional Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^n=(\dots,s^n_{-1},s^n_0,s^n_1,\dots)$.
+\end{definition}
+
+\begin{theorem}
+    Let $H$ be a pseudo-convolutional Hamiltonian with $N>1$ stored patterns. At non-zero temperature the system will be unable to converge to single stored pattern
+    \label{th:no-conv}
+\end{theorem}
+\begin{proof}
+    Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier is thermodynamically favorable.
+
+    \begin{equation}
+        \Delta F=\Delta E -T\Delta S<0
+    \end{equation}
+    
+    For that to be true, the Free energy of the system must decrease upon the formation of a domain barrier.
+
+    Upon the formation of a domain barrier, The windowed Hamiltonians that intersect it will have a non zero, positive energy. Therefore $\Delta E>0$, however, we know that the energy of each window Hamiltonian is smaller than $E^\textrm{max}$ and no more that $\mathcal W-1$ windows can be affected by a domain wall, therefore
+
+    \begin{equation}
+        0\le\Delta E\le (\mathcal W-1)E^\textrm{max}
+        \label{eq:de}
+    \end{equation}
+
+    At the same time we know that in a sequence long $L$ there can be $L-1$ possible places where a domain wall can appear, and for each of this possible places it can lead to any of the $N-1$ other patterns saved, therefore there are $(L-1)(N-1)$ possible configurations where the system has a single domain wall. This means that the change of the entropy of the system is 
+
+    \begin{equation}
+        \Delta S=\log [(N-1)(L-1)] 
+        \label{eq:s}
+    \end{equation}
+
+    Putting equations \ref{eq:de} and \ref{eq:s} all together we have that
+
+    \begin{equation}
+        \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
+    \end{equation}
+
+    In the thermodynamic limit ($L\to \infty$) we have that the right hand side of the equation becomes eventually negative, therefore the domain barriers are inevitable
+\end{proof}
+
+\begin{definition}[Auto-Regressive Model]
+    During inference time, given some input tokens $\{s_i\,|\, i_\textrm{first}\le i\le i_\textrm{last}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next token in the sequence to predict $i_\textrm{pred}=i_\textrm{last}+1$.
+
+    \begin{equation}
+    \label{eq:autoregressive-def}
+        M(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})=(p_1,\dots,p_V)
+    \end{equation}
+\end{definition}
+
+\begin{theorem}
+    It is possible to associate pseudo-convolutional Hamiltonian to any auto-regressive model
+    \label{th:auto=ham}
+\end{theorem}
+\begin{proof}
+    
+    Through Botzmann's equation it's possible to turn a probability distribution of equation \ref{eq:autoregressive-def} to some energy levels
+    \begin{equation}
+        p_c=\frac1Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
+    \end{equation}
+    Without loss of generality, we can assume $T=1$ and set the energy associated with every prediction turns out to be
+    \begin{equation}
+        E_c=-\log p_c +\textrm{const} \quad\textrm{with}\quad c=1\dots V
+    \end{equation}
+    Where we can set the constant in such a way that the lowest energy state has a energy equal to zero.\\
+    We can now define a windowed Hamiltonian
+    \begin{equation}
+        H_{i_\textrm{pred}}(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}},s_{i_\textrm{pred}})=-\log\left[  M(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})\cdot s_{i_\textrm{pred}}\right]+\textrm{const}
+    \end{equation}
+    And the full pseudo-convolutional Hamiltoninan can now be seen as the sum of all the $H=\sum H_{i_\textrm{pred}}$ of the sequence.\\
+    The generation process can now be seen as sampling from the Boltzmann distribution given from 
+    \begin{equation}
+        p_\textrm{sequence}=\frac 1Z 
+        e^{-\frac 1TH(\textrm{sequence})}
+    \end{equation}
+\end{proof}
+
+\begin{corollary}
+    Autoregressive models with fixed window size are incapable of generating infinite length, coherent output
+\end{corollary}
+\begin{proof}
+    From theorem \ref{th:auto=ham} we know that autoregressive models can be modelled by pseudo-convolutional Hamilonians, which we know that from Theorem \ref{th:no-conv} are not able to converge to any single pattern
+\end{proof}
+
+\section{2D Case}
+We have seen before that in 1D case a Windowed Hamiltonian cannot lead us to a coherent phase and how this applies to auto-regressive models. Now we are going to see what happens in 2D, but first we are going to generalize all the definitions given in section \ref{sec:1d} in 2D.
+
+\begin{definition}[Potts grid]
+    A Potts chain is $\mathcal C$ chain of spins $s_{i,j}$ with $(i,j) \in \mathds{Z}^2$ and each $s_{i,j}$ can assume any integer value from $1$ to the vocabulary size $V$.
+\end{definition}
+\begin{definition}[Windowed Hamiltonian]
+    A windowed Hamiltonian $H_{i,j}$ is an Hamiltonian that acts only on the spins inside his finite window of interaction $\mathcal W_{i,j}$. Without loss of generality, we are going to assume that the lowest energy state has a value of zero. Any window shape is allowed as long as it can fit inside a finite size square.
+\end{definition}
+\begin{definition}[Pseudo-Convolutional Hamiltonian]
+    A pseudo-convolutional Hamiltonian $H=\sum_{i,j} H_{i,j}$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window with size $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i<E^\textrm{max}$
+\end{definition}
+
+
+\begin{theorem}
+    Let H be a pseudo-convolutional Hamiltonian acting on a Potts grid with $N>1$ stored patters. At thermal equilibrium, there exists a critical temperature $T_c$ below which the system will converge to a single stored pattern
+\end{theorem}
+\begin{proof}
+    The following proof will be a generalization of the Peierls argument.\\
+    We now start with a $L\times L$ grid of $V$-dimensional Potts spins with $N>1$ saved patterns. Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier like in figure \ref{fig:domain_wall_2D} is thermodynamically favorable.
+    \begin{figure}[h]
+        \centering
+        \includegraphics[scale=.7]{phps5IxuV.png}
+        \caption{A Domain wall in 2D}
+        \label{fig:domain_wall_2D}
+    \end{figure}
+    \\\\
+    We now imagine starting in a state of a large 2D system with the spins on the boundary frozen in the pattern $\mathcal P^1$ configuration. We again wish to compute the free energy difference of inserting a domain wall at the origin that has a different sign. Now our domain wall boundary consists not just of a pair of points, but of some perimeter of length $P$. Each spin with its window intersecting the boundary creates an energy penalty of at least $E^\textrm{min}$. The number of such spins is linearly proportional to the perimeter length $P$ and the area of the window of at least equal to 1 $\mathcal W\ge 1$ (and at least just one element) so the total change in energy is 
+    \begin{equation}
+        \label{eq:energy_bounds}
+        \Delta E\ge P E^\textrm{min}
+    \end{equation}
+    We can give an upper bound on the number of domain barrier is $(N-1)P^23^P$. This is because the domain is a connected component, so the boundary is a self-avoiding curve. The curve has perimeter $P$, so it must fit inside a box of side-length $P$ centered at the origin. Each step along the perimeter of this curve has at most $3$ choices for where to step next (or else it would backtrack and self-intersect). Since the total length is $P$ and there are at most $P^2$ starting points at which to begin the curve, there are at most $P^23^P$ such domain walls. Furthermore any domain wall can appear between the starting pattern $\mathcal P^1$ and any other stored pattern, therefore the number of configuration is multiplied by $(N-1)$
+    \begin{equation}
+        \Delta S\le \log(N-1) + 2\log P +P\log3
+    \end{equation}
+    Therefore for $P\to \infty$
+    \begin{equation}
+        \Delta F\ge P E^\textrm{min} - TP\log3
+    \end{equation}
+    This means that for
+    \begin{equation}
+        T\le E^\textrm{min}/\log3
+    \end{equation}
+    We have an ordered phase that converges to one of the stored patterns.
+\end{proof}
+\subsection{Some problems with this proof}
+    The problem with this proof is that we assume that the free energy is actually minimized. This is true at thermal equilibrium, otherwise you could extract energy from the system. However some energy landscapes are so rugged that the free energy cannot be completely minimized.\\
+    This means that even though the lowest free energy configuration is ordered, the system might never be able to reach it because it can take a very long, or infinite amount of time to reach it. We will tackle this problem in sections \ref{sec:disorder} and \ref{sec:local-hop}
+\section{More complex Topologies}
+As you have seen from the two examples, determining whether or not an ordered phase can exists boils down to a counting problem.\newline
+\begin{enumerate}
+    \item Start with the system being equal to one of the patterns stored
+    \item Create a domain wall
+    \item Estimate the energy gained by the system
+    \item Count the number of such domain walls
+    \item See if the free energy increases or decreases as the size of the domain walls goes to infinity
+\end{enumerate}
+This can be applied to systems with very different topologies, we are now going to explore that
+
+\begin{definition}[Graph Hamiltonian]
+    Let $G$ be the adjacency matrix of a graph, then a Graph Hamiltoninan $H$ is a Hamiltonian that can be written as
+    \begin{equation}
+        H=H*G
+    \end{equation}
+    where the (*) operator represents the element-wise multiplication
+\end{definition}
+\begin{definition}[Entropy Scaling]
+    Let $H$ be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the number of possible configurations of domain barrier increases, thus increasing the entropy of the system $\Delta S$.
+    We say that the Entropy gained scales as $f_S$ if 
+    \[
+        \Delta S=O(f_S(P))
+    \]
+\end{definition}
+\begin{definition}[Energy Scaling]
+    Let H be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the the Higher and Lower bound of the energy gained $\Delta E$ scale as respectively  $O(f_E^\textrm{high}(P))$ and $O(f_E^\textrm{low}(P))$. If $f_E^\textrm{high}=f_E^\textrm{low}\equiv f_E$ we say that the energy gained scales as $f_E$
+    \[\Delta E=O(f_E(P))
+    \]
+\end{definition}
+\begin{theorem}
+\label{th:big-O}
+    If $O(f_S)=O(f_E)=O(f)$ there exists a ordered phase
+\end{theorem}
+\begin{proof}
+    \begin{equation}
+        \Delta F= \Delta E -T\Delta S=\lim_{P\to \infty}O(f(P))-TO(f(P))
+    \end{equation}
+    If we now do $\lim_{T\to0}$ the term on the right disappears, therefore the creation of a domain wall increases the free energy and therefore a coherent phase is favored
+\end{proof}
+\begin{theorem}
+        \label{th:no-care-N}
+        Let $H$ be a Graph Hamiltonian with $N>1$ stored patterns. At thermal equilibrium, the ability to converge to a ordered phase doesn't depend on $N$
+\end{theorem}
+\begin{proof}
+    The change in entropy due to the creation of a domain barrier can always be written as
+
+    \begin{equation}
+        \Delta S= \log\left[
+            (N-1)N_\textrm{barriers}\right]=\log N_\textrm{barriers} + \log (N-1)
+    \end{equation}
+    Where $N_\textrm{barriers}$ is the number of barriers of a certain shape. In the thermodynamic limit, the term proportional to the number of barriers increases, while the one proportional to the number of patterns stored stays constant, therefore can be ignored as it doesn't change the entropy scaling
+\end{proof}
+\begin{remark}
+    The importance of this last theorem is that, since the number and the shape of stored pattern doesn't affect the thermodynamics of the problem we might as well stick with a system with just 2 ground state equal to all spin ups and all spin downs
+\end{remark}
+
+\begin{theorem}
+    \label{th:no-care-H}
+    Let $H=\sum_i H_i$, if there exists two energies $E_\textrm{max},E_\textrm{min}$ which are the biggest and smallest non-zero energy level of all the windowed Hamiltonians $H_i$. At thermal equilibrium, the ability to converge to a ordered phase doesn’t depend from the energy levels and the window sizes
+\end{theorem}
+\begin{proof}
+    The proof will be similar to the steps done to reach equation \ref{eq:energy_bounds}.\\
+    Let $\mathcal W$ be the biggest window size, and 1 the smallest window size of any $H_i$, and let $P$ be the perimeter length of our domain wall. The energy gain by creating such a domain wall is bounded by 
+    \begin{equation}
+        P E^\textrm{min}\le\Delta E\le \mathcal W PE^\textrm {max}
+    \end{equation}
+    In both cases we have that
+    \begin{equation}
+        E=O(P)
+    \end{equation}
+\end{proof}
+\begin{remark}
+    The importance of this last theorem is that, since the strength and window size of the interaction don't matter, we might as well consider next-neighbor and constant strength interactions
+\end{remark}
+%\begin{theorem}
+%    Let H be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the average 
+%\end{theorem}
+\begin{theorem}
+    It only depends on the topology WRITE PROOF
+\end{theorem}
+As an example on determining whether or not, a coherent phase can exist we focus on the Connected Tree of Spins
+\begin{definition}[Connected Tree of Spins]
+    ADD IMAGES\\
+    A connected tree of spins is a tree structure where each node has $C$ children. Every spin interacts with his parent node, his child node and his next-neighbors
+\end{definition}
+\begin{remark}
+    This type of data structure lends itself well to the task of text generation. We can imagine that in the last row is where the characters of the text are located. The nodes in the row above host information related to the collection of characters, effectively acting as word-level embedding. The nodes in the row above host information related to the collection of works, effectively acting as sentence-level embedding, and so on until the tree ends.
+\end{remark}
+\begin{theorem}
+    The Ising model on a connected tree does have a condensed phase
+\end{theorem}
+\begin{proof}
+    REWRITE THIS PROOF BETTER AND WITH IMAGES\\
+    The Hamiltonian is
+    \begin{equation}
+        H=-J\sum_{\langle i,j\rangle} s_is_j
+    \end{equation}
+    Where $\langle i,j\rangle$ means that is summed over all the couple of nodes connected in the tree.\\
+    The energy $\Delta$ required to create a perimeter of length $P$ is equal to 
+    \[
+        \Delta E=2JP
+    \]
+    Similar to Peierls argument, the number of starting positions is $\approx L^{\log L}/(\log L)!$. For each starting position the number of turn a perimeter can take, in this geometry is either 2 or 3, and thus the number of perimeters starting from one starting position is less than $3^P$. Thus the change in entropy is
+
+    \begin{equation}
+        \Delta S\le P\log 3 + \dots
+    \end{equation}
+    By the end we have that 
+    \begin{equation}
+        \Delta F \ge 2JP - TP\log 3
+    \end{equation}
+    This means that for low enough temperature we have an ordered phase
+\end{proof}
+\section{The role of disorder}
+    \label{sec:disorder}
+    The problem with the theorems stated so far is that some of this systems can exhibit spin-glass like behavior, this is due to the intrinsic quenched disorder present in machine learning algorithms.
+
+    For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
+    \begin{equation}
+        \label{eq:F-theta}
+        F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
+    \end{equation}
+    However different parameters will yield give different free energies, and since they are learned they follow a distribution $p(\theta|\mathcal D)$ dependent on the dataset $\mathcal D$. A more meaningful variable will be the expected free energy $\avg{F}$
+    \begin{equation}
+        \label{eq:avg-F-theta}
+        \avg F=\int F(\theta)p(\theta|\mathcal D)d\theta
+    \end{equation}
+    Since the loss function is the negative log likelyhood of the parameters $l(\theta|\mathcal D)=-\log p(\theta|\mathcal D)$ we can combine this with equations \ref{eq:F-theta} and \ref{eq:avg-F-theta} to get
+    \begin{equation}
+        F=-T\int e^{-l(\theta|\mathcal D)}\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right] D\theta
+    \end{equation}
+    This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
+
+    % What is sure however, is that if the magnetization along any given pattern is zero with any choice of parameters $m^\mu(\theta)=0$ then averaging over the thetas won't make the situation any better. EXPLAIN THIS BETTER
+
+\section{Local Hopfield Networks}
+    \label{sec:local-hop}
+    We are now going to focus on Hopfield networks to study the stability of this systems as a function of the topology and the number of stored patterns.
+
+    \begin{definition}[Hopfield Network]
+        An Hopfield network is a system described by the Hamiltonian
+        \begin{equation}
+            H=-\sum_\mu^N F\left(\sum_i^LX^\mu_i \sigma_i\right)
+        \end{equation}
+        where $N$ is the number of patterns stored and $L$ is the sequence length
+    \end{definition}
+
+    \begin{definition}[Local Hopfield Network]
+    The Hamiltonian of a windowed Hopfield networks is a sum over many Hopfield networks, each of which interacts inside its own window
+        \begin{equation}
+            H=-\sum_j^L\sum_\mu^NF\left(
+                \sum_{\langle i,j\rangle}X^\mu_i\sigma_i
+            \right)
+        \end{equation}
+    \end{definition}
+    \begin{remark}
+        A nice way to imagine local Hopfield network is as a patchwork of several overlapping Hopfield networks ADD IMAGE
+    \end{remark}
+    \begin{theorem}
+        A Local Hopfield network with an energy function that is the sum of several sub-Hopfield networks with window size of $W$ has a storage capacity equal to that of any given sub-network
+    \end{theorem}
+    \begin{proof}
+        \begin{equation}
+            \Delta E=\sum_{\langle j,k\rangle}\sum_\mu^N
+            F\left(X^\mu_kX^\nu_k+
+                \sum_{\langle i,j\rangle\neq k}X^\mu_iX^\nu_i
+            \right)-
+            F\left(-X^\mu_kX^\nu_k+
+                \sum_{\langle i,j\rangle\neq k}X^\mu_iX^\nu_i
+            \right)
+        \end{equation}
+        Now we are going to define the average local change in energy. 
+        \begin{equation}
+        \Delta E_\textrm{loc}(j)\equiv
+        \sum_\mu^N
+            F\left(X^\mu_kX^\nu_k+
+                \sum_{\langle i,j\rangle\neq k}X^\mu_iX^\nu_i
+            \right)-
+            F\left(-X^\mu_kX^\nu_k+
+                \sum_{\langle i,j\rangle\neq k}X^\mu_iX^\nu_i
+            \right)
+        \end{equation}
+        for each $j$ we have a sub-Hopfield network, and when averaging the $j$ dependence goes away.
+        % And from \cite{krotov2016dense,demircigil2017model} we have that 
+        % \begin{equation}
+        %     \avg{\Delta E_\textrm{loc}}=
+        %     \begin{cases}
+        %         2nW^{n-1} \, \textrm{ if } F(x)=x^n
+        %         \\
+        %         e^{\alpha W}  \quad\quad\, \textrm{ if } F(x)=e^x
+        %     \end{cases}
+        % \end{equation}
+        this means that 
+        \begin{equation}
+            \avg{\Delta E}= \sum_{\langle j,k\rangle}
+            \avg{\Delta E}_\textrm{loc}=W \avg{\Delta E}_\textrm{loc}
+        \end{equation}
+        % Therefore we have that 
+        % \begin{equation}
+        %     \avg{\Delta E}=
+        %     \begin{cases}
+        %         2nW^{n} \,\, \textrm{ if } F(x)=x^n
+        %         \\
+        %         We^{\alpha W}  \, \textrm{ if } F(x)=e^x
+        %     \end{cases}
+        % \end{equation}
+        Now we calculate the variances, first the change in energy can be written as
+        \begin{equation}
+        \label{eq:deltaE^2}
+            \Delta E^2=\sum_{\avg{j_1,k}}\sum_{\avg{j_2,k}}\Delta E_\textrm{loc}(j_1)\Delta E_\textrm{loc}(j_2)
+        \end{equation}
+        Now we calculate the average of the term inside the sum.\\
+        When we flip a bit in one window, the change in energy in the other window will be close to it. 
+        \begin{equation}
+            \Delta E_\textrm{loc}(j_2)=\Delta E_\textrm{loc}(j_1) + \delta
+        \end{equation}
+        Where $\delta$ is a probability distribution independent from $\Delta E_\textrm{loc}(j_1)$\footnote{How really accurate is this? I'm sure that IF there is a dependence it is going to be VERY small, should we consider it? and how?}.
+        Since 
+        \[
+            \avg{\Delta E_\textrm{loc}(j_1)}=\avg{\Delta E_\textrm{loc}(j_2)}
+        \]
+        we have that $\avg \delta=0$
+        This means that
+        \begin{equation}
+        \begin{split} 
+            \avg{\Delta E_\textrm{loc}(j_1)\Delta E_\textrm{loc}(j_2)}=&\avg{\Delta E_\textrm{loc}^2(j_1)} + \avg{\Delta E_\textrm{loc}(j_1)\delta}=\\
+            =&\avg{\Delta E_\textrm{loc}^2}+\avg{\Delta E_\textrm{loc}(j_1)}\avg{\delta}=\\
+            =&\avg{\Delta E^2_\textrm{loc}}
+        \end{split}
+        \end{equation}
+        Where from the first to the second row we have used the fact that $\delta$ is independent from $\Delta E_\textrm{loc}(j_1)$, and form the second to the third row we have used the fact that $\avg \delta=0$.\\
+        Therefore equation \ref{eq:deltaE^2} becomes
+        \begin{equation}
+            \avg{\Delta E^2}=W^2\avg{\Delta E^2_\textrm{loc}}
+        \end{equation}
+        and the variance is
+        \begin{equation}
+            \Sigma^2=W^2\left(\avg{\Delta E^2_\textrm{loc}} - \avg{\Delta E_\textrm{loc}}^2\right)=W^2\Sigma_\textrm{loc}
+        \end{equation}
+        Suppose that the probability distribution is a Gaussian with mean $\avg{\Delta E}$ and variance $\Sigma^2$. Then, following the line of reasoning done in \cite{krotov2016dense}, the probability of making an error is the probability  that after the spin flips, the energy of the system decreases.
+        \begin{equation}
+        \begin{split}
+            P=&\int_{\Delta E}^\infty\frac 1{\sqrt{2\pi\Sigma^2}}e^{-\frac{x^2}{2\Sigma^2}}dx=\\
+            =& \int_{W\Delta E_\textrm{loc}}^\infty\frac 1{\sqrt{2\pi W^2\Sigma_\textrm{loc}^2}}e^{-\frac{x^2}{2W^2\Sigma_\textrm{loc}^2}}dx=\\
+            =&\int_{\Delta E_\textrm{loc}}^\infty\frac 1{\sqrt{2\pi \Sigma_\textrm{loc}^2}}e^{-\frac{z^2}{2\Sigma_\textrm{loc}^2}}dz=\\
+            =&P_\textrm{loc}
+        \end{split}
+        \end{equation}
+        Where in the last passage we defined $z=x/W$.\\
+        This means that a Hopfield network with an energy function that is the sum of several overlapping sub-Hopfield networks with window size of $W$ has a storage capacity of any given sub-network
+    \end{proof}
+    
+%Up until now all theorems have been architecturally agnostic
+
+
+% \begin{theorem}
+%     A Connected tree of Potts spin with an Hamiltonian with N saved patterns has at thermal equilibrium a condensed phase
+% \end{theorem}
+% \begin{proof}
+%     Since we only care about big $O$ relations (theorem \ref{th:big-O}), thanks to therem \ref{th:no-care-H} we can assume that the interaction strength is constant
+% \end{proof}
+\newpage
+\printbibliography
+
+
+\end{document}
