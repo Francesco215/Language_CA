@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    canvas {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <canvas id="canvas"></canvas>
+
+  <script>
+    const canvas = document.getElementById('canvas');
+    const ctx = canvas.getContext('2d');
+
+    let circles = [];
+    let hoveredCircle = null;
+
+    canvas.width = window.innerWidth;
+    canvas.height = window.innerHeight;
+
+    class Circle {
+      constructor(x, y) {
+        this.x = x;
+        this.y = y;
+        this.radius = 20;
+      }
+
+      draw() {
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, 2 * Math.PI);
+        ctx.fillStyle = '#ff0000';
+        ctx.fill();
+        ctx.closePath();
+      }
+    }
+
+    function createCircles() {
+      const numCirclesX = Math.floor(canvas.width / 100);
+      const numCirclesY = Math.floor(canvas.height / 100);
+
+      const startX = (canvas.width - numCirclesX * 100) / 2;
+      const startY = (canvas.height - numCirclesY * 100) / 2;
+
+      for (let i = 0; i < numCirclesX; i++) {
+        for (let j = 0; j < numCirclesY; j++) {
+          const circle = new Circle(startX + i * 100, startY + j * 100);
+          circles.push(circle);
+        }
+      }
+    }
+
+    function drawCircles() {
+      circles.forEach((circle) => {
+        circle.draw();
+      });
+    }
+    var gcd = function(a, b) {
+        a=Math.abs(a)
+        b=Math.abs(b)
+        if (!b) {
+            console.log(a)
+            return a;
+        }
+        return gcd(b, a % b);
+        }
+
+    function drawSegments() {
+      if (hoveredCircle) {
+        ctx.strokeStyle = `rgba(0, 0, 255, 0.2)`;
+        ctx.lineWidth = 2;
+
+        circles.forEach((circle) => {
+            if (gcd(hoveredCircle.x-circle.x,hoveredCircle.y-circle.y)==100){
+          ctx.beginPath();
+          ctx.moveTo(hoveredCircle.x, hoveredCircle.y);
+          ctx.lineTo(circle.x, circle.y);
+          ctx.stroke();
+          ctx.closePath();}
+        });
+      }
+    }
+
+    function clearCanvas() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+    }
+
+    function animate() {
+      clearCanvas();
+      drawCircles();
+      drawSegments();
+      requestAnimationFrame(animate);
+    }
+
+    createCircles();
+    animate();
+
+    canvas.addEventListener('mousemove', (event) => {
+      const { offsetX, offsetY } = event;
+      hoveredCircle = null;
+
+      circles.forEach((circle) => {
+        if ((offsetX - circle.x)**2 + (offsetY - circle.y)**2< circle.radius**2) {
+          hoveredCircle = circle;
+        }
+      });
+    });
+
+    canvas.addEventListener('mouseout', () => {
+      hoveredCircle = null;
+    });
+  </script>
+</body>
+</html>
