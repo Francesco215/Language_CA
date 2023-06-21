@@ -23,75 +23,107 @@
             });
         });
     </script>
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-ELW1T3C1CX"></script>
-    <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-
-    gtag('config', 'G-ELW1T3C1CX');
-</script>
 
 </head>
 
+<link rel="stylesheet" href="style.css">
 
 <d-front-matter>
   <script type="text/json">{
-    "title": "Self-organizing text",
-    "description": "Here we take the idea of self organizing systems and apply it to text",
+    "title": "Topological requirements to self organization",
+    "description": "1 or 2 short sentences to describe the thing",
     "authors": [
       {
         "author": "Francesco Sacco",
         "authorURL": "https://github.com/Francesco215",
-        "affiliation": "University of Pisa",
-        "affiliationURL": "https://www.unipi.it"
-      },
-      {
-        "author": "Lorenzo Cavuoti",
-        "authorURL": "https://github.com/LetteraUnica",
-        "affiliation": "University of Trieste",
-        "affiliationURL": "https://www.units.it"
+        "affiliation": "Tufts University",
+        "affiliationURL": "http://www.tufts.edu"
       }
       ]
   }</script>
 </d-front-matter>
 
   <d-title> 
-    <h1>Self-organizing text</h1>
+    <h1>Topological requirements to self organization</h1>
     <p>
-        Here we take the idea of self organizing systems and apply it to text
+        What do you need to have a structure emerge spontaneously?<br>
+        How does it relate to intelligence?
     </p>
     
   </d-title>
 
+  <script>
+    console.log('asd')
+    function showContent(buttonNumber) {
+      var filePath;
+      switch (buttonNumber) {
+        case 1:
+          filePath = 'biology.html';
+          break;
+        case 2:
+          filePath = 'physics.html';
+          break;
+        case 3:
+          filePath = 'ML.html';
+          break;
+        default:
+          return;
+      }
+
+      var xhttp = new XMLHttpRequest();
+      xhttp.onreadystatechange = function() {
+        if (this.readyState == 4 && this.status == 200) {
+          document.getElementById('content').innerHTML = this.responseText;
+        }
+      };
+      xhttp.open('GET', filePath, true);
+      xhttp.send();
+    }
+  </script>
+
   <d-article>
-
+    <div style="position:relative;" class="l-body">
     
-    <div>
-    <p>
-        In Cellular automata neighboring cells communicate between each other in order to organize with remarcable accuracy large scale scructures with high detail at a small scale
-    </p>
-    <p>
-        Language models have proven unreliable at long distances due to the limited input size of the transformer. If it were possible to create a model that makes neighboring pieces of text like a CA we should expect to have a final result where the output is coherent at long distances.
-    </p>
-    </div>
+      <div id="colab-hero-div" style="float:left;" >
+        <div  class="colab-root" id="colab-hero" onclick="showContent(1)">I am a Biologist
+        </div>
+      </div>
 
-    <d-section id="intro">The model</d-section>
+      <div id="colab-hero-div"style="float:left;">
+        <div  class="colab-root" id="colab-hero" onclick="showContent(3)">I am a ML researcher
+        </div>
+      </div>
+
+      <div id="colab-hero-div"style="float:left;">
+        <div  class="colab-root" id="colab-hero" onclick="showContent(2)">Reset
+        </div>
+      </div> 
+    </div>
+    <div style="padding:10px 10px ;"></div>
+    <div>
+      
+    </div>
+    <div id="content">
+      <d-section id="abs">Adaptive Abstract</d-section>
+
+      <p>
+        This is an example of an interactive abstract. Different types of researcher will have different abstract summarizing what they care the most. Click on the buttons above to have your abstract
+      </p>
+    </div>
+    
+    <d-section id="intro">Example section</d-section>
     <p>
-    A single cell here can be a token, a phrase or in general a piece of text with some extra hidden channel that can be used to communicate information that is not explicitly written in the text. 
+      Euler proved that $$e^{i\pi}-1=0$$ And there is a proof
     </p>
-    <p>
-        At each step the model updates a cell based on its internal state and the state of its surrounding cells, and the function is iterated for some steps
-    </p>
+   
     <figure>
-      <img src="website/images/immaggine.pdf" style="width:100%; height: auto; float: left;">
+      <img src="https://miro.medium.com/v2/resize:fit:1400/1*0h6LMn5R7kVErme5c4ePTA.png" style="width:100%; height: auto; float: left;">
       <figcaption>
-        The function $f$ has as input the neighborhood of each cell and updates the cell accordingly
+        Here is an image showing you that
       </figcaption>
     </figure>
     <p>
-      The function $f$ does not have to be a "simple" neural network, but it can be a more sophisticated model, the main part is that it takes as inputs 3 cells and outputs one cell and it is used iteratively like in the CA case
+      and that is all for the euler identity
     </p>
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
