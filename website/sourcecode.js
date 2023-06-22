@@ -60,8 +60,8 @@ for (var i=0;i<sections.length;i++){
         n_subsection++;
         parent.setAttribute("number",n_section+"."+n_subsection);
     }
-
 }
+
 
 class Equation extends HTMLElement {
     connectedCallback() {
