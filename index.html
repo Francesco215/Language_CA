@@ -220,36 +220,51 @@
       Now, let's examine the behavior of this system in relation to temperature.
       </p>
       <figure>
-        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAAB5CAMAAADRVtyNAAAAjVBMVEX///+MjIz/AADn5+fk5OT/ubnc3NyWlpbY2Nibm5uEhIR+fn58fHyBgYH7+/v29vbGxsa+vr6rq6ujo6Pt7e2IiIiysrL/oqKSkpJ1dXXR0dGfn5//5OT/Z2f/s7P/Ghr/zMz/b2//2Nj/V1f/q6v/8/P/Jib/l5f/Dg7/jIz/S0v/X1//wcH/6urCwsK1RqjqAAACxElEQVR4nO3b2XLaMBiGYdmoGCRvgO2wpM3WNF1z/5dXkxl69n/pkDJV4H0OcqLI8fgdGZORnQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAV9SL/30GUGZlfaIjX398w+RTndS7sypbMeorNVePfsqPOqEXzaBG6+nxR35nulCtxfAkU5O9HL3Jr9TwolODlVpAs0Id+KwsYii9PfyGPrd5fqMmZ+LPuixuxeg8TtSRz0i9rkK1tMff0Ocuz/N7Ma76TGO1s0e7GC/loWZWjn1CY44f3+d6zJM/iMmqz2o8K3uJDDFkF/L8sCp3WbGxnxCO7/N53+fm0f4F0acLIdhLpO5DKNXt73x0se0yt7SfEI7u8/hl3yd/sieLPos4rp/eWtXbGEI1V+d1NurGjX3cCe5v9/nXb/lT/t2ebPeps2pYrzbWEtmVWR/KS3lC0AWO7nP14/pn7p4efpm/YfeZFhM/d4Px2DLZDLOdr+QXpDNyoj6jD/r7qXy+nhbmvxC6qZvN9z8vQ7p9bLPL+PR5QZ+00Sdt9EkbfdJGn7TRJ230SRt90kaftNEnbfRJG33SRp+00Sdt9EkbfdJGn7Qd3afx+9HGvsr0+RdEga7wXeaeV8ZoOfh119v7PEWfuvVu7ZvW3IRDnwO1fopqyIaNtVFwWWZ9X9r7NNT6WYZt0a5Kc4s8fQ5Un3a/+7eyLuJ0v09QzFZ9fOxDFu2N3/Q5UH2afixg3N7cfnmF+GzPlp8/49wg1h59DuTzwTAWsC9iG0Nlbz3VfbbjXNGAPgeyj6/UDazpxeJ6pU8TQhQv7tHnYNKr0aIUNzC33KhdnPr5eojitRb6/NHJjcztRlxE52Xb2zs16jfitTA3kS9g+Ut5PetVjbqI46fIGw4tv5/iL53uPbVL2eAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFB+A7gMGgdFqmRLAAAAAElFTkSuQmCC" style="width:100%; height: auto; float: left;">
+        <canvas id="canvas1D" width="700" height="20" style="border: 1px solid #000;"></canvas>
+        <div>
+            <label for="temperature">Temperature:</label>
+            <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <script src="website/scripts/1Dising.js"></script>
       <figcaption>
         Simulation of the 1D Ising Model (TODO)
       </figcaption>
       </figure>
       <p>
-      As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This fact can be proven using the <i>Free Energy principle</i>.
+      As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This can be proven mathematically with the following theorem
       </p>
+      <h3 class="theorem">Theorem</h3>
       <p>
-      The Free Energy principle states that at thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of extractable useful energy from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
-      <p>
-      To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, let's examine what occurs when a domain wall forms.
+        The 1D Ising chain doesn't have an ordered phase
       </p>
-      <figure>
-        <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
-        <figcaption>
-          The top image shows the ordered phase of the Ising model, while the bottom image depicts a state with a domain wall.
-        </figcaption>
-      </figure>
-      <p>
-      Upon the formation of a domain wall, the energy change increases by $2J$. This is because only a single link now comprises two opposite spins.<br><br>
-      If the chain is $L$ spins long, there can be $L-1$ possible locations for the domain wall. Consequently, the size of the configuration space where a domain wall is present, denoted as $\Omega$, equals $\Omega = L-1$. Since entropy is the logarithm of the configuration space, we have $\Delta S = \log(L-1)$.<br><br>
-      Therefore, the change in Free Energy upon the formation of a domain wall is given by:
-      $$
-      \Delta F= \Delta E -T\Delta S= J - T\log(L-1)
-      $$
-      In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
-      Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
-            
-    </p>
+      <details>
+        <summary>
+          <b>proof</b>
+        </summary>
+        <p>
+          At thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of extractable useful energy from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
+        <p>
+          To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, let's examine what occurs when a domain wall forms.
+        </p>
+        <figure>
+          <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
+          <figcaption>
+            The top image shows the ordered phase of the Ising model, while the bottom image depicts a state with a domain wall.
+          </figcaption>
+        </figure>
+        <p>
+          Upon the formation of a domain wall, the energy change increases by $2J$. This is because only a single link now comprises two opposite spins.<br><br>
+          If the chain is $L$ spins long, there can be $L-1$ possible locations for the domain wall. Consequently, the size of the configuration space where a domain wall is present, denoted as $\Omega$, equals $\Omega = L-1$. Since entropy is the logarithm of the configuration space, we have $\Delta S = \log(L-1)$.<br><br>
+          Therefore, the change in Free Energy upon the formation of a domain wall is given by:
+          $$
+          \Delta F= \Delta E -T\Delta S= J - T\log(L-1)
+          $$
+          In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
+          Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
+                
+        </p>
+      </details>
+      
     <d-subsection>2D Ising model</d-subsection>
     <p>
       In the 2D Ising model the spins are arranged in a grid, and each one of them interacts with his neighbours. The system's Hamiltonian can be expressed as
@@ -259,19 +274,34 @@
       Where $\langle i, j\rangle$ means that we sum over all the neighboring spins. And let's see how it behaves
       
     </p>
-    <canvas id="canvas" width="600" height="600" style="border: 1px solid #000;"></canvas>
+    <canvas id="canvas2D" width="700" height="700" style="border: 1px solid #000;"></canvas>
     <div>
-        <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
-        <label for="temperature">$T=$</label>
+        <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
+        <label for="temperature2D">$T=$</label>
     </div>
     <figcaption>
       Simulation of the 2D ising model
     </figcaption>
-    <script src="ising.js"></script>
+    <script src="website/scripts/2Dising.js"></script>
     <p>
       As you can see, when the temperature is sufficiently low, the system will slowly reaches an ordered phase
     </p>
+    <h3 class="theorem">Theorem</h3>
+    <p>The 2D Ising model does have an ordered phase </p>
+      <details>
+        <summary>
+          <b>proof</b>
+        </summary>
+        asfasf
+      </details>
+    <p>
+      If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
+    </p>
     <d-section>conclusion</d-section>
+    <details>
+      <summary>asdfaegf</summary>
+      wowowo
+    </details>
     <p>
       If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
     </p>
