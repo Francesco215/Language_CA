@@ -54,30 +54,21 @@
 
   <script>
     console.log('asd')
-    function showContent(buttonNumber) {
-      var filePath;
-      switch (buttonNumber) {
-        case 1:
-          filePath = 'biology.html';
-          break;
-        case 2:
-          filePath = 'physics.html';
-          break;
-        case 3:
-          filePath = 'ML.html';
-          break;
-        default:
-          return;
-      }
+    
+    function showContent(target) {
+      // Get all the div elements
+      const divs = document.querySelectorAll('div[target_audience]');
 
-      var xhttp = new XMLHttpRequest();
-      xhttp.onreadystatechange = function() {
-        if (this.readyState == 4 && this.status == 200) {
-          document.getElementById('content').innerHTML = this.responseText;
+      // Loop through each div
+      divs.forEach(div => {
+        if (div.getAttribute('target_audience').includes(target)) {
+          // Display the selected div
+          div.style.display = 'block';
+        } else {
+          // Hide the other divs
+          div.style.display = 'none';
         }
-      };
-      xhttp.open('GET', filePath, true);
-      xhttp.send();
+      });
     }
   </script>
 
@@ -85,17 +76,17 @@
     <div style="position:relative;" class="l-body">
     
       <div id="colab-hero-div" style="float:left;" >
-        <div  class="colab-root" id="colab-hero" onclick="showContent(1)">I am a Biologist
+        <div  class="colab-root" id="colab-hero" onclick="showContent('b')">I am a Biologist
+        </div>
+      </div>
+
+      <div id="colab-hero-div" style="float:left;">
+        <div  class="colab-root" id="colab-hero" onclick="showContent('m')">I am a ML researcher
         </div>
       </div>
 
       <div id="colab-hero-div"style="float:left;">
-        <div  class="colab-root" id="colab-hero" onclick="showContent(3)">I am a ML researcher
-        </div>
-      </div>
-
-      <div id="colab-hero-div"style="float:left;">
-        <div  class="colab-root" id="colab-hero" onclick="showContent(2)">I am a Physicist
+        <div  class="colab-root" id="colab-hero" onclick="showContent('p')">I am a Physicist
         </div>
       </div> 
     </div>
@@ -103,15 +94,90 @@
     <div>
       
     </div>
-    <div id="content">
+    <div target_audience="n" style="display: block;">
       <d-section id="abs">Adaptive Abstract</d-section>
 
       <p>
         This is an example of an interactive abstract. Different types of researcher will have different abstract summarizing what they care the most. Click on the buttons above to have your abstract
       </p>
     </div>
+    <div target_audience="b" style="display: none;">
+      <d-section id="abs">Abstract for Biologists</d-section>
+      <p>
+        One of the most striking example of Self-organization is the formation of multicellular organisms, where each cell can only interact with its local environment through its cell membrane, but based on the signals it receives from its neighbors and its own internal state, it is able to understand what type of cell it should be and self-regulate. Despite the limited information available to each individual cell, incredibly complex organisms can be formed.
+      </p>
+      <p>
+        In this work we show how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+      </p>
+      <p>
+        But what makes a system capable of self-organizing in the first place? In this paper we show that the ability of a system to self-organize relies on having the right topology for cell communication. Furthermore, using tools from Statistical Physics, we show that current state of the art architectures for text generation lack the appropriate topology to be able to generate arbitrarily long, coherent text.
+      </p>
+    </div>
+    <div target_audience="p" style="display: none;">
+      <d-section id="abs">Abstract for Physicists</d-section>
+
+      <p>
+        One of the things that makes phase transitions beautiful is their universality. Despite the vast variety and complexity of systems of many particles, there are just a few of different phases of aggregation, and phase transitions are described by just a handful of critical exponents.
+      </p>
+      <p>
+        Furthermore, we know that at low temperature lots of systems reach an ordered state, for example the ferromagnetic phase in Ising models where all the spins are all aligned, and the solid phase in materials where a crystalline structure is formed.
+      </p>
+      <p>
+        In this paper we are going to show that asking if it is possible to generate arbitrarily long, coherent text is equivalent to asking if the system is capable of having an ordered phase.
+      </p>
+      <p>
+        But what makes a system capable of self-organizing in the first place? In this paper we show that the ability of a system to self-organize relies on having the right topology for cell communication. Furthermore, we show that current state of the art architectures for text generation lack the appropriate topology to be able to generate arbitrarily long, coherent text.
+      </p>
+    </div>
+
+    <div target_audience="m" style="display: none;">
+      <d-section id="abs">Abstract for ML researchers</d-section>
+      <p>
+      The complexity of generating a text with N words with modern machine learning algorithms such as the Transformer is O(N^2). This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
+      </p>
+      <p>
+        <ul>
+          <li>
+            Efficency: Self-organizing systems often exhibit efficient resource allocation and optimization of processes. The emergent patterns and structures that arise from local interactions can lead to efficient distribution of tasks, information, or resources, resulting in overall system efficiency
+          </li>
+          <li>
+            Scalability: Self-organizing systems can often scale effectively. As the number of components increases the system can still organize itself without requiring additional centralized control. This property is valuable in various domains, such as computer networks, where scalability is crucial
+          </li>
+        </ul>
+      </p>
+      <p>Inspired from Biology and using tools from Statistical Physics we show that:</p>
+      <p>
+        <ul>
+          <li>
+            Autoregressive models, no matter the architecture, the number of parameters, the window size, and the training procedure will never be able to generate text that is coherent at arbitrarily long distances.
+          </li>
+          <li>
+            Transformers with attention matrices with a specifically crafted topology, can in principle be able to generate text that is coherent at arbitrarily long distances.
+          </li>
+        </ul>
+      </p>
+    </div>
     
-    <d-section id="intro">The simplest example of self-organization</d-section>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div target_audience="b m">
+    <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
     <p>
       When I first studied the Ising model I thought it was completely useless, and yet physicists are obsessed with this boring looking model.<br> At first I didn't understand why. As a result I did the least possible work in order to pass the exam and then, my brain did the usual thing it does with information that it deemed useles: It deleted it. And I forgot about it.
     </p>
@@ -124,22 +190,72 @@
     </p>
     <d-subsection>The Ising Model</d-subsection>
     <p>
-      Here we are going to talk mainly about the fully connected, the 1D and the 2D lattice Ising model.
+      The Ising model was first invented to provide a simple explanation of magnetization effects in matter. Spins when interacting want to be aligned, so the interaction energy between two different spins $s_1$ and $s_2$ is $H=-Js_1\cdot s_2$.<br>
+      But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
     </p>
 
     <h4>Fully connected Ising model</h4>
     <p>
-      The fully connected Ising model is 
+      In the fully connected Ising model we have L spins, all interacting with each other. The Hamiltonian of the system is 
+
+      $$H=-J\sum_{i\neq j}s_is_j$$
+
+      Now lets see how the system behaves as a function of the temperature.
     </p>
     <figure>
       <img src="https://www.researchgate.net/profile/Sascha-Wald-2/publication/321920877/figure/fig2/AS:631634013458435@1527604692145/Schematic-representation-of-a-configuration-of-the-2D-Ising-model-on-a-square-lattice.png" style="width:100%; height: auto; float: left;">
       <figcaption>
-        Image of the 2D Ising Model
+        Simulation of the Fully connected Ising Model
       </figcaption>
     </figure>
     <p>
-      If you want some greate resources for learning about the Ising model and phase transitions in general i suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
+      As you can see, below a certain <i>Critical Temperature</i> $T_\textrm c$ you have an <i>Ordered Phase</i>, while above you have a <i>Disordered Phase</i>
     </p>
+
+    <h4>1D Ising Model</h4>
+      <p>
+      In the 1D Ising Model, spins are arranged in a chain and interact with their neighboring spins. The system's Hamiltonian can be expressed as:
+      $$
+      H=-J\sum_{i}s_is_{i+1}
+      $$
+      Now, let's examine the behavior of this system in relation to temperature.
+      </p>
+      <figure>
+        <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAZ8AAAB5CAMAAADRVtyNAAAAjVBMVEX///+MjIz/AADn5+fk5OT/ubnc3NyWlpbY2Nibm5uEhIR+fn58fHyBgYH7+/v29vbGxsa+vr6rq6ujo6Pt7e2IiIiysrL/oqKSkpJ1dXXR0dGfn5//5OT/Z2f/s7P/Ghr/zMz/b2//2Nj/V1f/q6v/8/P/Jib/l5f/Dg7/jIz/S0v/X1//wcH/6urCwsK1RqjqAAACxElEQVR4nO3b2XLaMBiGYdmoGCRvgO2wpM3WNF1z/5dXkxl69n/pkDJV4H0OcqLI8fgdGZORnQMAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAACAV9SL/30GUGZlfaIjX398w+RTndS7sypbMeorNVePfsqPOqEXzaBG6+nxR35nulCtxfAkU5O9HL3Jr9TwolODlVpAs0Id+KwsYii9PfyGPrd5fqMmZ+LPuixuxeg8TtSRz0i9rkK1tMff0Ocuz/N7Ma76TGO1s0e7GC/loWZWjn1CY44f3+d6zJM/iMmqz2o8K3uJDDFkF/L8sCp3WbGxnxCO7/N53+fm0f4F0acLIdhLpO5DKNXt73x0se0yt7SfEI7u8/hl3yd/sieLPos4rp/eWtXbGEI1V+d1NurGjX3cCe5v9/nXb/lT/t2ebPeps2pYrzbWEtmVWR/KS3lC0AWO7nP14/pn7p4efpm/YfeZFhM/d4Px2DLZDLOdr+QXpDNyoj6jD/r7qXy+nhbmvxC6qZvN9z8vQ7p9bLPL+PR5QZ+00Sdt9EkbfdJGn7TRJ230SRt90kaftNEnbfRJG33SRp+00Sdt9EkbfdJGn7Qd3afx+9HGvsr0+RdEga7wXeaeV8ZoOfh119v7PEWfuvVu7ZvW3IRDnwO1fopqyIaNtVFwWWZ9X9r7NNT6WYZt0a5Kc4s8fQ5Un3a/+7eyLuJ0v09QzFZ9fOxDFu2N3/Q5UH2afixg3N7cfnmF+GzPlp8/49wg1h59DuTzwTAWsC9iG0Nlbz3VfbbjXNGAPgeyj6/UDazpxeJ6pU8TQhQv7tHnYNKr0aIUNzC33KhdnPr5eojitRb6/NHJjcztRlxE52Xb2zs16jfitTA3kS9g+Ut5PetVjbqI46fIGw4tv5/iL53uPbVL2eAOAAAAAAAAAAAAAAAAAAAAAAAAAAAAAFB+A7gMGgdFqmRLAAAAAElFTkSuQmCC" style="width:100%; height: auto; float: left;">
+      <figcaption>
+        Simulation of the 1D Ising Model (TODO)
+      </figcaption>
+      </figure>
+      <p>
+      As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This fact can be proven using the <i>Free Energy principle</i>.
+      </p>
+      <p>
+      The Free Energy principle states that at thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of extractable useful energy from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
+      <p>
+      To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, let's examine what occurs when a domain wall forms.
+      </p>
+      <figure>
+        <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
+        <figcaption>
+          The top image shows the ordered phase of the Ising model, while the bottom image depicts a state with a domain wall.
+        </figcaption>
+      </figure>
+      <p>
+      Upon the formation of a domain wall, the energy change increases by $2J$. This is because only a single link now comprises two opposite spins.<br><br>
+      If the chain is $L$ spins long, there can be $L-1$ possible locations for the domain wall. Consequently, the size of the configuration space where a domain wall is present, denoted as $\Omega$, equals $\Omega = L-1$. Since entropy is the logarithm of the configuration space, we have $\Delta S = \log(L-1)$.<br><br>
+      Therefore, the change in Free Energy upon the formation of a domain wall is given by:
+      $$
+      \Delta F= \Delta E -T\Delta S= J - T\log(L-1)
+      $$
+      In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
+      Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
+            
+    </p>
+    <d-section>conclusion</d-section>
+    <p>
+      If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
+    </p>
+    </div>
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
