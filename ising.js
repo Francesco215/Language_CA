@@ -8,6 +8,7 @@ const numRows = Math.floor(height / gridSize);
 const lattice = createLattice(numCols, numRows);
 const temperatureSlider = document.getElementById('temperature');
 let temperature = temperatureSlider.value;
+let isSimulationPaused = false;
 
 function createLattice(cols, rows) {
   const lattice = new Array(cols);
@@ -21,30 +22,32 @@ function createLattice(cols, rows) {
 }
 
 function update() {
-  ctx.clearRect(0, 0, width, height);
+  if (!document.hidden && !isSimulationPaused) {
+    ctx.clearRect(0, 0, width, height);
 
-  for (let col = 0; col < numCols; col++) {
-    for (let row = 0; row < numRows; row++) {
-      const spin = lattice[col][row];
-      ctx.fillStyle = spin === 1 ? '#000' : '#fff';
-      ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+    for (let col = 0; col < numCols; col++) {
+      for (let row = 0; row < numRows; row++) {
+        const spin = lattice[col][row];
+        ctx.fillStyle = spin === 1 ? '#000' : '#fff';
+        ctx.fillRect(col * gridSize, row * gridSize, gridSize, gridSize);
+      }
     }
-  }
 
-  for (let i = 0; i < 10; i++) {
-    const col = Math.floor(Math.random() * numCols);
-    const row = Math.floor(Math.random() * numRows);
-    const spin = lattice[col][row];
-    const neighbors = [
-      lattice[(col - 1 + numCols) % numCols][row],
-      lattice[(col + 1) % numCols][row],
-      lattice[col][(row - 1 + numRows) % numRows],
-      lattice[col][(row + 1) % numRows],
-    ];
-    const sum = neighbors.reduce((acc, neighbor) => acc + neighbor, 0);
-    const deltaE = 2 * spin * sum;
-    if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
-      lattice[col][row] = -spin;
+    for (let i = 0; i < 10; i++) {
+      const col = Math.floor(Math.random() * numCols);
+      const row = Math.floor(Math.random() * numRows);
+      const spin = lattice[col][row];
+      const neighbors = [
+        lattice[(col - 1 + numCols) % numCols][row],
+        lattice[(col + 1) % numCols][row],
+        lattice[col][(row - 1 + numRows) % numRows],
+        lattice[col][(row + 1) % numRows],
+      ];
+      const sum = neighbors.reduce((acc, neighbor) => acc + neighbor, 0);
+      const deltaE = 2 * spin * sum;
+      if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
+        lattice[col][row] = -spin;
+      }
     }
   }
 
@@ -54,5 +57,18 @@ function update() {
 temperatureSlider.addEventListener('input', function () {
   temperature = temperatureSlider.value;
 });
+
+// Pause simulation when canvas is not visible
+function handleVisibilityChange(entries) {
+  const isVisible = entries[0].isIntersecting;
+  isSimulationPaused = !isVisible;
+}
+
+// Create an intersection observer
+const observer = new IntersectionObserver(handleVisibilityChange, { threshold: 0 });
+
+// Observe the canvas element
+observer.observe(canvas);
+
 
 update();

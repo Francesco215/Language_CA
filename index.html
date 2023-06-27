@@ -188,13 +188,12 @@
         I now understood that in order to understand Self-Organizing systems in general, I had to understand the simplest of them all: The Ising model.
       </blockquote>
     </p>
-    <d-subsection>The Ising Model</d-subsection>
     <p>
-      The Ising model was first invented to provide a simple explanation of magnetization effects in matter. Spins when interacting want to be aligned, so the interaction energy between two different spins $s_1$ and $s_2$ is $H=-Js_1\cdot s_2$.<br>
+      But what exactly is the The Ising model? The Ising model was first invented to provide a simple explanation of magnetization effects in matter. Spins when interacting want to be aligned, so the interaction energy between two different spins $s_1$ and $s_2$ is $H=-Js_1\cdot s_2$.<br>
       But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
     </p>
 
-    <h4>Fully connected Ising model</h4>
+    <d-subsection>Fully connected Ising model</d-subsection>
     <p>
       In the fully connected Ising model we have L spins, all interacting with each other. The Hamiltonian of the system is 
 
@@ -212,7 +211,7 @@
       As you can see, below a certain <i>Critical Temperature</i> $T_\textrm c$ you have an <i>Ordered Phase</i>, while above you have a <i>Disordered Phase</i>
     </p>
 
-    <h4>1D Ising Model</h4>
+    <d-subsection>1D Ising Model</d-subsection>
       <p>
       In the 1D Ising Model, spins are arranged in a chain and interact with their neighboring spins. The system's Hamiltonian can be expressed as:
       $$
@@ -250,6 +249,27 @@
       In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
       Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
             
+    </p>
+    <d-subsection>2D Ising model</d-subsection>
+    <p>
+      In the 2D Ising model the spins are arranged in a grid, and each one of them interacts with his neighbours. The system's Hamiltonian can be expressed as
+      $$
+        H=-J\sum_{\langle i,j\rangle} s_is_j
+      $$
+      Where $\langle i, j\rangle$ means that we sum over all the neighboring spins. And let's see how it behaves
+      
+    </p>
+    <canvas id="canvas" width="600" height="600" style="border: 1px solid #000;"></canvas>
+    <div>
+        <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
+        <label for="temperature">$T=$</label>
+    </div>
+    <figcaption>
+      Simulation of the 2D ising model
+    </figcaption>
+    <script src="ising.js"></script>
+    <p>
+      As you can see, when the temperature is sufficiently low, the system will slowly reaches an ordered phase
     </p>
     <d-section>conclusion</d-section>
     <p>
