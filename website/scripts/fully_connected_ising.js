@@ -8,9 +8,14 @@ const temperatureSliderFC = document.getElementById('FC_temperature-slider');
 const temperatureValueFC = document.getElementById('FC_temperature-value');
 
 // Define Ising model parameters
-const N_FC = 50;   // Number of spins
-const J_FC = 1;     // Interaction strength
-const radiusFC = 5; //radius of the circles
+const N_FC = 100;   // Number of spins
+const J_FC = 1/N_FC;     // Interaction strength
+const radiusFC = 10; //radius of the circles
+const RadiusFC = canvasFC.width*.45
+
+const centerX = canvasFC.width / 2;
+const centerY = canvasFC.height / 2;
+const angle = (2 * Math.PI) / N_FC;
 
 // Define the state of each spin (0 or 1)
 let spinsFC = [];
@@ -32,12 +37,6 @@ function drawIsingModelFC() {
     // Clear the canvas
     contextFC.clearRect(0, 0, canvasFC.width, canvasFC.height);
 
-    // Draw the spins as circles and the interactions as lines
-    
-    const centerX = canvasFC.width / 2;
-    const centerY = canvasFC.height / 2;
-    const angle = (2 * Math.PI) / N_FC;
-
     // Handle mouse movement
     canvasFC.onmousemove = function(event) {
         const rect = canvasFC.getBoundingClientRect();
@@ -47,9 +46,28 @@ function drawIsingModelFC() {
         hoveredSpinFC = getHoveredSpinFC(mouseX, mouseY);
     };
 
+    // Draw lines connecting the circles if hovered
+    if (hoveredSpinFC !== -1)
+        for (let i = 0; i < N_FC; i++) {
+            const x = centerX + Math.cos(i * angle) * (RadiusFC);
+            const y = centerY + Math.sin(i * angle) * (RadiusFC);
+
+            if (i !== hoveredSpinFC) {
+                const hoveredX = centerX + Math.cos(hoveredSpinFC * angle) * (RadiusFC);
+                const hoveredY = centerY + Math.sin(hoveredSpinFC * angle) * (RadiusFC);
+
+                contextFC.beginPath();
+                contextFC.moveTo(x, y);
+                contextFC.lineTo(hoveredX, hoveredY);
+                contextFC.strokeStyle = 'gray';
+                contextFC.stroke();
+            }
+        }
+
+    //draw the circles
     for (let i = 0; i < N_FC; i++) {
-        const x = centerX + Math.cos(i * angle) * (canvasFC.width / 4);
-        const y = centerY + Math.sin(i * angle) * (canvasFC.height / 4);
+        const x = centerX + Math.cos(i * angle) * (RadiusFC);
+        const y = centerY + Math.sin(i * angle) * (RadiusFC);
 
         contextFC.beginPath();
         contextFC.arc(x, y, radiusFC, 0, 2 * Math.PI);
@@ -57,29 +75,15 @@ function drawIsingModelFC() {
         contextFC.fill();
         contextFC.stroke();
 
-        // Draw lines connecting the circles if hovered
-        if (hoveredSpinFC !== -1 && i !== hoveredSpinFC) {
-            const hoveredX = centerX + Math.cos(hoveredSpinFC * angle) * (canvasFC.width / 4);
-            const hoveredY = centerY + Math.sin(hoveredSpinFC * angle) * (canvasFC.height / 4);
-
-            contextFC.beginPath();
-            contextFC.moveTo(x, y);
-            contextFC.lineTo(hoveredX, hoveredY);
-            contextFC.strokeStyle = 'gray';
-            contextFC.stroke();
-        }
+        
     }
 }
 
 // Helper function to get the index of the hovered spin
 function getHoveredSpinFC(mouseX, mouseY) {
-    const centerX = canvasFC.width / 2;
-    const centerY = canvasFC.height / 2;
-    const angle = (2 * Math.PI) / N_FC;
-
     for (let i = 0; i < N_FC; i++) {
-        const x = centerX + Math.cos(i * angle) * (canvasFC.width / 4);
-        const y = centerY + Math.sin(i * angle) * (canvasFC.height / 4);
+        const x = centerX + Math.cos(i * angle) * (RadiusFC);
+        const y = centerY + Math.sin(i * angle) * (RadiusFC);
 
         const dx = x - mouseX;
         const dy = y - mouseY;
