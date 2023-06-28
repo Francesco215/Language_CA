@@ -7,7 +7,7 @@ const numSpins = Math.floor(width / gridSize);
 const spins = createSpins(numSpins);
 const temperatureSlider = document.getElementById('temperature');
 let temperature = temperatureSlider.value;
-let isSimulationPaused = false;
+let isSimulationPaused1D = false;
 
 function createSpins(numSpins) {
   const spins = new Array(numSpins);
@@ -18,7 +18,7 @@ function createSpins(numSpins) {
 }
 
 function update() {
-  if (!document.hidden && !isSimulationPaused) {
+  if (!document.hidden && !isSimulationPaused1D) {
     ctx1D.clearRect(0, 0, width, height);
     for (let i=0; i<numSpins; i++){
         ctx1D.fillStyle = spins[i] === 1 ? '#000' : '#fff';
@@ -39,9 +39,7 @@ function update() {
     if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
     spins[i] = -spin;
     }
-
   }
-
   requestAnimationFrame(update);
 }
 
@@ -50,13 +48,13 @@ temperatureSlider.addEventListener('input', function () {
 });
 
 // Pause simulation when canvas is not visible
-function handleVisibilityChange(entries) {
+function handleVisibilityChange1D(entries) {
   const isVisible = entries[0].isIntersecting;
-  isSimulationPaused = !isVisible;
+  isSimulationPaused1D = !isVisible;
 }
 
 // Create an intersection observer
-const observer = new IntersectionObserver(handleVisibilityChange, { threshold: 0 });
+const observer = new IntersectionObserver(handleVisibilityChange1D, { threshold: 0 });
 
 // Observe the canvas element
 observer.observe(canvas1D);

@@ -202,7 +202,13 @@
       Now lets see how the system behaves as a function of the temperature.
     </p>
     <figure>
-      <img src="https://www.researchgate.net/profile/Sascha-Wald-2/publication/321920877/figure/fig2/AS:631634013458435@1527604692145/Schematic-representation-of-a-configuration-of-the-2D-Ising-model-on-a-square-lattice.png" style="width:100%; height: auto; float: left;">
+      <canvas id="FC_ising-canvas" width="500" height="500"></canvas>
+    <div>
+        <label for="temperature-slider">Temperature:</label>
+        <input type="range" id="FC_temperature-slider" min="0.1" max="100.0" step=".1" value="1.0">
+        <span id="FC_temperature-value">1.0</span>
+    </div>
+    <script src="website/scripts/fully_connected_ising.js"></script>
       <figcaption>
         Simulation of the Fully connected Ising Model
       </figcaption>

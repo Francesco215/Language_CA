@@ -51,7 +51,6 @@ function update2D() {
       }
     }
   }
-
   requestAnimationFrame(update2D);
 }
 
@@ -60,13 +59,13 @@ temperatureSlider2D.addEventListener('input', function () {
 });
 
 // Pause simulation when canvas is not visible
-function handleVisibilityChange(entries) {
+function handleVisibilityChange2D(entries) {
   const isVisible = entries[0].isIntersecting;
   isSimulationPaused2D = !isVisible;
 }
 
 // Create an intersection observer2D
-const observer2D = new IntersectionObserver(handleVisibilityChange, { threshold: 0 });
+const observer2D = new IntersectionObserver(handleVisibilityChange2D, { threshold: 0 });
 
 // Observe the canvas element
 observer2D.observe(canvas2D);
