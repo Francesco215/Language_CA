@@ -19,13 +19,12 @@ function createSpins(numSpins) {
 
 function update() {
   if (!document.hidden && !isSimulationPaused) {
-    if (Math.random()<1e-2){
-        ctx1D.clearRect(0, 0, width, height);
-        for (let i=0; i<numSpins; i++){
-            ctx1D.fillStyle = spins[i] === 1 ? '#000' : '#fff';
-            ctx1D.fillRect(i * gridSize, 0, gridSize, height);
-        }
-  }
+    ctx1D.clearRect(0, 0, width, height);
+    for (let i=0; i<numSpins; i++){
+        ctx1D.fillStyle = spins[i] === 1 ? '#000' : '#fff';
+        ctx1D.fillRect(i * gridSize, 0, gridSize, height);
+    }
+  
     let i=Math.floor(Math.random() * numSpins);
     
     const spin = spins[i];

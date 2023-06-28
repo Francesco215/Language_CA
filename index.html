@@ -242,9 +242,9 @@
           <b>proof</b>
         </summary>
         <p>
-          At thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of extractable useful energy from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
+          At thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of useful energy that can be extracted from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
         <p>
-          To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, let's examine what occurs when a domain wall forms.
+          To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, we have to examine what occurs when a domain wall forms.
         </p>
         <figure>
           <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
@@ -284,7 +284,7 @@
     </figcaption>
     <script src="website/scripts/2Dising.js"></script>
     <p>
-      As you can see, when the temperature is sufficiently low, the system will slowly reaches an ordered phase
+      As you can see, when the temperature is sufficiently low, the system will slowly reach an ordered phase. 
     </p>
     <h3 class="theorem">Theorem</h3>
     <p>The 2D Ising model does have an ordered phase </p>
@@ -292,19 +292,40 @@
         <summary>
           <b>proof</b>
         </summary>
-        asfasf
+        <p>The following proof is also known as <i>Peierls Argument</i> <d-cite key="bonati2014peierls, peierls1936ising"></d-cite>.</p>
+        <p>
+          Suppose we start in a configuration where all the spins are all in the $+1$ configuration, we now create a domain with a perimeter $\mathcal P$ made of spins in the $-1$ configuration, and see what happens to the Free Energy.
+        </p>
+        <p>
+          The change in energy will be $$\Delta E= 2J\times \mathcal P$$ 
+          Where $J$ is the coupling strenght between spins
+        </p>
+        <p>
+          The change in Entropy is harder to estimate, fortunately we only need an upper bound.<br>
+          We need to find the number of domain with a perimeter $\mathcal P$.
+        </p>
+        <p>
+          We can always fit a curve of perimeter $\mathcal P$ inside a box $\mathcal P\times \mathcal P$ centered in the origin, so the number of starting points is at most $\mathcal P^2$, then at each step along the perimeter the curve has at most 3 choices for where to step next, so for each starting point there are at most $3^{\mathcal P}$ curves <d-footnote>The choices are usually less than 3 beacuse the curve is a close self-avoiding curve, so to satisfy this constraints usually has less choices. It can be proven that there are at least $2^{\mathcal P/2}$ possible configurations FIND THE SOURCE</d-footnote>
+        </p>
+        <p>
+          We can thus conclude that the number of possible configuration $\Omega\le \mathcal P^23^\mathcal P$, and the change in entropy is
+          $$
+            \Delta S\le \mathcal P\log3 +2\log\mathcal P
+          $$
+          Putting it all toghether we have that
+          $$\Delta F \ge 2J\mathcal P - T \mathcal P\log3 +O(\log \mathcal P)$$
+          And if $T$ is sufficently low we have that $\Delta F>0$, thus for low temperature the 2D Ising model at the equilibrium tends to an ordered phase.
+        </p>
+
       </details>
+      <p>
+        However, there is a caveaut here: The theorem doesn't tell us anything about how much time the system takes to reach equilibrium, infact if the system is sufficently large it can take more then the age of the universe.
+      </p>
     <p>
       If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
     </p>
-    <d-section>conclusion</d-section>
-    <details>
-      <summary>asdfaegf</summary>
-      wowowo
-    </details>
-    <p>
-      If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
-    </p>
+    <d-section>Conclusions</d-section>
+    TODO
     </div>
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
