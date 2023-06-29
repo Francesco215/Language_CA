@@ -133,7 +133,7 @@
     <div target_audience="m" style="display: none;">
       <d-section id="abs">Abstract for ML researchers</d-section>
       <p>
-      The complexity of generating a text with N words with modern machine learning algorithms such as the Transformer is O(N^2). This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
+      The complexity of generating a text with $N$ words with modern machine learning algorithms such as the Transformer is $O(N^2)$. This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
       </p>
       <p>
         <ul>
@@ -179,17 +179,16 @@
     <div target_audience="b m">
     <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
     <p>
-      When I first studied the Ising model I thought it was completely useless, and yet physicists are obsessed with this boring looking model.<br> At first I didn't understand why. As a result I did the least possible work in order to pass the exam and then, my brain did the usual thing it does with information that it deemed useles: It deleted it. And I forgot about it.
-    </p>
-    <p>
-      When I graduated, since I was officially unemployed, I had nothing to do, and for some reason I started studying more than when I was in Uni.
-      Months prior graduating I published a work about self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>, but the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote>, so I ended up going back to statistical physics for answers. 
+      Initially, when I delved into the study of the Ising model, I found it utterly useless and couldn't comprehend why physicists were so fixated on this seemingly mundane model. Consequently, I mustered the bare minimum effort required to pass my exams, and as expected, my brain discarded the information it deemed irrelevant, causing me to completely forget about it.<br><br>
+
+      Upon graduating and finding myself officially unemployed, I had an abundance of time on my hands. Curiously, I found myself engrossed in studying more than I ever did during my university days. A few months prior to graduating, I had even published a piece on self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>. However, the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote> and, therefore, turned back to the realm of statistical physics in search of answers.
       <blockquote>
         I now understood that in order to understand Self-Organizing systems in general, I had to understand the simplest of them all: The Ising model.
       </blockquote>
     </p>
     <p>
-      But what exactly is the The Ising model? The Ising model was first invented to provide a simple explanation of magnetization effects in matter. Spins when interacting want to be aligned, so the interaction energy between two different spins $s_1$ and $s_2$ is $H=-Js_1\cdot s_2$.<br>
+      But what exactly is the Ising model? Originally conceived as a simple explanation for magnetization effects in matter, the Ising model explores the interplay between interacting spins. These spins, when in proximity, have a preference to align with each other, leading to an interaction energy denoted by $H=-Js_1\cdot s_2$.<br><br>
+
       But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
     </p>
 
@@ -197,7 +196,7 @@
     <p>
       In the fully connected Ising model we have L spins, all interacting with each other. The Hamiltonian of the system is 
 
-      $$H=-J\sum_{i\neq j}s_is_j$$
+      $$H=-\frac JN\sum_{i\neq j}s_is_j$$
 
       Now lets see how the system behaves as a function of the temperature.
     </p>
@@ -205,7 +204,7 @@
       <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
     <div>
         <label for="temperature-slider">Temperature:</label>
-        <input type="range" id="FC_temperature-slider" min="0.1" max="2.0" step=".01" value="1.0">
+        <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
         <span id="FC_temperature-value">1.0</span>
     </div>
     <script src="website/scripts/fully_connected_ising.js"></script>
@@ -267,7 +266,6 @@
           $$
           In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
           Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
-                
         </p>
       </details>
       
@@ -341,6 +339,26 @@
           <b>Associative memories</b> are how memories are stored and extracted in human brains. In an associative memory system, a memory becomes easier to extract the more “hints” or related memories are given.
         </li>
       </ul>
+      So basically, in an associative memory, when you give him a prompt, it gives you the most associated memory stored to the prompt given<d-footnote>You might already suspect where this is going, but for now we will stay away from Natural Language Processing</d-footnote><d-footnote>One such example in computer science is what happens when you Google something, it gives you a list of related links stored somewhere on the internet.</d-footnote>.
+    </p>
+    <p>
+      In general, a associative memory can be modeled as a energy landscape with with a discrete number of minima, each of which corresponding to a stored memory
+      <d-figure>
+        <img src="website/images/associative_memory-1.png" width="100%">
+        <figcaption>
+          Example of associative memory, in this case each member of the Simpsons family has his own enegry minimum. When given a guess of the system will converge to the closest Simpsons member.
+        </figcaption>
+      </d-figure>
+      <blockquote>
+        Here i also talk about the navigation in morphological space and what that means if you want manipulate a tissue (for example a frog eye, frog leg, xenobots)
+      </blockquote>
+    </p>
+    <d-subsection>Hopfield Networks</d-subsection>
+    <p>
+      Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>.
+    </p>
+    <p>
+      Lets start with the simplest possible case: The Hopfield Network with just one stored pattern.
     </p>
     
     </div>
