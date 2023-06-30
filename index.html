@@ -358,9 +358,19 @@
       Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>.
     </p>
     <p>
-      Lets start with the simplest possible case: The Hopfield Network with just one stored pattern.
+      The standard Hopfield Network with $N$ patterns stored equation is the following
+      $$
+        H=\sum_{ij}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^n_{i}X^n_{j}
+      $$
+      Notice how this is similar to the equation of the Hamiltonian of the fully connected Ising model <d-footnote>...Actually if there is just one stored pattern they are equivalent up to a Gauge transformation $s_i\to X_is_i$</d-footnote>. What effectively does is that it creates a number of local minima equal to the number of patterns stored, here is a simulation.
+      <d-figure>
+        <img src="website/images/luffy.jpg" width="100%">
+        <figcaption>
+          TODO: simulation of the hopfield model
+        </figcaption>
+      </d-figure>
     </p>
-    
+    As you can see, the system converges to one of the stored patterns
     </div>
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>

@@ -11,7 +11,7 @@ let temperature2D = temperatureSlider2D.value;
 let isSimulationPaused2D = false;
 
 function createLattice2D(cols, rows) {
-  console.log(cols,rows)
+  console.log(cols, rows)
   const lattice2D = new Array(cols);
   for (let col = 0; col < cols; col++) {
     lattice2D[col] = new Array(rows);
