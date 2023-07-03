@@ -10,46 +10,41 @@ const temperatureSlider2D = document.getElementById('temperature2D');
 let temperature2D = temperatureSlider2D.value;
 let isSimulationPaused2D = false;
 
-async function processBMPImage(path) {
-    const image = new Image();
-    image.src = path;
-
-    await new Promise(resolve => {
-        image.onload = resolve;
-    });
-
-    const canvas = document.createElement('canvas');
-    const context = canvas.getContext('2d');
-    context.drawImage(image, 0, 0);
-
-    const width = image.width;
-    const height = image.height;
-
-    const imageData = context.getImageData(0, 0, width, height);
-    const pixels = imageData.data;
-    const result = [];
-
-    for (let i = 0; i < pixels.length; i += 4) {
-        const r = pixels[i];
-        const g = pixels[i + 1];
-        const b = pixels[i + 2];
-
-        // Assuming black and white image, check if pixel is black (0) or white (255)
-        if (r === 0 && g === 0 && b === 0) {
-            result.push(-1);
-        } else {
-            result.push(1);
-        }
+async function readJson(url) {
+    try {
+        const response = await fetch(url);
+        const jsonData = await response.json();
+        return jsonData;
+    } catch (error) {
+        console.error(error);
+        return null;
     }
-
-    return result;
 }
 
-const patterns=
+patterns_path='website/images/patterns_json/'
+const patterns_file=readJson(patterns_path +'patterns.json')
+
+async function create_interaction(side_lenght){
+
+    const interaction = new Array(side_lenght);
+    
+    for (let i = 0; i < patterns.length; i++) {
+        const pattern = await readJson(patterns_path + patterns[i]);
+        
+        for (let col = 0; col < side_lenght; col++) {
+            if (i===0) interaction[col] = new Array(side_lenght);
+            
+            for (let row = 0; row < side_lenght; row++) {
+                if (i === 0) interaction[col][row]=0;
+                interaction[col][row]+=pattern[row][col];
+            }
+        }
+    }
+    return interaction
+}
 
 
 function createLattice2D(cols, rows) {
-    console.log(cols, rows)
     const lattice2D = new Array(cols);
     for (let col = 0; col < cols; col++) {
         lattice2D[col] = new Array(rows);
