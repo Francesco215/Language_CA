@@ -20,7 +20,7 @@ def closest_power_of_two(img: np.array) -> int:
     return 2 ** int(np.floor(np.log2(shortest_side)))
 
 
-def img_to_binary_array(path_input: str, resize=1) -> np.array:
+def img_to_binary_array(path_input: str, shape: tuple= (16,16)) -> np.array:
     """
     Converts an image to a binary NumPy array.
 
@@ -33,13 +33,11 @@ def img_to_binary_array(path_input: str, resize=1) -> np.array:
     """
     img = cv2.imread(path_input, 2)
 
-    shape = (closest_power_of_two(img), closest_power_of_two(img))
-
     img = cv2.resize(img, shape, interpolation=cv2.INTER_AREA)
 
     _, img = cv2.threshold(img, 180, 255, cv2.THRESH_BINARY)
 
-    img = skimage.measure.block_reduce(img, (resize, resize), np.min)
+    #img = skimage.measure.block_reduce(img, (resize, resize), np.min)
 
     return img // 255
 

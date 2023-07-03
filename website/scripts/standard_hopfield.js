@@ -28,8 +28,8 @@ async function create_interaction(side_lenght){
 
     const interaction = new Array(side_lenght);
     
-    for (let i = 0; i < patterns.length; i++) {
-        const pattern = await readJson(patterns_path + patterns[i]);
+    for (let i = 0; i < pattern_names.length; i++) {
+        const pattern = await readJson(patterns_path + pattern_names[i]);
         
         for (let col = 0; col < side_lenght; col++) {
             if (i===0) interaction[col] = new Array(side_lenght);
