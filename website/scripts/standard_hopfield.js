@@ -1,14 +1,16 @@
-const canvas2D = document.getElementById('canvas2D');
-const ctx2D = canvas2D.getContext('2d');
-const width2D = canvas2D.width;
-const height2D = canvas2D.height;
-const gridSize2D = 20;
-const numCols2D = Math.floor(width2D / gridSize2D);
-const numRows2D = Math.floor(height2D / gridSize2D);
-const lattice2D = createLattice2D(numCols2D, numRows2D);
-const temperatureSlider2D = document.getElementById('temperature2D');
-let temperature2D = temperatureSlider2D.value;
-let isSimulationPaused2D = false;
+const canvasHop = document.getElementById('canvas');
+const ctxHop = canvasHop.getContext('2d');
+const widthHop = canvasHop.width;
+const heightHop = canvasHop.height;
+
+const side_lenght = 64;
+const gridSizeHop = canvasHop.width/side_lenght;
+
+const J_Hop=1/side_lenght**2
+const temperatureSliderHop = document.getElementById('temperatureHop-slider');
+const temperatureValueHop = document.getElementById('temperatureHop-value');
+
+
 
 async function readJson(url) {
     try {
@@ -21,26 +23,23 @@ async function readJson(url) {
     }
 }
 
-patterns_path='website/images/patterns_json/'
-const patterns_file=readJson(patterns_path +'patterns.json')
 
-async function create_interaction(side_lenght){
+const folder_patterns = 'website/images/patterns_json/'
+const path_names = folder_patterns + 'patterns.json'
 
-    const interaction = new Array(side_lenght);
-    
+
+//define patterns in an async way
+let patterns;
+async function make_patterns() {
+    const pattern_names = await readJson(path_names)
+    patterns = new Array(pattern_names.length)
     for (let i = 0; i < pattern_names.length; i++) {
-        const pattern = await readJson(patterns_path + pattern_names[i]);
-        
-        for (let col = 0; col < side_lenght; col++) {
-            if (i===0) interaction[col] = new Array(side_lenght);
-            
-            for (let row = 0; row < side_lenght; row++) {
-                if (i === 0) interaction[col][row]=0;
-                interaction[col][row]+=pattern[row][col];
-            }
-        }
+        patterns[i] = await readJson(folder_patterns + pattern_names[i]);
+        for (let col = 0; col < side_lenght; col++)
+            for (let row = 0; row < side_lenght; row++)
+                patterns[i][col][row] = 2 * patterns[i][col][row] - 1;
     }
-    return interaction
+    return patterns;
 }
 
 
@@ -55,48 +54,69 @@ function createLattice2D(cols, rows) {
     return lattice2D;
 }
 
-function update2D() {
-    if (!document.hidden && !isSimulationPaused2D) {
-        ctx2D.clearRect(0, 0, width2D, height2D);
+let latticeHop = createLattice2D(side_lenght, side_lenght);
 
-        for (let col = 0; col < numCols2D; col++) {
-            for (let row = 0; row < numRows2D; row++) {
-                const spin = lattice2D[col][row];
-                ctx2D.fillStyle = spin === 1 ? '#000' : '#fff';
-                ctx2D.fillRect(col * gridSize2D, row * gridSize2D, gridSize2D, gridSize2D);
+//define overlaps in an async way
+let overlaps;
+async function make_overlaps() {
+    const patterns = await make_patterns();
+    overlaps = new Array(patterns.length);
+    for (let i = 0; i < patterns.length; i++) {
+        overlaps[i] = 0;
+        for (let col = 0; col < side_lenght; col++)
+            for (let row = 0; row < side_lenght; row++)
+                overlaps[i] += patterns[i][col][row] * latticeHop[col][row];
+    }
+    return overlaps;
+}
+make_overlaps();
+
+function updateHop() {
+    if (!document.hidden && !isSimulationPausedHop && overlaps!=undefined) {
+        ctxHop.clearRect(0, 0, widthHop, heightHop);
+
+        for (let col = 0; col < side_lenght; col++) {
+            for (let row = 0; row < side_lenght; row++) {
+                const spin = latticeHop[col][row];
+                ctxHop.fillStyle = spin === 1 ? '#000' : '#fff';
+                ctxHop.fillRect(col * gridSizeHop, row * gridSizeHop, gridSizeHop, gridSizeHop);
             }
         }
 
         for (let i = 0; i < 10; i++) {
-            const col = Math.floor(Math.random() * numCols2D);
-            const row = Math.floor(Math.random() * numRows2D);
-            const spin = lattice2D[col][row];
+            const col = Math.floor(Math.random() * side_lenght);
+            const row = Math.floor(Math.random() * side_lenght);
+            const spin = latticeHop[col][row];
 
-            
+            let deltaE = 0;
+            for (let j=0; j<patterns.length; j++){
+                const old_energy = -J_Hop * overlaps[j]**2;
+                const new_energy = -J_Hop * (overlaps[j]-2*spin*patterns[j][col][row])**2;   //check this!
+                deltaE+=new_energy-old_energy
+            }
 
-            if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature2D)) {
-                lattice2D[col][row] = -spin;
+            const temperature = parseFloat(temperatureSliderHop.value);
+            temperatureValueHop.textContent = temperature.toFixed(1);
+
+            if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
+                latticeHop[col][row] = -spin;
+                for (let j = 0; j < patterns.length; j++)
+                    overlaps[j] -= 2 * spin * patterns[j][col][row];
             }
         }
     }
-    requestAnimationFrame(update2D);
+    requestAnimationFrame(updateHop);
 }
 
-temperatureSlider2D.addEventListener('input', function () {
-    temperature2D = temperatureSlider2D.value;
-});
 
-// Pause simulation when canvas is not visible
-function handleVisibilityChange2D(entries) {
+function handleVisibilityChangeHop(entries) {
     const isVisible = entries[0].isIntersecting;
-    isSimulationPaused2D = !isVisible;
+    isSimulationPausedHop = !isVisible;
+    if (isVisible) updateHop();
 }
 
 // Create an intersection observer2D
-const observer2D = new IntersectionObserver(handleVisibilityChange2D, { threshold: 0 });
+const observerHop = new IntersectionObserver(handleVisibilityChangeHop, { threshold: 0 });
 
 // Observe the canvas element
-observer2D.observe(canvas2D);
-
-
-update2D();
+observerHop.observe(canvasHop);

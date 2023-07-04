@@ -364,9 +364,17 @@
       $$
       Notice how this is similar to the equation of the Hamiltonian of the fully connected Ising model <d-footnote>...Actually if there is just one stored pattern they are equivalent up to a Gauge transformation $s_i\to X_is_i$</d-footnote>. What effectively does is that it creates a number of local minima equal to the number of patterns stored, here is a simulation.
       <d-figure>
-        <img src="website/images/luffy.jpg" width="100%">
+        <canvas id="canvas" width="700" height="700"></canvas>
+        <div>
+            <label for="temperatureHop-slider">Temperature:</label>
+            <input type="range" id="temperatureHop-slider" min="0.1" max="50.0" step=".01" value="1.0">
+            <span id="temperatureHop-value">1.0</span>
+        </div>
+
+    <script src="website/scripts/standard_hopfield.js"></script>
         <figcaption>
-          TODO: simulation of the hopfield model
+          Here is a simulation of the Hopfield model, the two patterns stored are a image of Luffy and Zoro from One piece.<br>As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br>
+          You can go from a saved pattern to the other by increasing the temperature and relowering (it works 50% of the times). If you dont want to wait for the system to thermalize you can just reload the page.
         </figcaption>
       </d-figure>
     </p>
