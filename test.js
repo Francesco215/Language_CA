@@ -1,9 +1,13 @@
-const canvas2D = document.getElementById('canvas');
-const ctxHop = canvas2D.getContext('2d');
-const width2D = canvas2D.width;
-const height2D = canvas2D.height;
+const canvasHop = document.getElementById('canvas');
+const ctxHop = canvasHop.getContext('2d');
+const widthHop = canvasHop.width;
+const heightHop = canvasHop.height;
 
-const side_lenght = 32;
+const side_lenght = 64;
+const gridSizeHop = canvasHop.width/side_lenght;
+
+const J_Hop=1/side_lenght**2
+const temperatureHop=.5;
 
 async function readJson(url) {
     try {
@@ -66,7 +70,7 @@ make_overlaps();
 
 function updateHop() {
     if (!document.hidden && !isSimulationPausedHop && overlaps!=undefined) {
-        ctxHop.clearRect(0, 0, widthHop, heighthop);
+        ctxHop.clearRect(0, 0, widthHop, heightHop);
 
         for (let col = 0; col < side_lenght; col++) {
             for (let row = 0; row < side_lenght; row++) {
@@ -83,16 +87,28 @@ function updateHop() {
 
             let deltaE = 0;
             for (let j=0; j<patterns.length; j++){
-                const new_energy = -J_Hop * overlaps[j]**2;
-                const old_energy = -J_Hop * (overlaps[j]-2*spin)**2;   //check this!
+                const old_energy = -J_Hop * overlaps[j]**8;
+                const new_energy = -J_Hop * (overlaps[j]-2*spin*patterns[j][col][row])**8;   //check this!
                 deltaE+=new_energy-old_energy
             }
-            if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature2D)) {
+            if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperatureHop)) {
                 latticeHop[col][row] = -spin;
                 for (let j = 0; j < patterns.length; j++)
-                    latticeHop[row][col]=-spin;
+                    overlaps[j] -= 2 * spin * patterns[j][col][row];
             }
         }
     }
     requestAnimationFrame(updateHop);
 }
+
+
+function handleVisibilityChangeHop(entries) {
+    const isVisible = entries[0].isIntersecting;
+    isSimulationPausedHop = !isVisible;
+}
+
+// Create an intersection observer2D
+const observerHop = new IntersectionObserver(handleVisibilityChangeHop, { threshold: 0 });
+
+// Observe the canvas element
+observerHop.observe(canvasHop);

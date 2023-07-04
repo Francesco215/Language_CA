@@ -74,8 +74,6 @@ function drawIsingModelFC() {
         contextFC.fillStyle = spinsFC[i] === 1 ? 'black' : 'white';
         contextFC.fill();
         contextFC.stroke();
-
-        
     }
 }
 

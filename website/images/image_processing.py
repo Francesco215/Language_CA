@@ -84,7 +84,7 @@ def img_to_json(path_input: str, path_output: str, resize: int = 1):
         path_output (str): Path to save the output JSON file.
         resize (int, optional): Resize factor for the output image. Defaults to 1.
     """
-    img = img_to_binary_array(path_input, resize)
+    img = np.transpose(img_to_binary_array(path_input, resize))
 
     json_str = json.dumps(img.tolist())
 
