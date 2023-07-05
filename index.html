@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=1200">
-    <script src="https://distill.pub/template.v2.js"></script>
+    <script async src="https://distill.pub/template.v2.js"></script>
     <!-- <link rel="stylesheet" href="website/style.css"> -->
     <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
@@ -379,16 +379,23 @@
       </d-figure>
     </p>
     <p>
-      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times\textrm{number of pixels}$<d-footnote>However this assumes that the patterns are statistically indipendent, this is not the case fo real life data, so it should be taken as an upper bound</d-footnote>.
+      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times\textrm{number of pixels}$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.
     </p>
     <p>
       This memory capacity is pretty low, but thankfully it is possible to increase it by changing the Hamiltonian in this way.
       $$
         H=-\sum_p^N F\left(\sum_i X^p_is_i \right)
       $$
-      We know that if $F(x)\approx x^n$ then the storage capacity increases as $L^{n-1}$, and if $F(x)\approx e^x$ the the storage capacity goes like $e^{L/2}$
+      We know that if $F(x)\approx x^n$ then the storage capacity increases as $\alpha_n L^{n-1}$ <d-cite key="krotov2016dense"></d-cite>, and if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$ <d-cite key="demircigil2017model"></d-cite> SHOULD I EXPLAIN MORE HERE? MAYBE WITH A SPOILER?
     </p>
-    </div>
+    
+  <d-subsection>Transformers and Hopfield networks</d-subsection>
+    Maybe its best to put this subsection later
+<d-section>
+  Original work
+</d-section>
+asd
+
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
   <script rel="text/javascript" src="website/sourcecode.js"> </script>

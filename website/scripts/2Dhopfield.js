@@ -4,12 +4,17 @@ const widthHop = canvasHop.width;
 const heightHop = canvasHop.height;
 
 const side_lenght = 64;
-const gridSizeHop = canvasHop.width/side_lenght;
+const gridSizeHop = canvasHop.width / side_lenght;
 
-const J_Hop=1/side_lenght**2
+//window size represents the number of elements between the center of the grid
+//and the last element on the right of the grid
+let window_size = 10;
+
+
+const J_Hop = 1 / window_size ** 2 //is this right?
 const temperatureSliderHop = document.getElementById('temperatureHop-slider');
 const temperatureValueHop = document.getElementById('temperatureHop-value');
-
+const overlapValuePrint = document.getElementById('overlap');
 
 
 async function readJson(url) {
@@ -42,8 +47,20 @@ async function make_patterns() {
     return patterns;
 }
 
+function createLattice2D(cols, rows) {
+    console.log(cols, rows)
+    const lattice2D = new Array(cols);
+    for (let col = 0; col < cols; col++) {
+        lattice2D[col] = new Array(rows);
+        for (let row = 0; row < rows; row++) {
+            lattice2D[col][row] = Math.random() > 0.5 ? 1 : -1;
+        }
+    }
+    return lattice2D;
+}
 
 let latticeHop = createLattice2D(side_lenght, side_lenght);
+
 
 //define overlaps in an async way
 let overlaps;
@@ -60,8 +77,25 @@ async function make_overlaps() {
 }
 make_overlaps();
 
+function n_elements_in_window(window_size){
+    return (2*window_size-1)**2-1
+}
+
+function neighborhood_of(col,row,window_size,side_lenght){
+    let neigborhood = new Array(n_elements_in_window(window_size));
+    let index=0;
+
+    for (let i=-window_size+1; i<window_size; i++)
+        for (let j=-window_size+1; j<window_size; j++)
+            if (i!=0 || j!=0){
+                neigborhood[index]=[(col+i+side_lenght)%side_lenght,(row+j+side_lenght)%side_lenght];
+                index++;
+            }
+    return neigborhood
+}
+
 function updateHop() {
-    if (!document.hidden && !isSimulationPausedHop && overlaps!=undefined) {
+    if (!document.hidden && !isSimulationPausedHop && overlaps != undefined) {
         ctxHop.clearRect(0, 0, widthHop, heightHop);
 
         for (let col = 0; col < side_lenght; col++) {
@@ -72,18 +106,26 @@ function updateHop() {
             }
         }
 
-        for (let i = 0; i < 10; i++) {
+        for (let i = 0; i < 100; i++) {
             const col = Math.floor(Math.random() * side_lenght);
             const row = Math.floor(Math.random() * side_lenght);
             const spin = latticeHop[col][row];
 
             let deltaE = 0;
-            for (let j=0; j<patterns.length; j++){
-                const old_energy = -J_Hop * overlaps[j]**2;
-                const new_energy = -J_Hop * (overlaps[j]-2*spin*patterns[j][col][row])**2;   //check this!
-                deltaE+=new_energy-old_energy
-            }
+            const neighborhood=neighborhood_of(col,row,window_size,side_lenght);
 
+            for (j = 0; j < n_elements_in_window(window_size); j++){
+                const colj=neighborhood[j][0];
+                const rowj=neighborhood[j][1];
+
+                let interaction=0;
+                for (p=0; p<patterns.length;p++)
+                    interaction += patterns[p][col][row] * patterns[p][colj][rowj];
+
+                deltaE+=interaction*latticeHop[colj][rowj];
+            }
+            deltaE *= 2 * spin* J_Hop;
+            
             const temperature = parseFloat(temperatureSliderHop.value);
             temperatureValueHop.textContent = temperature.toFixed(1);
 
@@ -92,6 +134,7 @@ function updateHop() {
                 for (let j = 0; j < patterns.length; j++)
                     overlaps[j] -= 2 * spin * patterns[j][col][row];
             }
+            overlapValuePrint.textContent = overlaps[0].toFixed(1);
         }
     }
     requestAnimationFrame(updateHop);

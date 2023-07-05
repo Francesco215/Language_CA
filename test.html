@@ -13,10 +13,11 @@
     <canvas id="canvas" width="400" height="400"></canvas>
     <div>
         <label for="temperatureHop-slider">Temperature:</label>
-        <input type="range" id="temperatureHop-slider" min="0.1" max="50.0" step=".01" value="1.0">
+        <input type="range" id="temperatureHop-slider" min="0.01" max="3.0" step=".01" value="1.0">
         <span id="temperatureHop-value">1.0</span>
+        <span id="overlap">1.0</span>
     </div>
 
-    <script src="website/scripts/standard_hopfield.js"></script>
+    <script src="website/scripts/2Dhopfield.js"></script>
 </body>
 </html>
