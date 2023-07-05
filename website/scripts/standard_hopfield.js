@@ -1,4 +1,4 @@
-const canvasHop = document.getElementById('canvas');
+const canvasHop = document.getElementById('canvasHop');
 const ctxHop = canvasHop.getContext('2d');
 const widthHop = canvasHop.width;
 const heightHop = canvasHop.height;
@@ -30,6 +30,7 @@ const path_names = folder_patterns + 'patterns.json'
 
 //define patterns in an async way
 let patterns;
+let patterns_ready=false;
 async function make_patterns() {
     const pattern_names = await readJson(path_names)
     patterns = new Array(pattern_names.length)
@@ -39,6 +40,7 @@ async function make_patterns() {
             for (let row = 0; row < side_lenght; row++)
                 patterns[i][col][row] = 2 * patterns[i][col][row] - 1;
     }
+    patterns_ready=true;
     return patterns;
 }
 
@@ -47,7 +49,8 @@ let latticeHop = createLattice2D(side_lenght, side_lenght);
 
 //define overlaps in an async way
 let overlaps;
-async function make_overlaps() {
+let overlaps_ready=false;
+async function make_overlaps(latticeHop) {
     const patterns = await make_patterns();
     overlaps = new Array(patterns.length);
     for (let i = 0; i < patterns.length; i++) {
@@ -56,12 +59,13 @@ async function make_overlaps() {
             for (let row = 0; row < side_lenght; row++)
                 overlaps[i] += patterns[i][col][row] * latticeHop[col][row];
     }
+    overlaps_ready=true;
     return overlaps;
 }
-make_overlaps();
+make_overlaps(latticeHop);
 
 function updateHop() {
-    if (!document.hidden && !isSimulationPausedHop && overlaps!=undefined) {
+    if (!document.hidden && !isSimulationPausedHop && overlaps_ready) {
         ctxHop.clearRect(0, 0, widthHop, heightHop);
 
         for (let col = 0; col < side_lenght; col++) {

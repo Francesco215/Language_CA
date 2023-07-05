@@ -150,3 +150,10 @@ d-contents nav > div > a {
 d-contents nav > div > a:hover, d-contents nav > ul > li > a:hover {
   text-decoration: none;
 }
+
+
+canvas{
+    margin-right: auto;
+    margin-left: auto;
+    display: block;
+}

@@ -364,7 +364,7 @@
       $$
       Notice how this is similar to the equation of the Hamiltonian of the fully connected Ising model <d-footnote>...Actually if there is just one stored pattern they are equivalent up to a Gauge transformation $s_i\to X_is_i$</d-footnote>. What effectively does is that it creates a number of local minima equal to the number of patterns stored, here is a simulation.
       <d-figure>
-        <canvas id="canvas" width="500" height="500"></canvas>
+        <canvas id="canvasHop" width="600" height="600"></canvas>
         <div>
             <label for="temperatureHop-slider">Temperature:</label>
             <input type="range" id="temperatureHop-slider" min="0.1" max="3.0" step=".01" value="1.0">
@@ -394,7 +394,16 @@
 <d-section>
   Original work
 </d-section>
-asd
+  <d-figure>
+    <canvas id="canvasHop2D" width="600" height="600"></canvas>
+      <div>
+          <label for="temperatureHop2D-slider">Temperature:</label>
+          <input type="range" id="temperatureHop2D-slider" min="0.01" max="5.0" step=".1" value="1.0">
+          <span id="temperatureHop2D-value">1.0</span>
+      </div>
+      <script src="website/scripts/2Dhopfield.js"></script>
+  </d-figure>
+
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
