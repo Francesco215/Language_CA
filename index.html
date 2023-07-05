@@ -207,7 +207,7 @@
         <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
         <span id="FC_temperature-value">1.0</span>
     </div>
-    <script src="website/scripts/fully_connected_ising.js"></script>
+    
       <figcaption>
         Simulation of the Fully connected Ising Model
       </figcaption>
@@ -230,7 +230,7 @@
             <label for="temperature">Temperature:</label>
             <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
         </div>
-        <script src="website/scripts/1Dising.js"></script>
+        
       <figcaption>
         Simulation of the 1D Ising Model (TODO)
       </figcaption>
@@ -286,7 +286,7 @@
     <figcaption>
       Simulation of the 2D ising model
     </figcaption>
-    <script src="website/scripts/2Dising.js"></script>
+    
     <p>
       As you can see, when the temperature is sufficiently low, the system will slowly reach an ordered phase. 
     </p>
@@ -328,6 +328,9 @@
     <p>
       If you want some greate resources for learning about the Ising model and phase transitions in general I suggest you to look at this books <d-cite key="tong2017statistical, kardar2007statistical"></d-cite>
     </p>
+    </div>
+
+
     <d-section>Associative Memory</d-section>
     <p>
       The brain is capable of storing and retreiving memories, but the way it does that is very different on how the memories are managed in a computer.
@@ -339,6 +342,7 @@
           <b>Associative memories</b> are how memories are stored and extracted in human brains. In an associative memory system, a memory becomes easier to extract the more “hints” or related memories are given.
         </li>
       </ul>
+    </p><p>
       So basically, in an associative memory, when you give him a prompt, it gives you the most associated memory stored to the prompt given<d-footnote>You might already suspect where this is going, but for now we will stay away from Natural Language Processing</d-footnote><d-footnote>One such example in computer science is what happens when you Google something, it gives you a list of related links stored somewhere on the internet.</d-footnote>.
     </p>
     <p>
@@ -349,13 +353,26 @@
           Example of associative memory, in this case each member of the Simpsons family has his own enegry minimum. When given a guess of the system will converge to the closest Simpsons member.
         </figcaption>
       </d-figure>
-      <blockquote>
-        Here i also talk about the navigation in morphological space and what that means if you want manipulate a tissue (for example a frog eye, frog leg, xenobots)
-      </blockquote>
+    </p>
+    <p>
+      Associative memories, just like the merory inside a computer have finite capacity, but how do you quintify this?<br>
+      Intuitively what ends up happening when you try to store too many separate memories, the configuration space becomes too crammed and some of the saved patterns fuse toghered.
+      <d-figure>
+        <img src="website/images/associative_memory-2.png" width="100%">
+        <figcaption>
+          Example of a saturated associative memory, when lots of patters are stored, minima that are close togheder fuse and are no longer distinguishable.
+        </figcaption>
+      </d-figure>
+    </p>
+    
+    <d-subsection>Morphogenesis and Language Modelling</d-subsection>
+    <p>
+      Other self-organizing systems like mophogenesis can also be seen though the lens associative memory.
+      WORK IN PROGRESS
     </p>
     <d-subsection>Hopfield Networks</d-subsection>
     <p>
-      Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>.
+      Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>. It is the perfect working bench to understand what are the capabilities of associative memeories.
     </p>
     <p>
       The standard Hopfield Network with $N$ patterns stored equation is the following
@@ -371,7 +388,7 @@
             <span id="temperatureHop-value">1.0</span>
         </div>
 
-    <script src="website/scripts/standard_hopfield.js"></script>
+    
         <figcaption>
           Here is a simulation of the Hopfield model, the two patterns stored are a image of Luffy and Zoro from One piece. ADD REFERENCE IMAGES<br>
           You can go from a saved pattern to the other by increasing the temperature and relowering (it works 50% of the times). If you dont want to wait for the system to thermalize you can just reload the page.
@@ -379,7 +396,8 @@
       </d-figure>
     </p>
     <p>
-      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times\textrm{number of pixels}$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.
+      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br><br>
+      <br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times\textrm{number of pixels}$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.
     </p>
     <p>
       This memory capacity is pretty low, but thankfully it is possible to increase it by changing the Hamiltonian in this way.
@@ -388,25 +406,54 @@
       $$
       We know that if $F(x)\approx x^n$ then the storage capacity increases as $\alpha_n L^{n-1}$ <d-cite key="krotov2016dense"></d-cite>, and if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$ <d-cite key="demircigil2017model"></d-cite> SHOULD I EXPLAIN MORE HERE? MAYBE WITH A SPOILER?
     </p>
-    
+  
+  <d-subsection>Hopfield networks with local interaction</d-subsection>
+    <p>
+      Many of the self-organizing systems in real life are capable to reach an highly ordered state even with just local interactions, so what happens if the Hamiltonian of the Hopfield network makes spins interact only if they are close by?
+      $$
+        H=\sum_{\langle i,j\rangle}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
+      $$
+      In this case $\langle i,j\rangle$ means that $i$ and $j$ are in the same window of interaction. Here is a simutation to play with.
+    </p>
+    <d-figure>
+      <canvas id="canvasHop2D" width="600" height="600"></canvas>
+        <div>
+            <label for="temperatureHop2D-slider">Temperature:</label>
+            <input type="range" id="temperatureHop2D-slider" min="0.01" max="5.0" step=".1" value="1.0">
+            <span id="temperatureHop2D-value">1.0</span>
+        </div>
+    </d-figure>
+    <p>
+      As you can see the system strugles more to converge to one of the saved patters, and the smaller the window size is, the harder it becomes.<br> What it is possible to conclude even with this small demo is that the memory capacity of a local Hopfield Model is lower, we will later analize by how much.
+    </p>
   <d-subsection>Transformers and Hopfield networks</d-subsection>
     Maybe its best to put this subsection later
 <d-section>
-  Original work
+  What makes a self-organizing system capable of organizing?
 </d-section>
-  <d-figure>
-    <canvas id="canvasHop2D" width="600" height="600"></canvas>
-      <div>
-          <label for="temperatureHop2D-slider">Temperature:</label>
-          <input type="range" id="temperatureHop2D-slider" min="0.01" max="5.0" step=".1" value="1.0">
-          <span id="temperatureHop2D-value">1.0</span>
-      </div>
-      <script src="website/scripts/2Dhopfield.js"></script>
-  </d-figure>
+  <p>
+    So far we have seen that
+    <ul>
+      <li>The 1D Ising model is not capable of self-organizing in to an ordered phase</li>
+      <li>The 2D Ising model is capable of self-organizing in to an ordered phase, but it takes time</li>
+      <li>The Fully connected Ising model is capable of self-organizing in to an ordered phase and it does that quickly</li>
+      <li>The Standard Hopfield Network, which is a generalization of the Fully connected Ising model is capable of self-organizing quicky, but it doesn't have a large memory capacity</li>
+      <li>Windowed Hopfield wich are a generalization of the 2D Ising model are in principle capable of self organizing, but their memory capacity is lower than the one of standard Hopfield Networks, and it takes time to self-organize</li>
+    </ul>
+    But is there a unified way of determining if a system is capable of self organizing?
+  </p>
+  <p>
+    It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case
+  </p>
 
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
+  <script src="website/scripts/fully_connected_ising.js"></script>
+  <script src="website/scripts/1Dising.js"></script>
+  <script src="website/scripts/2Dising.js"></script>
+  <script src="website/scripts/standard_hopfield.js"></script>
+  <script src="website/scripts/2Dhopfield.js"></script>
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 
 </body>
