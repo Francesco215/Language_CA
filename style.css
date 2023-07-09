@@ -53,3 +53,18 @@ span.mail-span {
     border-radius: 4px;
     text-decoration: none;
 }
+
+p.definition_text{
+  border-left: 6px solid #ccc;
+  padding: 0.01em 16px;
+}
+
+p.theorem_text{
+  border-left: 6px solid #ccc;
+  padding: 0.01em 16px;
+}
+
+div.proof_text{
+  border-left: 3px solid #ccc;
+  padding: 0.01em 16px;
+}
