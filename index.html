@@ -626,8 +626,64 @@
           See if there exists a finite temperature for which the free energy decreases as the size of the domain walls goes to infinity
         </li>
       </ol>
-      This can be applied to systems with very different topologies, we are now going to explore that
     </p>
+      <p>
+        This can be applied to systems with very different topologies, we are now going to explore that
+      </p>
+    <p>
+      The most general way to consider the interaction between the elements of our system is if the interactions are represented by a graph Hamiltonian
+    </p>
+    <p>
+      For simplicity we are going to consider that the links of the graph are fixed in time.<d-footnote>
+      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid comunication each person interacted only with the people nearby thus the topology was 2-dimentional. Today, with the internet we can interact with people far away.<br>
+      However, we can say that even though the interaction graph changes with time, it usually changes slowly relative to the dynamics of the time evolution of its elements. 
+    </d-footnote><br> 
+    <b class="Definition">Definition: Graph Hamiltonian</b>
+    <p class="definition_text">
+      Let G be the adjacency matrix of a graph, then a Graph Hamiltoninan H is a Hamiltonian that can be written as
+      $$H=H*G$$
+      where the ($*$) operator is the element wise multiplication.
+    </p>
+    <p>
+      Now to see if a ordered phase can ever exist, we must generalize Peierls argument. To see if an ordered phase exists we only care how the enegry and the entropy increase when we create a domain wall
+    </p>
+    <b class="Definition">Definition: Entropy Scaling</b>
+      <p class="definition_text">
+        Let $H$ be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the number of possible configurations of domain barrier increases, thus increasing the entropy of the system $\Delta S$.
+        We say that the Entropy gained scales as $f_S$ if 
+        \[
+          \Delta S=O(f_S(P))
+        \]
+      </p>
+    <b class="Definition">Definition: Energy Scaling</b>
+      <p class="definition_text">
+        Let H be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the the Higher and Lower bound of the energy gained $\Delta E$ scale as respectively  $O(f_E^\textrm{high}(P))$ and $O(f_E^\textrm{low}(P))$. If $f_E^\textrm{high}=f_E^\textrm{low}\equiv f_E$ we say that the energy gained scales as $f_E$
+        \[
+          \Delta E=O(f_E(P))
+        \]
+      </p>
+    <p>
+      Once we know how the entropy and the energy scale, its all we need
+    </p>
+    <b class="Theorem">Theorem</b>
+      <p class="theorem_text">
+        If $O(f_S)=O(f_E)=O(f)$ there exists a ordered phase
+      </p>
+      <details>
+          <summary>
+            <b>proof</b>
+          </summary>
+          <div class="proof_text">
+            <p>
+              $$
+                \Delta F= \Delta E -T\Delta S=\lim_{P\to \infty}O(f(P))-TO(f(P))
+              $$
+              If we now do $\lim_{T\to0}$ the term on the right disappears, therefore the creation of a domain wall increases the free energy and therefore a coherent phase is favored
+            </p>
+          </div>
+        </details>
+    
+    
 
 
 
