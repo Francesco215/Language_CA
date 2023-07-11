@@ -181,7 +181,7 @@
     <p>
       Initially, when I delved into the study of the Ising model, I found it utterly useless and couldn't comprehend why physicists were so fixated on this seemingly mundane model. Consequently, I mustered the bare minimum effort required to pass my exams, and as expected, my brain discarded the information it deemed irrelevant, causing me to completely forget about it.<br><br>
 
-      Upon graduating and finding myself officially unemployed, I had an abundance of time on my hands. Curiously, I found myself engrossed in studying more than I ever did during my university days. A few months prior to graduating, I had even published a piece on self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>. However, the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote> and, therefore, turned back to the realm of statistical physics in search of answers.
+      Upon graduating I had an abundance of time on my hands. Curiously, I found myself engrossed in studying more than I ever did during my university days. A few months prior to graduating, I had even published a piece on self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>. However, the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote> and, therefore, turned back to the realm of statistical physics in search of answers.
       <blockquote>
         I now understood that in order to understand Self-Organizing systems in general, I had to understand the simplest of them all: The Ising model.
       </blockquote>
@@ -374,7 +374,7 @@
     </p>
     <p>
       Associative memories, just like the merory inside a computer have finite capacity, but how do you quintify this?<br>
-      Intuitively what ends up happening when you try to store too many separate memories, the configuration space becomes too crammed and some of the saved patterns fuse toghered.
+      Intuitively what ends up happening when you try to store too many separate memories, is that the configuration space becomes too crammed and some of the saved patterns fuse toghered.
       <d-figure>
         <img src="website/images/associative_memory-2.png" width="100%">
         <figcaption>
@@ -463,7 +463,7 @@
     But is there a unified way of determining if a system is capable of self organizing?
   </p>
   <p>
-    It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.<br>First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any value between $0$ and $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
+    It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.<br>First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any integer value from $0$ to $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
   </p>
   <d-subsection>The 1D case</d-subsection>
     <b class="Definition">Definition: Potts Chain</b>
@@ -663,7 +663,7 @@
         \]
       </p>
     <p>
-      Once we know how the entropy and the energy scale, its all we need
+      Once we know how the entropy and the energy scale, we know if there is a ordered phase
     </p>
     <b class="Theorem">Theorem</b>
       <p class="theorem_text">
@@ -733,7 +733,39 @@
           </div>
         </details>
 
-  <p>HERE WRITE AN EXAMPLE WERE I SAY THAT YOU CAN JUST LOOK AT THE ISING MODEL</p>
+  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary saize and many patterns stored, we can just look at a simple next-neighbour ising model to see if we have a coherent phase</p>
+  <!-- <b class="Theorem">Theorem</b>
+      <p class="theorem_text">
+        Suppose we have a Potts grid $\mathcal C$ of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
+        Let $H=\sum_i H_i$ be our local Hamiltonian, and suppose that ...
+      </p>
+      <details>
+          <summary>
+            <b>proof</b>
+          </summary>
+          <div class="proof_text">
+            <p>
+              ...
+            </p>
+          </div>
+        </details> -->
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   <d-section>The role of Disorder</d-section>
     <p>
       The problem with the theorems stated so far is that some of this systems can exhibit spin-glass
@@ -742,13 +774,13 @@
          $$
           H=H(J,s)
         $$
-        One of the most well-known examples of such a system is the Edwards-Anderson model, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $J_{ij}$, are Gaussian random variables.
+        One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $J_{ij}$, are Gaussian random variables.
         $$
           H=\sum_{\langle ij\rangle}J_{ij}s_is_j
         $$
 
         In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $J$ values remain constant over the timescale during which the $s$ values fluctuate.
-      </d-footnote> behaviors, and thus can take an infinite amout of time to reach equilibrium. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
+      </d-footnote> behaviors, and thus can take an infinite amout of time to reach equilibrium <d-cite key="castellani2005spin"></d-cite>. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
       <br><br>
       For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
       $$
@@ -764,20 +796,32 @@
       $$
       This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
     </p>
+    <p>
+      But how can we make sure that our self organizing system behaves more like an ising model, and not like a completely disorderd spin glass?<br>
+      For Hopfield models peaple have figured it out.
+    </p>
+    <d-subsection>Memory of an Hopfield model</d-subsection>
+    <p>
+      An Hopfield model with one pattern stored is mathematically equivalent to the Ising model.<br>
+      As you add more and more patterns it start being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
+      This can be schematized very well in a phase diagram
+      <d-figure>
+        <img src="website/images/mezart_phase.png" width="70%"></canvas>    
+        <figcaption>
+          Phase diagram of the Hopfield model. Courtesy of <d-cite key="mezard2017mean"></d-cite>
+        </figcaption>
+      </d-figure>
+      asd
+    </p>
+
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
-  <!-- <script src="website/scripts/fully_connected_ising.js"></script>
+  <script src="website/scripts/fully_connected_ising.js"></script>
   <script src="website/scripts/1Dising.js"></script>
   <script src="website/scripts/2Dising.js"></script>
   <script src="website/scripts/standard_hopfield.js"></script>
-  <script src="website/scripts/2Dhopfield.js"></script> -->
+  <script src="website/scripts/2Dhopfield.js"></script>
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 
 </body>
-
-<!--
-    <p>
-    As you can see from equation <d-reference key="gauss"></d-reference>  and section <d-reference key="remarks"></d-reference> the phase of the wavefunction is not observable. <d-cite key="shneiderman1996eyes"></d-cite>
-</p>
--->
