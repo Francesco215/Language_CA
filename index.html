@@ -414,15 +414,7 @@
       </d-figure>
     </p>
     <p>
-      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.<br><br>
-      <br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times\textrm{number of pixels}$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.
-    </p>
-    <p>
-      This memory capacity is pretty low, but thankfully it is possible to increase it by changing the Hamiltonian in this way.
-      $$
-        H=-\sum_p^N F\left(\sum_i X^p_is_i \right)
-      $$
-      We know that if $F(x)\approx x^n$ then the storage capacity increases as $\alpha_n L^{n-1}$ <d-cite key="krotov2016dense"></d-cite>, and if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$ <d-cite key="demircigil2017model"></d-cite> SHOULD I EXPLAIN MORE HERE? MAYBE WITH A SPOILER?
+      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.
     </p>
   
   <d-subsection>Hopfield networks with local interaction</d-subsection>
@@ -446,7 +438,7 @@
     </p>
   <d-subsection>Transformers and Hopfield networks</d-subsection>
     <p>
-      Maybe its best to put this subsection later
+      MAYBE ITS BEST TO PUT THIS SUBSECTION LATER
     </p>
 <d-section>
   What makes a self-organizing system capable of organizing?
@@ -605,7 +597,7 @@
     <p>
       2-dimentional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
     </p>
-    <p>Should i keep writing?</p>
+    <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p>
   <d-subsection>More complex Topologies</d-subsection>
     <p>
       As you have seen from the two examples, determining whether or not an ordered phase can exists boils down to a counting problem.
@@ -770,16 +762,16 @@
     <p>
       The problem with the theorems stated so far is that some of this systems can exhibit spin-glass
       <d-footnote>
-        A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $J$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(J) dJ$.
+        A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $\theta$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(\theta) d\theta$.
          $$
-          H=H(J,s)
+          H=H(\theta,s)
         $$
-        One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $J_{ij}$, are Gaussian random variables.
+        One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $\theta_{ij}$, are Gaussian random variables.
         $$
           H=\sum_{\langle ij\rangle}J_{ij}s_is_j
         $$
 
-        In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $J$ values remain constant over the timescale during which the $s$ values fluctuate.
+        In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
       </d-footnote> behaviors, and thus can take an infinite amout of time to reach equilibrium <d-cite key="castellani2005spin"></d-cite>. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
       <br><br>
       For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
@@ -804,16 +796,68 @@
     <p>
       An Hopfield model with one pattern stored is mathematically equivalent to the Ising model.<br>
       As you add more and more patterns it start being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
-      This can be schematized very well in a phase diagram
+      This can be schematized in a phase diagram.
       <d-figure>
         <img src="website/images/mezart_phase.png" width="70%"></canvas>    
         <figcaption>
-          Phase diagram of the Hopfield model. Courtesy of <d-cite key="mezard2017mean"></d-cite>
+          Phase diagram of the Hopfield Network. On the $y$ axis we have the temperature, and on the $x$ axis we have $\alpha=N/D$ where $N$ is the number of indipendent patterns stored and $D$ is the number of pixels. Courtesy of <d-cite key="mezard2017mean"></d-cite>
         </figcaption>
       </d-figure>
-      asd
     </p>
-
+    <p>
+      <br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
+      Proving this rigorously can be challanging, but there are some less rigorous way that are good enought and are much easier to generalize.
+    </p>
+    <p>
+      For example it is possible to increase the amount of patterns stored by generalizing the hamiltonian in this way.
+      $$
+        H=-\sum_p^N F\left(\sum_i X^p_is_i \right)
+      $$
+      if $F(x)=x^2$ then we get the standard Hamiltonian for the Hopfield network.<br>
+      It has been proved that if $F(x)\approx x^n$ with $n$ even the storage capacity increases as $\alpha_n L^{n-1}$ <d-cite key="krotov2016dense"></d-cite>.
+    </p>
+    <p>      The proof follows this line of reasoning:
+    </p>
+    <details>
+          <summary>
+            <b>outline of the proof</b>
+          </summary>
+          <div class="proof_text">
+            <p>
+              We need to estimate the probability that at least one of the patterns is unstable
+              <ol>
+                <li>
+                  Take with a system with $N$ random indipendently sampled patterns saved $\{X^p\}_{p\in \{1,\dots,N\}}$
+                </li>
+                <li>
+                  Choose as a starting configuration equal to one of the patterns saved $s_i=X^q$
+                </li>
+                <li>
+                  To see if the pattern saved is a local minimum, perturb the system by flipping one bit. If the energy decreases ($\Delta E < 0$), then its not a local minimum
+                  $$
+                    \Delta E = \sum_{p}^NF\left(
+                      X^p_iX^q_i+\sum_j^D  X^p_iX^q_i
+                    \right)-\sum_{p}^NF\left(
+                      -X^p_iX^q_i+\sum_j^D  X^p_iX^q_i
+                    \right)
+                  $$
+                </li>
+                <li>
+                  Evaluate the mean $\langle \Delta E \rangle$ and the standard deviation $\Sigma^2=\langle \Delta E^2\rangle - \langle \Delta E\rangle^2$ of the change in energy over all the possible starting configurations $\{X^p\}_{p\in \{1,\dots,N\}}$
+                </li>
+                <li>
+                  Estimate the probability that the energy change is negative by assuming that the probablity distribution of $\Delta E$ is a gaussian of mean $\langle \Delta E \rangle$ and the standard deviation $\Sigma^2$
+                  $$
+                    P_\textrm{error}=\int_{\Delta E}^\infty\frac 1{\sqrt{2\pi \Sigma^2}}e^{-\frac{x^2}{2\Sigma^2}}dx
+                  $$
+                </li>
+              </ol>
+            </p>
+          </div>
+        </details>
+    <p>      
+      and if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$ <d-cite key="demircigil2017model"></d-cite> SHOULD I EXPLAIN MORE HERE? MAYBE WITH A SPOILER?
+    </p>
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
