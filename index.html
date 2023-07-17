@@ -343,6 +343,44 @@
         WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry
     </details>
     </div>
+    <d-subsection>Main takeaway from the Ising model</d-subsection>
+    <p>
+      We have seen that the ability of a self-organizing system to reach an ordered state can indeed be understood through the lens of phase transitions. 
+    </p>
+    <p>
+      When it comes to self-organizing systems, the concept of an ordered state typically refers to a highly organized and coherent configuration. For example, in the Ising model, an ordered state corresponds to spins aligning in a particular direction. In other self-organizing systems, it may involve patterns, structures, or coordinated behaviors emerging among the individual elements of the system.
+    </p>
+    <p>
+      Understanding the behavior of self-organizing systems in terms of phase transitions allows us to analyze their dynamics, and gain insights into the underlying mechanisms driving the emergence of order. By studying the conditions and factors that influence phase transitions in self-organizing systems, we can better comprehend their ability to reach ordered states.
+    </p>
+    <p>
+      We will now will now give an overview of a more complicated self-organizing system though the lens of phase-transition: The Hopfield Network
+    </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
     <d-section>Associative Memory</d-section>
@@ -448,7 +486,7 @@
       <li>The Standard Hopfield Network, which is a generalization of the Fully connected Ising model is capable of self-organizing quicky, but it doesn't have a large memory capacity</li>
       <li>Windowed Hopfield wich are a generalization of the 2D Ising model are in principle capable of self organizing, but their memory capacity is lower than the one of standard Hopfield Networks, and it takes time to self-organize</li>
     </ul>
-    But is there a unified way of determining if a system is capable of self organizing?
+    But is there a unified way of determining if any system is capable of self organizing?
   </p>
   <p>
     It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.<br>First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any integer value from $0$ to $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
@@ -789,25 +827,30 @@
       For Hopfield models peaple have figured it out.
     </p>
     <d-subsection>Memory of an Hopfield model</d-subsection>
-    <p>
-      An Hopfield model with one pattern stored is mathematically equivalent to the Ising model.<br>
-      As you add more and more patterns it start being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
-      This can be schematized in a phase diagram.
-      <d-figure>
-        <img src="website/images/mezart_phase.png" width="70%"></canvas>    
+    
+    <div>
+      <figure class="l-side">
+        <img src="website/images/mezart_phase.png"  style="width:100%; height: auto; float: left;">    
         <figcaption>
           Phase diagram of the Hopfield Network. On the $y$ axis we have the temperature, and on the $x$ axis we have $\alpha=N/D$ where $N$ is the number of indipendent patterns stored and $D$ is the number of pixels.<br>
           Courtesy of <d-cite key="mezard2017mean"></d-cite>
         </figcaption>
-      </d-figure>
-    </p>
-    <p>
-      <br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
-      Proving this rigorously can be challenging, but there are some less rigorous way that are good enought and are much easier to generalize.
-    </p>
-    <p>
-      In <d-cite key="krotov2016dense"></d-cite> the authors proved this theorem
-    </p>
+      </figure>
+      <p>
+        An Hopfield model with one pattern stored is mathematically equivalent to the Ising model.<br>
+        As you add more and more patterns it start being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
+      </p>
+      <p>This can be schematized in a phase diagram.</p>
+       <p>
+        The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
+        Studying the phase diagram rigorously can be challenging, but there are some less rigorous way that are good enought and are much easier to generalize.
+      </p>
+      <p>
+        In <d-cite key="krotov2016dense"></d-cite> the authors proved this theorem
+      </p>
+    </div>
+   
+    
     <b class="Theorem">Theorem</b>
       <p class="theorem_text">
         Let $H$ be a dense Hopfield network described by the following Hamiltoninan
@@ -823,7 +866,7 @@
           </summary>
           <div class="proof_text">
             <p>
-              We are not going to give you the full proof, as that can be found in the original paper <d-cite key="krotov2016dense"></d-cite>, what we really care here is the main idea.
+              This is not the full proof, as that can be found in the original paper <d-cite key="krotov2016dense"></d-cite>, what we really care here is the main idea.
             </p>
             <p>
               We need to estimate the probability that at least one of the patterns is unstable
