@@ -2,9 +2,9 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=1200">
-    <script async src="https://distill.pub/template.v2.js"></script>
-    <!-- <link rel="stylesheet" href="website/style.css"> -->
-    <link  rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
+    <script src="https://distill.pub/template.v2.js"></script>
+    <link rel="stylesheet" href="website/style.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"></script>
     <script >
@@ -25,8 +25,6 @@
     </script>
 
 </head>
-
-<link rel="stylesheet" href="style.css">
 
 <d-front-matter>
   <script type="text/json">{
@@ -52,9 +50,7 @@
     
   </d-title>
 
-  <script>
-    console.log('asd')
-    
+  <script>    
     function showContent(target) {
       // Get all the div elements
       const divs = document.querySelectorAll('div[target_audience]');
@@ -800,29 +796,35 @@
       <d-figure>
         <img src="website/images/mezart_phase.png" width="70%"></canvas>    
         <figcaption>
-          Phase diagram of the Hopfield Network. On the $y$ axis we have the temperature, and on the $x$ axis we have $\alpha=N/D$ where $N$ is the number of indipendent patterns stored and $D$ is the number of pixels. Courtesy of <d-cite key="mezard2017mean"></d-cite>
+          Phase diagram of the Hopfield Network. On the $y$ axis we have the temperature, and on the $x$ axis we have $\alpha=N/D$ where $N$ is the number of indipendent patterns stored and $D$ is the number of pixels.<br>
+          Courtesy of <d-cite key="mezard2017mean"></d-cite>
         </figcaption>
       </d-figure>
     </p>
     <p>
       <br>The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
-      Proving this rigorously can be challanging, but there are some less rigorous way that are good enought and are much easier to generalize.
+      Proving this rigorously can be challenging, but there are some less rigorous way that are good enought and are much easier to generalize.
     </p>
     <p>
-      For example it is possible to increase the amount of patterns stored by generalizing the hamiltonian in this way.
-      $$
-        H=-\sum_p^N F\left(\sum_i X^p_is_i \right)
-      $$
-      if $F(x)=x^2$ then we get the standard Hamiltonian for the Hopfield network.<br>
-      It has been proved that if $F(x)\approx x^n$ with $n$ even the storage capacity increases as $\alpha_n L^{n-1}$ <d-cite key="krotov2016dense"></d-cite>.
+      In <d-cite key="krotov2016dense"></d-cite> the authors proved this theorem
     </p>
-    <p>      The proof follows this line of reasoning:
-    </p>
-    <details>
+    <b class="Theorem">Theorem</b>
+      <p class="theorem_text">
+        Let $H$ be a dense Hopfield network described by the following Hamiltoninan
+        $$
+          H=-\sum_p^N F\left(\sum_i X^p_is_i \right)
+        $$
+        Where $X^p$ is the $p$-th saved pattern.<br>
+        If $F(x)=x^n$ with $n$ even the storage capacity increases with $L$ as $\alpha_n L^{n-1}$, where $\alpha_n$ is a constant dependent on $n$
+      </p>
+        <details>
           <summary>
             <b>outline of the proof</b>
           </summary>
           <div class="proof_text">
+            <p>
+              We are not going to give you the full proof, as that can be found in the original paper <d-cite key="krotov2016dense"></d-cite>, what we really care here is the main idea.
+            </p>
             <p>
               We need to estimate the probability that at least one of the patterns is unstable
               <ol>
@@ -856,8 +858,122 @@
           </div>
         </details>
     <p>      
-      and if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$ <d-cite key="demircigil2017model"></d-cite> SHOULD I EXPLAIN MORE HERE? MAYBE WITH A SPOILER?
+      Similarly, in <d-cite key="demircigil2017model"></d-cite> the authors proved that if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$.<br>
+      Their proof is more rigorous, but the main idea is the same
     </p>
+    <d-subsection>Local Hopfield Networks</d-subsection>
+    <p>
+      While this tecqniques are effective in increasing the memory capacity of the Hopfield network, each spin effectively interacts with every other spin.
+    </p>
+    <p>
+      Let's define a Hopfield Network where all the interactions are local
+    </p>
+    <b class="Definition">Definition: Local Hopfield Network</b>
+    <p class="definition_text">
+      The Hamiltonian of a windowed Hopfield networks is a sum over many Hopfield networks, each of which interacts inside its own window
+      $$
+          H=-\sum_j^L\sum_p^NF\left(
+              \sum_{\langle i,j\rangle}X^p_i\sigma_i
+          \right)
+      $$
+      A nice way to imagine local Hopfield network is as a patchwork of several overlapping Hopfield networks
+    </p>
+    <p>Now that all interaction are inside a certain window, how does it change the number of stored patterns?</p>
+
+    <b class="Theorem">Theorem</b>
+      <p class="theorem_text">
+         A Local Hopfield network with an energy function that is the sum of several sub-Hopfield networks with window size of $W$ has a storage capacity equal to that of any given sub-network
+      </p>
+        <details>
+          <summary>
+            <b>Proof</b>
+          </summary>
+          <div class="proof_text">
+            <p>
+              Similarly to the theorems in <d-cite key="krotov2016dense,demircigil2017model"></d-cite> we are going to start the system with every spin equal to one pattern saved at random $X^q$, and then perturb perturb the system in the position $k$.<br> The difference in energy is equal to
+              $$
+                \Delta E=\sum_{\langle j,k\rangle}\sum_p^N
+                F\left(X^p_kX^q_k+
+                    \sum_{\langle i,j\rangle\neq k}X^p_iX^q_i
+                \right)-
+                F\left(-X^p_kX^q_k+
+                    \sum_{\langle i,j\rangle\neq k}X^p_iX^q_i
+                \right)
+              $$
+              The reason why the first summation is only for the spins $j$ neighboring $k$ is because only Hamiltonian windows that have the spin $k$ inside them are direcly influenced by the spin flip.<br><br>
+              To make the calculations easier, we are going to define the local change in energy, which by how much the Hamiltonian window centered in $j$ changes his energy when the spin $k$ is flipped. 
+              $$
+                \Delta E_\textrm{loc}(j)\equiv
+                \sum_p^N
+                    F\left(X^p_kX^q_k+
+                        \sum_{\langle i,j\rangle\neq k}X^p_iX^q_i
+                    \right)-
+                    F\left(-X^p_kX^q_k+
+                        \sum_{\langle i,j\rangle\neq k}X^p_iX^q_i
+                    \right)
+              $$
+              We can now write the total difference in energy as
+              $$
+                \Delta E=\sum_{\langle j,k\rangle}\Delta E_\textrm{loc}(j)
+              $$
+              When averaging over all the possible patterns $\{X^p\}_{p\in\{1,\dots,N\}}$ the $j$ dependence goes away.<br>
+            
+              This means that the average energy change of the local Hamiltonian is
+              $$
+                  \left \langle \Delta E \right\rangle = \sum_{\langle j,k\rangle}
+                  \left \langle \Delta E \right\rangle_\textrm{loc}=W \left \langle \Delta E \right\rangle_\textrm{loc}
+              $$
+              <!-- Intuitively it makes sense, the average energy change is non -->
+
+              Now we calculate the variances, first the change in energy can be written as
+              $$
+                  \Delta E^2=\sum_{\left \langle j_1,k  \right\rangle} \sum_{\left \langle j_2,k \right\rangle}\Delta E_\textrm{loc}(j_1)\Delta E_\textrm{loc}(j_2)
+              $$
+              Now we calculate the average of the term inside the sum.<br>
+              When we flip a bit in one window, the change in energy in the other window will be close to it. 
+              $$
+                  \Delta E_\textrm{loc}(j_2)=\Delta E_\textrm{loc}(j_1) + \delta
+              $$
+              Where $\delta$ is a random variable independent from $\Delta E_\textrm{loc}(j_1)$<d-footnote>How really accurate is this? I'm sure that if there is a dependence it is going to be small, should we consider it? and how?</d-footnote>.<br>
+              Since on average the energy change of the window centered in $j_1$ is the same as the one centered in $j_2$
+              $$
+                  \left \langle \Delta E_\textrm{loc}(j_1)\right \rangle=\left \langle \Delta E_\textrm{loc}(j_2)\right \rangle
+              $$
+              we have that $\left \langle \delta \right \rangle=0$
+              This means that
+              $$
+              \begin{split} 
+                  \left \langle \Delta E_\textrm{loc}(j_1)\Delta E_\textrm{loc}(j_2)\right \rangle=&\left \langle \Delta E_\textrm{loc}^2(j_1)\right \rangle + \left \langle \Delta E_\textrm{loc}(j_1)\delta\right \rangle =\\
+                  =&\left \langle \Delta E_\textrm{loc}^2\right \rangle+\left \langle \Delta E_\textrm{loc}(j_1)\right \rangle\left \langle \delta\right \rangle=\\
+                  =&\left \langle \Delta E^2_\textrm{loc}\right \rangle
+              \end{split}
+              $$
+              Where from the first to the second row we have used the fact that $\delta$ is independent from $\Delta E_\textrm{loc}(j_1)$, and form the second to the third row we have used the fact that $\left \langle \delta \right \rangle =0$.<br>
+              Therefore equation $\Delta E^2$ becomes
+              $$
+                  \left \langle \Delta E^2\right \rangle=W^2\left \langle \Delta E^2_\textrm{loc}\right \rangle
+              $$
+              and the variance is
+              $$
+                  \Sigma^2=W^2\left(\left \langle \Delta E^2_\textrm{loc}\right \rangle - \left \langle \Delta E_\textrm{loc}\right \rangle ^2\right)=W^2\Sigma_\textrm{loc}
+              $$
+              Suppose that the probability distribution is a Gaussian with mean $\left \langle \Delta E\right \rangle$ and variance $\Sigma^2$. Then the probability of making an error is the probability  that after the spin flips, the energy of the system decreases.
+              $$
+              \begin{split}
+                  P=&\int_{\Delta E}^\infty\frac 1{\sqrt{2\pi\Sigma^2}}e^{-\frac{x^2}{2\Sigma^2}}dx=\\
+                  =& \int_{W\Delta E_\textrm{loc}}^\infty\frac 1{\sqrt{2\pi W^2\Sigma_\textrm{loc}^2}}e^{-\frac{x^2}{2W^2\Sigma_\textrm{loc}^2}}dx=\\
+                  =&\int_{\Delta E_\textrm{loc}}^\infty\frac 1{\sqrt{2\pi \Sigma_\textrm{loc}^2}}e^{-\frac{z^2}{2\Sigma_\textrm{loc}^2}}dz=\\
+                  =&P_\textrm{loc}
+              \end{split}
+              $$
+              Where in the last passage we defined $z=x/W$.<br><br>
+              This means that a Hopfield network with an energy function that is the sum of several overlapping sub-Hopfield networks with window size of $W$ has a storage capacity of any given sub-network
+            </p>
+          </div>
+        </details>
+            
+
+
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
@@ -866,6 +982,7 @@
   <script src="website/scripts/2Dising.js"></script>
   <script src="website/scripts/standard_hopfield.js"></script>
   <script src="website/scripts/2Dhopfield.js"></script>
+  
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 
 </body>

@@ -91,7 +91,6 @@ function getHoveredSpinFC(mouseX, mouseY) {
             return i;
         }
     }
-
     return -1;
 }
 
