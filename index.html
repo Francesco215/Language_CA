@@ -116,7 +116,7 @@
         One of the things that makes phase transitions beautiful is their universality. Despite the vast variety and complexity of systems of many particles, there are just a few of different phases of aggregation, and phase transitions are described by just a handful of critical exponents.
       </p>
       <p>
-        Furthermore, we know that at low temperature lots of systems reach an ordered state, for example the ferromagnetic phase in Ising models where all the spins are all aligned, and the solid phase in materials where a crystalline structure is formed.
+        Furthermore, we observe that many systems tend to attain an ordered state at low temperatures. For instance, in Ising models, the ferromagnetic phase emerges with aligned spins, while materials exhibit a solid phase with a crystalline structure.
       </p>
       <p>
         In this paper we are going to show that asking if it is possible to generate arbitrarily long, coherent text is equivalent to asking if the system is capable of having an ordered phase.
@@ -171,21 +171,23 @@
 
 
 
-    <div target_audience="b" >
+    <div target_audience="b" style="display: none;">
       <d-section id="abs">Introduction for Biologists</d-section>
       
       <figure class="l-side">
         <img src="diagrams/organizing.jpg">
         <figcaption>
-          In text words organize into sentences, which organize into chapters, and then into books.<br>
-          In Biological organisms we see that cells organize into cell structures, which orgineze into organs, and then into full grown organisms.
+          In many self-organizing systems, you see a hierarchical structures emerge
         </figcaption>
       </figure>
+      <p>
+        Thanks to the rise of new technologies in the machine learning world, entire areas of biomedical research have been revolutionized. Can it go also the other way around? Can ideas form biology help when applied to machine learning?
+      </p>
       <p>
         The objective of this paper is to demonstrate how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
       </p>
       <p>
-        Also in text words organize into sentences, which organize into chapters, and then into books.<br>
+        In text words organize into sentences, which organize into chapters, and then into books.<br>
         In Biological organisms we see that cells organize into cell structures, which orgineze into organs, and then into full grown organisms.
       </p>
       <p>
@@ -195,7 +197,24 @@
         However, we show that if we try to naively try to teach a machine learning algorithm to generate text by just giving each word the information of the words neirby, it will fail to self-organize.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
       </p>
       <p>
-        We also show that, in principle, it is possible to  by changing the topology on how the words are able to comunicate
+        We also show that, in principle, it is possible to reach an ordered phase by changing the topology on how the words are able to comunicate
+      </p>
+      <p>
+        <b>Why focus on text to study self-organization?</b>
+        <ul>
+          <li>
+            Long-range cohesion is a necessary feature of text, and it is something that current language processing algorithms don’t possess. This will mean that any improvement on the theoretical front, will directly translate into an application in the field of natural language processing.
+          </li>
+          <li>
+            In text, spotting a misspelled word is easy. In biological (and virtual) organisms spotting an off place cell is hard.<br>
+            This raises the bar of difficulty so it will give a more rigorous test on the ability of self-organizing systems
+          </li>
+          <li>
+            It’s easier to run experiments on code rather than biological organisms.
+          </li>
+        </ul>
+
+
       </p>
     </div>
     <div target_audience="p" style="display: none;">
@@ -205,10 +224,10 @@
       </p>
     </div>
 
-    <div target_audience="m" style="display: none;">
+    <div target_audience="m">
       <d-section id="abs">Introduction for ML researchers</d-section>
       <p>
-        TODO
+        asd
       </p>
     </div>
 
@@ -387,17 +406,24 @@
     </p>
     <details>
       <summary><b>Ising model on a Tree</b></summary>
-      The Ising model on a Tree, can be thought as a 2D Ising model in hyperbolic geometry. It does have a condensed phase and the same concepts apply.
+      <p>
+        Many self-organizing systems seem to gravitate towards a hierarchical structure, in earlier sections of the paper we talked about how cells and words on the text organize into bigger and bigger structures. The same goes for how peaple organize into teams, companies, and so on.
+      </p>
+      <p>
+        So, let's take a breaf look at the Ising model on a Tree. <br>
+        Interestingly, the Ising model on a tree can be thought as a 2D Ising model in hyperbolic geometry, this means that the same proof for the existence of an ordered phase is pretty much the same as the one in the 2D case, but with the extra flavour of hyperbolic geometry.
+      </p>
       <d-figure>
         <img src="website/images/hyperbolic_tiling.png" width="100%">
         <img src="website/images/pentagon_tree.png" width="100%">
         <figcaption>
-          Ising model in a hyperbolic geometry. On the left the triangular hyperbolic lattice is equivalent to a tree with each 2 children nodes, on the right the pentagonal hyperbolic lattice is equivalent to the tree below
+          Ising model in a hyperbolic geometry. On the left the triangular hyperbolic lattice is equivalent to a tree with each 2 children nodes, on the right the pentagonal hyperbolic lattice is equivalent to the tree below FIND BETTER IMAGES
         </figcaption>
       </d-figure>
-      <br>
+      <p>
       It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$.<br>
         WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry
+      </p>
     </details>
     </div>
     <d-subsection>Main takeaway from the Ising model</d-subsection>
@@ -475,10 +501,19 @@
     </p>
     
     <d-subsection>Morphogenesis and Language Modelling</d-subsection>
-    <p>
-      Other self-organizing systems like mophogenesis can also be seen though the lens associative memory.
-      WORK IN PROGRESS
-    </p>
+    <div>
+      <figure class="l-side">
+        <img src="diagrams/navigation.jpg">
+        <figcaption>
+          asd
+        </figcaption>
+      </figure>
+      <p>
+        Other self-organizing systems like mophogenesis can also be seen though the lens associative memory.
+        WORK IN PROGRESS
+      </p>
+    </div>
+    
     <d-subsection>Hopfield Networks</d-subsection>
     <p>
       Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>. It is the perfect working bench to understand what are the capabilities of associative memeories.
@@ -1075,7 +1110,7 @@
             </p>
           </div>
         </details>
-            
+  <d-section>Conclusions</d-section>
 
 
 
