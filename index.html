@@ -171,6 +171,63 @@
 
 
 
+    <div target_audience="b" >
+      <d-section id="abs">Introduction for Biologists</d-section>
+      
+      <figure class="l-side">
+        <img src="diagrams/organizing.jpg">
+        <figcaption>
+          In text words organize into sentences, which organize into chapters, and then into books.<br>
+          In Biological organisms we see that cells organize into cell structures, which orgineze into organs, and then into full grown organisms.
+        </figcaption>
+      </figure>
+      <p>
+        The objective of this paper is to demonstrate how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+      </p>
+      <p>
+        Also in text words organize into sentences, which organize into chapters, and then into books.<br>
+        In Biological organisms we see that cells organize into cell structures, which orgineze into organs, and then into full grown organisms.
+      </p>
+      <p>
+        Some machine learning algorithms like neural cellular automata <d-cite key="mordvintsev2020growing"></d-cite> are able to recreate remarkably well the behavior of cells in biological organisms.
+      </p>
+      <p>
+        However, we show that if we try to naively try to teach a machine learning algorithm to generate text by just giving each word the information of the words neirby, it will fail to self-organize.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
+      </p>
+      <p>
+        We also show that, in principle, it is possible to  by changing the topology on how the words are able to comunicate
+      </p>
+    </div>
+    <div target_audience="p" style="display: none;">
+      <d-section id="abs">Introduction for Physicists</d-section>
+      <p>
+        TODO
+      </p>
+    </div>
+
+    <div target_audience="m" style="display: none;">
+      <d-section id="abs">Introduction for ML researchers</d-section>
+      <p>
+        TODO
+      </p>
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     <div target_audience="b m">
     <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
@@ -282,7 +339,7 @@
         <label for="temperature2D">$T=$</label>
     </div>
     <figcaption>
-      Simulation of the 2D ising model
+      Simulation of the 2D Ising model
     </figcaption>
     
     <p>
@@ -330,7 +387,7 @@
     </p>
     <details>
       <summary><b>Ising model on a Tree</b></summary>
-      The Ising model on a Tree, can be thought as a 2D ising model in hyperbolic geometry. It does have a condensed phase and the same concepts apply.
+      The Ising model on a Tree, can be thought as a 2D Ising model in hyperbolic geometry. It does have a condensed phase and the same concepts apply.
       <d-figure>
         <img src="website/images/hyperbolic_tiling.png" width="100%">
         <img src="website/images/pentagon_tree.png" width="100%">
@@ -759,7 +816,7 @@
           </div>
         </details>
 
-  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary saize and many patterns stored, we can just look at a simple next-neighbour ising model to see if we have a coherent phase</p>
+  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary saize and many patterns stored, we can just look at a simple next-neighbour Ising model to see if we have a coherent phase</p>
   <!-- <b class="Theorem">Theorem</b>
       <p class="theorem_text">
         Suppose we have a Potts grid $\mathcal C$ of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
@@ -794,7 +851,10 @@
 
   <d-section>The role of Disorder</d-section>
     <p>
-      The problem with the theorems stated so far is that some of this systems can exhibit spin-glass
+      In all the theorems we saw, we assumed that the Free energy is minimized. This is true at thermal equilibrium, otherwise you could be able to extract energy from the system, which goes against the concept of thermal equilibrium
+    </p>
+    <p>
+      However, the problem with the theorems stated so far is that some of this systems can exhibit spin-glass
       <d-footnote>
         A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $\theta$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(\theta) d\theta$.
          $$
@@ -806,7 +866,8 @@
         $$
 
         In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
-      </d-footnote> behaviors, and thus can take an infinite amout of time to reach equilibrium <d-cite key="castellani2005spin"></d-cite>. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
+      </d-footnote>
+      behaviors, and thus can take an infinite amout of time to reach equilibrium <d-cite key="castellani2005spin"></d-cite>. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
       <br><br>
       For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
       $$
@@ -823,7 +884,7 @@
       This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
     </p>
     <p>
-      But how can we make sure that our self organizing system behaves more like an ising model, and not like a completely disorderd spin glass?<br>
+      But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disorderd spin glass?<br>
       For Hopfield models peaple have figured it out.
     </p>
     <d-subsection>Memory of an Hopfield model</d-subsection>
