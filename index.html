@@ -90,7 +90,7 @@
     <div>
       
     </div>
-    <div target_audience="n" style="display: block;">
+    <div target_audience="n" style="display: none;">
       <d-section id="abs">Adaptive Abstract</d-section>
 
       <p>
@@ -126,7 +126,7 @@
       </p>
     </div>
 
-    <div target_audience="m" style="display: none;">
+    <div target_audience="m" style="display: block;">
       <d-section id="abs">Abstract for ML researchers</d-section>
       <p>
       The complexity of generating a text with $N$ words with modern machine learning algorithms such as the Transformer is $O(N^2)$. This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
@@ -188,7 +188,7 @@
       </p>
       <p>
         In text words organize into sentences, which organize into chapters, and then into books.<br>
-        In Biological organisms we see that cells organize into cell structures, which orgineze into organs, and then into full grown organisms.
+        In Biological organisms we see that cells organize into cell structures, which organize into organs, and then into full grown organisms.
       </p>
       <p>
         Some machine learning algorithms like neural cellular automata <d-cite key="mordvintsev2020growing"></d-cite> are able to recreate remarkably well the behavior of cells in biological organisms.
@@ -212,11 +212,17 @@
           <li>
             It’s easier to run experiments on code rather than biological organisms.
           </li>
+          <li>
+            Since text is a 1-dimentional sequence it can give insights into other types of 1D sequences, for example a sequence of actions performed by an agent.<br>
+            Having long term coherence for a sequence of actions performed by an agent means that the agent is able to stick to a plan and use information from the distant past to make decisions on what to do next.
+          </li>
         </ul>
-
-
       </p>
     </div>
+
+
+
+
     <div target_audience="p" style="display: none;">
       <d-section id="abs">Introduction for Physicists</d-section>
       <p>
@@ -226,9 +232,32 @@
 
     <div target_audience="m">
       <d-section id="abs">Introduction for ML researchers</d-section>
+      <figure class="l-side">
+        <img src="diagrams/organizing.jpg">
+        <figcaption>
+          In many self-organizing systems, you see a hierarchical structures emerge
+        </figcaption>
+      </figure>
       <p>
-        asd
+        Thanks to the rise of new technologies in the machine learning world, entire areas of biomedical research have been revolutionized. Can it go also the other way around? Can ideas form biology help when applied to machine learning?
       </p>
+      <p>
+        The objective of this paper is to demonstrate how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+      </p>
+      <p>
+        In text words organize into sentences, which organize into chapters, and then into books.<br>
+        In Biological organisms we see that cells organize into cell structures, which organize into organs, and then into full grown organisms.
+      </p>
+      <p>
+        Some machine learning algorithms like neural cellular automata <d-cite key="mordvintsev2020growing"></d-cite> are able to recreate remarkably well the behavior of cells in biological organisms.
+      </p>
+      <p>
+        However, we show that if we try to naively try to teach a machine learning algorithm to generate text by just giving each word the information of the words neirby, it will fail to self-organize.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
+      </p>
+      <p>
+        We also show that, in principle, it is possible to reach an ordered phase by changing the topology on how the words are able to comunicate
+      </p>
+      
     </div>
 
 
@@ -410,7 +439,7 @@
         Many self-organizing systems seem to gravitate towards a hierarchical structure, in earlier sections of the paper we talked about how cells and words on the text organize into bigger and bigger structures. The same goes for how peaple organize into teams, companies, and so on.
       </p>
       <p>
-        So, let's take a breaf look at the Ising model on a Tree. <br>
+        So, let's take a breaf look at the Ising model on a Tree<d-cite key="breuckmann2020critical"></d-cite>. <br>
         Interestingly, the Ising model on a tree can be thought as a 2D Ising model in hyperbolic geometry, this means that the same proof for the existence of an ordered phase is pretty much the same as the one in the 2D case, but with the extra flavour of hyperbolic geometry.
       </p>
       <d-figure>
@@ -625,7 +654,14 @@
       During inference time, given some input tokens $\{s_i\,|\, i_\textrm{first}\le i\le i_\textrm{last}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$.
     </p>
     <p>
-      But how do we prove <i>mathematically</i> that autoregressive models are bound to lose the thread?
+      Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
+      We also don't really care how the probabilities are evaluated: The architecture of the model doesn't matter.
+    </p>
+    <p>
+      Keep in mind that how well you can predict the next element in a senquence can be considered a measure of intelligence. After all what any intelligent agent does is just finding the best next action.
+    </p>
+    <p>
+      But how do we prove <i>mathematically</i> that autoregressive models with finite context are bound to lose the thread?
       <ul>
         <li>
           Firstly, we show that Autoregressive models, no matter the architecture, are equivalent to a thermodynamic system with a specifically crafted local Hamiltonian
@@ -636,7 +672,7 @@
       </ul>
     </p>
     <p>
-      The important thing about proving that autoregressive models are incapable is not the theorem itself, in the end we all know intuitively that autoregressive models, because they are bound to loose information as they go are incapable of genereting long texts. The important thing is that by proving mathematically this, we acquire the knowledge to be able to prove that other ways of doing text generation indeed result in coherent text.
+      The significance of demonstrating the incapability of autoregressive models doesn't lie solely in the theorem itself. Intuitively, we already understand that autoregressive models, due to their inherent loss of information over time, are unable to generate lengthy texts. What holds importance is that through mathematical proof, we gain the knowledge necessary to establish the coherence of text generation through alternative methods.
     </p>
     <b class="theorem">Theorem</b>
         <p class="theorem_text">
