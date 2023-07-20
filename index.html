@@ -45,7 +45,6 @@
     <h1>Topological requirements to self organization</h1>
     <p>
         What do you need to have a structure emerge spontaneously?<br>
-        How does it relate to intelligence?
     </p>
     
   </d-title>
@@ -150,6 +149,9 @@
           <li>
             Transformers with attention matrices with a specifically crafted topology, can in principle be able to generate text that is coherent at arbitrarily long distances.
           </li>
+          <li>
+            An agent with an arbitrarily small non-zero context size can be capable of enacting long term plans if it is able to interact with an external envoirnment by storing and retreiving information.
+          </li>
         </ul>
       </p>
     </div>
@@ -181,23 +183,22 @@
         </figcaption>
       </figure>
       <p>
-        Thanks to the rise of new technologies in the machine learning world, entire areas of biomedical research have been revolutionized. Can it go also the other way around? Can ideas form biology help when applied to machine learning?
+        Advancements in machine learning technologies have brought about a revolution in various areas of biomedical research. However, can the exchange of ideas between biology and machine learning work both ways? Can insights from biology prove beneficial in the field of machine learning?
       </p>
       <p>
-        The objective of this paper is to demonstrate how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+        This paper aims to showcase how the process of self-organization, observed in biological systems, can be harnessed to develop coherent narrative skills within linguistic space. By allowing words in a text to self-organize, a cohesive and meaningful whole can be created.
       </p>
       <p>
-        In text words organize into sentences, which organize into chapters, and then into books.<br>
-        In Biological organisms we see that cells organize into cell structures, which organize into organs, and then into full grown organisms.
+        In textual context, words organize themselves into sentences, which further organize into chapters, ultimately forming complete books. Similarly, in biological organisms, cells organize into specific structures, which then combine to form organs, culminating in fully grown organisms
       </p>
       <p>
-        Some machine learning algorithms like neural cellular automata <d-cite key="mordvintsev2020growing"></d-cite> are able to recreate remarkably well the behavior of cells in biological organisms.
+        Certain machine learning algorithms, such as neural cellular automata, have shown remarkable ability to replicate the behavior of cells in biological organisms.<d-cite key="mordvintsev2020growing"></d-cite> 
       </p>
       <p>
-        However, we show that if we try to naively try to teach a machine learning algorithm to generate text by just giving each word the information of the words neirby, it will fail to self-organize.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
+        However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
       </p>
       <p>
-        We also show that, in principle, it is possible to reach an ordered phase by changing the topology on how the words are able to comunicate
+        We also show that, in principle, it is possible to generate long-coherent text by changing how the elements of a sequence interact with one another
       </p>
       <p>
         <b>Why focus on text to study self-organization?</b>
@@ -239,25 +240,26 @@
         </figcaption>
       </figure>
       <p>
-        Thanks to the rise of new technologies in the machine learning world, entire areas of biomedical research have been revolutionized. Can it go also the other way around? Can ideas form biology help when applied to machine learning?
+        Advancements in machine learning technologies have brought about a revolution in various areas of biomedical research. However, can the exchange of ideas between biology and machine learning work both ways? Can insights from biology prove beneficial in the field of machine learning?
       </p>
       <p>
-        The objective of this paper is to demonstrate how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+        This paper aims to showcase how the process of self-organization, observed in biological systems, can be harnessed to develop coherent narrative skills within linguistic space. By allowing words in a text to self-organize, a cohesive and meaningful whole can be created.
       </p>
       <p>
-        In text words organize into sentences, which organize into chapters, and then into books.<br>
-        In Biological organisms we see that cells organize into cell structures, which organize into organs, and then into full grown organisms.
+        In textual context, words organize themselves into sentences, which further organize into chapters, ultimately forming complete books. Similarly, in biological organisms, cells organize into specific structures, which then combine to form organs, culminating in fully grown organisms
       </p>
       <p>
-        Some machine learning algorithms like neural cellular automata <d-cite key="mordvintsev2020growing"></d-cite> are able to recreate remarkably well the behavior of cells in biological organisms.
+        Certain machine learning algorithms, such as neural cellular automata, have shown remarkable ability to replicate the behavior of cells in biological organisms <d-cite key="mordvintsev2020growing"></d-cite> .
       </p>
       <p>
-        However, we show that if we try to naively try to teach a machine learning algorithm to generate text by just giving each word the information of the words neirby, it will fail to self-organize.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
+        However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
       </p>
       <p>
-        We also show that, in principle, it is possible to reach an ordered phase by changing the topology on how the words are able to comunicate
+        We also show that, in principle, it is possible to generate long-coherent text by using specifically crafted sparse attention, or by having a model with finite context-lenght that is capable of interacting with an external envoirnment.
       </p>
-      
+      <!-- <p>
+        This results not only apply to text generation, but to any generative algorithm, and in reinforcment learning
+      </p> -->
     </div>
 
 
@@ -454,6 +456,19 @@
         WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry
       </p>
     </details>
+
+    <details>
+      <summary><b>1D Ising model with a fully connected spin</b></summary>
+      <p>
+        As a last example we will consider a slightly modified 1D Ising chain. In this example there is an extra spin particle $e=\pm 1$ linked to all the other spins
+        $$
+          H=-J\sum_{i}(s_is_{i+1} +es_i)
+        $$
+      With this simple extra modification the system is capable or reaching an ordered phase. The proof is left as an excercise for the reader.
+      PUT THE IMAGE OR SIMULATION HERE
+      </p>
+    </details>
+
     </div>
     <d-subsection>Main takeaway from the Ising model</d-subsection>
     <p>
@@ -463,10 +478,10 @@
       When it comes to self-organizing systems, the concept of an ordered state typically refers to a highly organized and coherent configuration. For example, in the Ising model, an ordered state corresponds to spins aligning in a particular direction. In other self-organizing systems, it may involve patterns, structures, or coordinated behaviors emerging among the individual elements of the system.
     </p>
     <p>
-      Understanding the behavior of self-organizing systems in terms of phase transitions allows us to analyze their dynamics, and gain insights into the underlying mechanisms driving the emergence of order. By studying the conditions and factors that influence phase transitions in self-organizing systems, we can better comprehend their ability to reach ordered states.
+      Understanding the behavior of self-organizing systems in terms of phase transitions allows us to analyze their equilibrium properties, and gain insights into the underlying mechanisms driving the emergence of order. By studying the conditions and factors that influence phase transitions in self-organizing systems, we can better comprehend their ability to reach ordered states.
     </p>
     <p>
-      We will now will now give an overview of a more complicated self-organizing system though the lens of phase-transition: The Hopfield Network
+      We will now give an overview of a more complicated self-organizing system though the lens of phase-transition: The Hopfield Network
     </p>
 
 
@@ -534,12 +549,24 @@
       <figure class="l-side">
         <img src="diagrams/navigation.jpg">
         <figcaption>
-          asd
+          Side by side comparison between text generation and morphogenesis
         </figcaption>
       </figure>
       <p>
-        Other self-organizing systems like mophogenesis can also be seen though the lens associative memory.
-        WORK IN PROGRESS
+        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphologiacal space
+        <d-cite key="fields2022competency"></d-cite>.
+      </p>
+      <p>
+        In various fields like biology, linguistics, computer science, and design, a morphological space refers to a conceptual space where each point represents a specific configuration or form of an entity. The term "morphological" refers to the form, structure, or shape of something.
+      </p>
+      <p>
+        Navigating a morphological space involves exploring and moving through this conceptual space to observe or analyze the different configurations or forms that an entity can take. It is often used to understand the relationships between different variations or possibilities within a system. Better configurations are associated to a lower energy value, and the system evolves rolling down this energy landscape
+      </p>
+      <p>
+        One common example is in biology, where the concept of morphological space can be used to describe the range of physical forms that a species can exhibit. By navigating this space, the organism changes shape over time. Both processes of morphogenesis and damage repair can be thought as navigating this morphological space towards the stable adult form of the organism. The damage becomes impossible to heal for the organism if it puts it in a point into the morphological space outside the bacin of attraction of the stable configuration.
+      </p>
+      <p>
+        Drawing parallels between text generation and morphogenesis, text generation starts with a prompt (analogous to an embryo) and progresses, generating the rest of the text until completion. Similarly, correcting errors in text, such as misspelled or missing words, bears similarity to the process of repairing damage in biological organisms. Both tasks are error correction procedures that involve navigating a morphological space to rectify errors and achieve the desired final state.
       </p>
     </div>
     
@@ -755,11 +782,11 @@
     <p>
       We have now seen that 1-dimentional self-organizing systems can't really exists. Sure, there are worms and snakes that are more or less one dimentional, but they are usually less than 50 times longer than their diameter.
     </p>
-  <d-subsection>The 2D case</d-subsection>
+  <!-- <d-subsection>The 2D case</d-subsection>
     <p>
       2-dimentional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
     </p>
-    <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p>
+    <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p> -->
   <d-subsection>More complex Topologies</d-subsection>
     <p>
       As you have seen from the two examples, determining whether or not an ordered phase can exists boils down to a counting problem.
@@ -1146,6 +1173,8 @@
             </p>
           </div>
         </details>
+  <d-section>How to make a corehent intelligence step-by-step</d-section>
+    <p>Change the title of the section</p>
   <d-section>Conclusions</d-section>
 
 
