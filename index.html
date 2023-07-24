@@ -1173,8 +1173,111 @@
             </p>
           </div>
         </details>
-  <d-section>How to make a corehent intelligence step-by-step</d-section>
-    <p>Change the title of the section</p>
+
+
+
+
+
+        
+  <d-section>Some practical examples</d-section>
+    <p>
+      It is crucial to bear in mind that these represent some of the essential prerequisites.<br>Similar to how possessing Turing Completeness does not guarantee intelligence, having an ordered phase in a system does not automatically imply that the output will be actually coherent and meaningful.
+    </p>
+    <p>
+      We now possess all the necessary elements to ascertain whether a system can ever exhibit the capacity to generate data coherently.
+        <ol>
+          <li>
+            Select a topology of comunication of the cells that is equivalent to an ising model that has an ordered phase
+          </li>
+          <li>
+            Make sure that the system bottlenecked by the memory capacity (either by having a large enought window size and a large enought number of trainable parameters)
+          </li>
+        </ol>
+      Lets get so some example to show the procedure:
+    </p>
+
+    <d-subsection>Tree language model</d-subsection>
+      <p>
+        We want to see if a tranformer that has an attention matrix with the topology of a tree can ever generate text.
+        <ul>
+          <li>
+            Since the ising model on the tree does have an ordered phase, the possibility of generating an infinitely long, coherent text is not constrained by the topology
+          </li>
+          <li>
+            The bottleneck provided by the memory capacity can be widened by increasing the window size and the number of parameters
+          </li>
+        </ul>
+      </p>
+      <h4>Experiments</h4>
+        <p>
+          Recently a paper has come out that uses a tree-like attention structure <d-cite key="ding2023longnet"></d-cite> where the authors where able to generate text that has a linear complexity and an effective context size of 1 bilion tokens.
+        </p>
+        <figure>
+          <img src="website/images/longnet_attention.png">
+          <figcaption>
+            Building blocks of dilated attention used in LONGNET. It consists of a series of attention
+            patterns for modeling both short-range and long-range dependency. The number of attention patterns
+            can be extended according to the sequence length. Courtesy of <d-cite key="ding2023longnet"></d-cite>
+          </figcaption>
+        </figure>
+        <p>
+          It is unclear however if this specific experiment resulted in a model that it is actually capable of retrieving any information inside that effective context.
+        </p>
+
+    <d-subsection>Autoregressive + Envoirnment</d-subsection>
+      <p>Lets start with a system inspired on how the brain works.</p>
+      <p>
+        Let $B(t)$ be the state of the brain at the time $t$ and $E(t)$ the state of the envoirnment, we can say that the way they evolve is ruled by a set of equations like this
+        $$
+          \begin{cases}
+          B(t+1)=f_B[B(t),E(t)]\\
+          E(t+1)=f_E[B(t),E(t)]
+          \end{cases}
+        $$
+        Note that this is simply an autoregressive model, however we can assume that the envoirnment is capable of holding on to information for longer.<br>
+        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.
+      </p>
+      <p>
+        If we want to translate in an equivalent ising model, we have two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
+        The Hamiltonian becomes
+        $$
+          H = J_E\sum_i s_{E,i}s_{E,i+1} + J_B\sum_i s_{B,i}s_{B,i+1}  + J_C\sum_i s_{E,i}s_{B,i}  
+        $$
+        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment SHOULD I WRITE A PROOF?
+      </p>
+      <p>
+        What effectively happens is that the brain, interacting with the envoirnment becomes capable of holding on to information for longer. When you read the shopping list at the supermaket, you effectively interact with your past-self though the piece of paper. This makes your memory effectively as good as the one of the envoirnment.
+      </p>
+      <h4>Experiments</h4>
+        <p>
+          Systems like this can be found in the language modelling + reinforcment learning literature. One that I particularly like is Vojager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
+        </p>
+        <figure>
+          <img src="website/images/voyager_scheme.png">
+          <figcaption>
+            Voyager consists of three key components: an automatic curriculum for open-ended exploration, a skill library for increasingly complex behaviors, and an iterative prompting mechanism that uses code as action space. Courtesy of <d-cite key="wang2023voyager"></d-cite>
+          </figcaption>
+        </figure>
+        <p>
+          In this paper the "brain" is a large language model (GPT-4), and it is able to interact with both the game world, and a code library where the LLM can both read, write and organize information
+        </p>
+        <p>
+          By doing so the agent is capable of using skills and information that has written in the distant past. This effectively increases the context lenght of the language model.
+        </p>
+        
+        
+
+
+
+
+
+
+
+
+
+
+
+
   <d-section>Conclusions</d-section>
 
 
