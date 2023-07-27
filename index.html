@@ -305,11 +305,11 @@
     </p>
     <figure>
       <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
-    <div>
-        <label for="temperature-slider">Temperature:</label>
-        <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
-        <span id="FC_temperature-value">1.0</span>
-    </div>
+      <div>
+          <label for="temperature-slider">Temperature:</label>
+          <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
+          <span id="FC_temperature-value">1.0</span>
+      </div>
     
       <figcaption>
         Simulation of the Fully connected Ising Model
@@ -327,16 +327,16 @@
       $$
       Now, let's examine the behavior of this system in relation to temperature.
       </p>
-      <figure>
-        <canvas id="canvas1D" width="700" height="20" style="border: 1px solid #000;"></canvas>
+      <figure class="l-page-outset">
+        <canvas id="canvas1D" width="700" height="20" style="border: 1px solid #000;" class="l-page-outset"></canvas>
         <div>
             <label for="temperature">Temperature:</label>
             <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
         </div>
         
-      <figcaption>
-        Simulation of the 1D Ising Model (TODO)
-      </figcaption>
+        <figcaption>
+          Simulation of the 1D Ising Model (TODO)
+        </figcaption>
       </figure>
       <p>
       As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This can be proven mathematically with the following theorem
@@ -1263,8 +1263,20 @@
         $$
           H = J_E\sum_i s_{E,i}s_{E,i+1} + J_B\sum_i s_{B,i}s_{B,i+1}  + J_C\sum_i s_{E,i}s_{B,i}  
         $$
-        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment SHOULD I WRITE A PROOF?
+        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment.
       </p>
+      <figure class="l-page-outset">
+        <canvas id="canvasBE" width="1100" height="40" style="border: 1px solid #000;"></canvas>
+        <div>
+            <label for="temperatureBE">$T=$</label>
+            <span id="BE_temperature-value">1.0</span>
+            <input type="range" id="temperatureBE" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        
+        <figcaption>
+          Here is an example of the system defined in the Hamiltonian above
+        </figcaption>
+      </figure>
       
       <h4>Experiments</h4>
         <p>
@@ -1282,6 +1294,9 @@
         <p>
           By doing so the agent is capable of using skills and information that has written in the distant past. This effectively increases the context lenght of the language model.
         </p>
+        <p>
+          Overall, these examples <d-cite key="ding2023longnet, wang2023voyager"></d-cite> showcase how different approaches and topologies can enhance data coherence in systems, resulting in more meaningful and contextually rich outputs.
+        </p>
         
         
 
@@ -1297,7 +1312,9 @@
 
 
   <d-section>Conclusions</d-section>
-
+    <p>
+      We have shown how the right topology for cell comunication is a necessary feature for long range coherence
+    </p>
 
 
   </d-article>
@@ -1308,6 +1325,7 @@
   <script src="website/scripts/standard_hopfield.js"></script>
   <script src="website/scripts/2Dhopfield.js"></script>
   <script src="website/scripts/autoregressive_Ising.js"></script>
+  <script src="website/scripts/B+E_Ising.js"></script>
   
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 

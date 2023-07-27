@@ -17,7 +17,7 @@ function createSpins(numSpins) {
   return spins;
 }
 
-function update() {
+function update1D() {
   if (!document.hidden && !isSimulationPaused1D) {
     ctx1D.clearRect(0, 0, width, height);
     for (let i=0; i<numSpins; i++){
@@ -40,7 +40,7 @@ function update() {
       spins[i] = -spin;
     }
   }
-  requestAnimationFrame(update);
+  requestAnimationFrame(update1D);
 }
 
 temperatureSlider.addEventListener('input', function () {
@@ -59,4 +59,4 @@ const observer = new IntersectionObserver(handleVisibilityChange1D, { threshold:
 // Observe the canvas element
 observer.observe(canvas1D);
 
-update();
+update1D();

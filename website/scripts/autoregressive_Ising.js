@@ -22,7 +22,7 @@ let sequenceAR = createSequence(numSpinsAR)
 
 
 
-function update() {
+function updateAR() {
   if (!document.hidden && !isSimulationPausedAR) {
     ctxAR.clearRect(0, 0, widthAR, heightAR);
     
@@ -39,7 +39,7 @@ function update() {
     }   
 
   }
-  setTimeout(update, 100);
+  setTimeout(updateAR, 100);
 
 }
 
@@ -60,4 +60,4 @@ const observerAR = new IntersectionObserver(handleVisibilityChangeAR, { threshol
 // Observe the canvas element
 observerAR.observe(canvasAR);
 
-update();
+updateAR();
