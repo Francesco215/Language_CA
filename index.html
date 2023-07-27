@@ -544,31 +544,6 @@
       </d-figure>
     </p>
     
-    <d-subsection>Morphogenesis and Language Modelling</d-subsection>
-    <div>
-      <figure class="l-side">
-        <img src="diagrams/navigation.jpg">
-        <figcaption>
-          Side by side comparison between text generation and morphogenesis
-        </figcaption>
-      </figure>
-      <p>
-        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphologiacal space
-        <d-cite key="fields2022competency"></d-cite>.
-      </p>
-      <p>
-        In various fields like biology, linguistics, computer science, and design, a morphological space refers to a conceptual space where each point represents a specific configuration or form of an entity. The term "morphological" refers to the form, structure, or shape of something.
-      </p>
-      <p>
-        Navigating a morphological space involves exploring and moving through this conceptual space to observe or analyze the different configurations or forms that an entity can take. It is often used to understand the relationships between different variations or possibilities within a system. Better configurations are associated to a lower energy value, and the system evolves rolling down this energy landscape
-      </p>
-      <p>
-        One common example is in biology, where the concept of morphological space can be used to describe the range of physical forms that a species can exhibit. By navigating this space, the organism changes shape over time. Both processes of morphogenesis and damage repair can be thought as navigating this morphological space towards the stable adult form of the organism. The damage becomes impossible to heal for the organism if it puts it in a point into the morphological space outside the bacin of attraction of the stable configuration.
-      </p>
-      <p>
-        Drawing parallels between text generation and morphogenesis, text generation starts with a prompt (analogous to an embryo) and progresses, generating the rest of the text until completion. Similarly, correcting errors in text, such as misspelled or missing words, bears similarity to the process of repairing damage in biological organisms. Both tasks are error correction procedures that involve navigating a morphological space to rectify errors and achieve the desired final state.
-      </p>
-    </div>
     
     <d-subsection>Hopfield Networks</d-subsection>
     <p>
@@ -622,6 +597,35 @@
     <p>
       MAYBE ITS BEST TO PUT THIS SUBSECTION LATER
     </p>
+
+
+    <d-subsection>Morphogenesis and Language Modelling</d-subsection>
+    <div>
+      <figure class="l-side">
+        <img src="diagrams/navigation.jpg">
+        <figcaption>
+          Side by side comparison between text generation and morphogenesis
+        </figcaption>
+      </figure>
+      <p>
+        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphologiacal space
+        <d-cite key="fields2022competency"></d-cite>.
+      </p>
+      <p>
+        In various fields like biology, linguistics, computer science, and design, a morphological space refers to a conceptual space where each point represents a specific configuration or form of an entity. The term "morphological" refers to the form, structure, or shape of something.
+      </p>
+      <p>
+        Navigating a morphological space involves exploring and moving through this conceptual space to observe or analyze the different configurations or forms that an entity can take. It is often used to understand the relationships between different variations or possibilities within a system. Better configurations are associated to a lower energy value, and the system evolves rolling down this energy landscape
+      </p>
+      <p>
+        One common example is in biology, where the concept of morphological space can be used to describe the range of physical forms that a species can exhibit. By navigating this space, the organism changes shape over time. Both processes of morphogenesis and damage repair can be thought as navigating this morphological space towards the stable adult form of the organism. The damage becomes impossible to heal for the organism if it puts it in a point into the morphological space outside the bacin of attraction of the stable configuration.
+      </p>
+      <p>
+        Drawing parallels between text generation and morphogenesis, text generation starts with a prompt (analogous to an embryo) and progresses, generating the rest of the text until completion. Similarly, correcting errors in text, such as misspelled or missing words, bears similarity to the process of repairing damage in biological organisms. Both tasks are error correction procedures that involve navigating a morphological space to rectify errors and achieve the desired final state.
+      </p>
+    </div>
+    
+    
 <d-section>
   What makes a self-organizing system capable of organizing?
 </d-section>
@@ -680,6 +684,17 @@
     <p class="definition_text">
       During inference time, given some input tokens $\{s_i\,|\, i_\textrm{first}\le i\le i_\textrm{last}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$.
     </p>
+    <figure>
+      <canvas id="canvasAR" width="700" height="20" style="border: 1px solid #000;"></canvas>
+      <div>
+          <label for="temperatureAR">$T=$</label>
+          <span id="AR_temperature-value">1.0</span>
+          <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
+      </div>
+      <figcaption>
+        Simulation of an autoregressive Ising model
+      </figcaption>
+    </figure>
     <p>
       Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
       We also don't really care how the probabilities are evaluated: The architecture of the model doesn't matter.
@@ -1227,32 +1242,35 @@
     <d-subsection>Autoregressive + Envoirnment</d-subsection>
       <p>Lets start with a system inspired on how the brain works.</p>
       <p>
-        Let $B(t)$ be the state of the brain at the time $t$ and $E(t)$ the state of the envoirnment, we can say that the way they evolve is ruled by a set of equations like this
+        Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the envoirnment, we can say that the way they evolve is ruled by a set of equations like this
         $$
           \begin{cases}
-          B(t+1)=f_B[B(t),E(t)]\\
-          E(t+1)=f_E[B(t),E(t)]
+          B_{t+1}=f_B[B_t,E_t]\\
+          E_{t+1}=f_E[B_t,E_t]
           \end{cases}
         $$
         Note that this is simply an autoregressive model, however we can assume that the envoirnment is capable of holding on to information for longer.<br>
-        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.
       </p>
       <p>
-        If we want to translate in an equivalent ising model, we have two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
+        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
+
+        This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket,a dn $t_\textrm{h}$ is when you are at home writing the shopping list.
+      </p>
+
+      <p>
+        If we want to translate in an equivalent Ising model, we have two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes
         $$
           H = J_E\sum_i s_{E,i}s_{E,i+1} + J_B\sum_i s_{B,i}s_{B,i+1}  + J_C\sum_i s_{E,i}s_{B,i}  
         $$
         What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment SHOULD I WRITE A PROOF?
       </p>
-      <p>
-        What effectively happens is that the brain, interacting with the envoirnment becomes capable of holding on to information for longer. When you read the shopping list at the supermaket, you effectively interact with your past-self though the piece of paper. This makes your memory effectively as good as the one of the envoirnment.
-      </p>
+      
       <h4>Experiments</h4>
         <p>
           Systems like this can be found in the language modelling + reinforcment learning literature. One that I particularly like is Vojager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
         </p>
-        <figure>
+        <figure class="l-page-outset">
           <img src="website/images/voyager_scheme.png">
           <figcaption>
             Voyager consists of three key components: an automatic curriculum for open-ended exploration, a skill library for increasingly complex behaviors, and an iterative prompting mechanism that uses code as action space. Courtesy of <d-cite key="wang2023voyager"></d-cite>
@@ -1289,6 +1307,7 @@
   <script src="website/scripts/2Dising.js"></script>
   <script src="website/scripts/standard_hopfield.js"></script>
   <script src="website/scripts/2Dhopfield.js"></script>
+  <script src="website/scripts/autoregressive_Ising.js"></script>
   
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 

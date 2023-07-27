@@ -37,7 +37,7 @@ function update() {
     const sum = leftNeighbor + rightNeighbor;
     const deltaE = 2 * spin * sum;
     if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
-    spins[i] = -spin;
+      spins[i] = -spin;
     }
   }
   requestAnimationFrame(update);
