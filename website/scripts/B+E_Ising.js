@@ -7,6 +7,7 @@ const numSpinsBE = Math.floor(widthBE / gridSizeBE);
 const temperatureSliderBE = document.getElementById('temperatureBE');
 const temperatureValueBE = document.getElementById('BE_temperature-value');
 let temperatureBE = temperatureSliderBE.value;
+
 let isSimulationPausedBE = false;
 
 function createSequence(numSpins) {
@@ -20,9 +21,21 @@ function createSequence(numSpins) {
 let sequenceE = createSequence(numSpinsBE);
 let sequenceB = createSequence(numSpinsBE);
 
-const Jb = 0.3;
-const Je = 3;
-const Jc = 1;
+const JbSlider = document.getElementById("JbBE");
+const JbValue = document.getElementById("BE_Jb-value");
+const JeSlider = document.getElementById("JeBE");
+const JeValue = document.getElementById("BE_Je-value");
+const JcSlider = document.getElementById("JcBE");
+const JcValue = document.getElementById("BE_Jc-value");
+
+let Jb = parseFloat(JbSlider.value);
+JbValue.textContent = Jb.toFixed(1)
+let Je = parseFloat(JeSlider.value);
+JeValue.textContent = Je.toFixed(1)
+let Jc = parseFloat(JcSlider.value);
+JcValue.textContent = Jc.toFixed(1)
+
+
 
 function coupledHamiltonian(se1,sb1,se2,sb2){
   const Ee = Je* (se1^se2);
@@ -86,6 +99,22 @@ temperatureSliderBE.addEventListener('input', function () {
   temperatureBE = temperatureSliderBE.value;
   temperatureValueBE.textContent = parseFloat(temperatureBE).toFixed(1)
 });
+
+JbSlider.addEventListener('input',function () {
+  Jb = parseFloat(JbSlider.value);
+  JbValue.textContent = Jb.toFixed(1)
+});
+
+JeSlider.addEventListener('input',function () {
+  Je = parseFloat(JeSlider.value);
+  JeValue.textContent = Je.toFixed(1)
+});
+
+JcSlider.addEventListener('input',function () {
+  Jc = parseFloat(JcSlider.value);
+  JcValue.textContent = Jc.toFixed(1)
+});
+
 
 // Pause simulation when canvas is not visible
 function handleVisibilityChangeBE(entries) {
