@@ -692,7 +692,7 @@
           <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
       </div>
       <figcaption>
-        Simulation of an autoregressive Ising model
+        Simulation of an autoregressive Ising model. The Hamiltonian windows are all equal to $H_t=-Js_ts_{t+1}$, it is possible to evaluate the spin flip probability which is $p=\left(1+e^{J/T}\right)^{-1}$. SHOULD I PUT THIS ELSEWHERE?
       </figcaption>
     </figure>
     <p>
@@ -963,39 +963,51 @@
 
 
   <d-section>The role of Disorder</d-section>
-    <p>
-      In all the theorems we saw, we assumed that the Free energy is minimized. This is true at thermal equilibrium, otherwise you could be able to extract energy from the system, which goes against the concept of thermal equilibrium
-    </p>
-    <p>
-      However, the problem with the theorems stated so far is that some of this systems can exhibit spin-glass
-      <d-footnote>
-        A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $\theta$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(\theta) d\theta$.
-         $$
-          H=H(\theta,s)
-        $$
-        One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $\theta_{ij}$, are Gaussian random variables.
-        $$
-          H=\sum_{\langle ij\rangle}J_{ij}s_is_j
-        $$
+    <div>
+      <p>
+        In all the theorems we saw, we assumed that the Free energy is minimized. This is true at thermal equilibrium, however for some systems the time it can take for a system to reach thermal equilibrium can be larger than the age of the universe. 
+      </p>
+      <figure class="l-side">
+        <img src="website/images/glassy-landscape.png"  style="width:100%; height: auto; float: left;">    
+        <figcaption>
+          Example of a rugged energy landscape. The system to reach the global minimum will take a really long time. Courtesy of <d-cite key="wales2018exploring"></d-cite>
+        </figcaption>
+      </figure>
+      <p>
+        This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever get the chance to get to one of the global minima. In the rare occurrance that the system manages to escape the local minimum it will most likely go to another local minimum. 
+      </p>
+      <p>
+        When a system is like this we say that it is a <i>spin-glass system</i>
+        <d-footnote>
+          A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $\theta$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(\theta) d\theta$.
+          $$
+            H=H(\theta,s)
+          $$
+          One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $\theta_{ij}$, are Gaussian random variables.
+          $$
+            H=\sum_{\langle ij\rangle}J_{ij}s_is_j
+          $$
 
-        In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
-      </d-footnote>
-      behaviors, and thus can take an infinite amout of time to reach equilibrium <d-cite key="castellani2005spin"></d-cite>. This is due to the intrinsic quenched disorder present in machine learning algorithms and in evolution itself.
-      <br><br>
-      For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
-      $$
-          F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
-      $$
-      However different parameters will yield give different free energies, and since they are learned they follow a distribution $p(\theta|\mathcal D)$ dependent on the dataset $\mathcal D$. A more meaningful variable will be the expected free energy $\langle F\rangle$
-      $$
-          \langle F\rangle=\int F(\theta)p(\theta|\mathcal D)d\theta
-      $$
-      Since the loss function is the negative log likelyhood of the parameters $l(\theta|\mathcal D)=-\log p(\theta|\mathcal D)$ we can combine this with the last two equations to get
-      $$
-          F=-T\int e^{-l(\theta|\mathcal D)}\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right] D\theta
-      $$
-      This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
-    </p>
+          In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
+        </d-footnote> <d-cite key="castellani2005spin"></d-cite>.
+      </p>
+      <p>
+        Spin-glass systems are frequently found in machine learning algorithms. <d-cite key="choromanska2015loss"></d-cite><br>
+        For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
+        $$
+            F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
+        $$
+        However different parameters will yield give different free energies, and since they are learned they follow a distribution $p(\theta|\mathcal D)$ dependent on the dataset $\mathcal D$. A more meaningful variable will be the expected free energy $\langle F\rangle$
+        $$
+            \langle F\rangle=\int F(\theta)p(\theta|\mathcal D)d\theta
+        $$
+        Since the loss function is the negative log likelyhood of the parameters $l(\theta|\mathcal D)=-\log p(\theta|\mathcal D)$ we can combine this with the last two equations to get
+        $$
+            F=-T\int e^{-l(\theta|\mathcal D)}\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right] D\theta
+        $$
+        This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
+      </p>
+    </div>
     <p>
       But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disorderd spin glass?<br>
       For Hopfield models peaple have figured it out.
@@ -1016,7 +1028,7 @@
       </p>
       <p>This can be schematized in a phase diagram.</p>
        <p>
-        The statistics of this system has been extensively studied in the literature <d-cite key="amit1987statistical, mezard2017mean"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
+        The statistics of this system has been extensively studied in the literature <d-cite key="mezard2017mean, amit1987statistical"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
         Studying the phase diagram rigorously can be challenging, but there are some less rigorous way that are good enought and are much easier to generalize.
       </p>
       <p>
@@ -1261,7 +1273,7 @@
         If we want to translate in an equivalent Ising model, we have two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes
         $$
-          H = J_E\sum_i E_iE_{i+1} + J_B\sum_i B_{i}B_{i+1}  + J_C\sum_i E_iB_{i}  
+          H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
         $$
         What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment.
       </p>
@@ -1287,15 +1299,23 @@
         </div>
         
         <figcaption>
-          Here is an example of the system defined in the Hamiltonian above. The $E_i$ are the spins above, while the spins below are the $B_{i}$.<br>
-          For example at $T\approx 1$ if you set $J_E \approx 5$  the coherence length of the envoirnment is going to be large. You can also see that if you set the other two coupling constants relatively small $J_B, J_C\approx 1$ you are going to see that the value of the brain state $B_i$ will oscillate, but it is going to be most of the time equal to the value of the envoirnment $E_i$.<br>
+          Here is an example of the system defined in the Hamiltonian above. The $E_t$ are the spins above, while the spins below are the $B_{t}$.<br>
+          For example at $T\approx 1$ if you set $J_E \approx 5$  the coherence length of the envoirnment is going to be large. You can also see that if you set the other two coupling constants relatively small $J_B, J_C\approx 1$ you are going to see that the value of the brain state $B_i$ will oscillate, but it is going to be most of the time equal to the value of the envoirnment $E_t$.<br>
           If you want to decouple the brain with the envoirnment just set $J_C=0$
         </figcaption>
       </figure>
       
       <p>
-        WRITE SOME MATH STUFF HERE
-        <!-- By having such a large coherence lenght the spins of the envoirnment chain magnetize the brain spins  -->
+        Lets take the Hamiltonian for our brain + envoirnment system and assume that the envoirnment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the envoirnment is constant with a value of $E$. The Hamiltonian becomes
+        $$
+          H=J_b\sum_tB_tB_{t+1} + J_cE\sum_t B_t
+        $$
+        This is equivalent to the Hamiltonian for the 1D Ising model with an external magnetic field, since it is exactly solvable it is possible to evaluare the average value of $B=\langle B_t\rangle$
+
+        $$
+          B=\frac {\sinh (J_cE/T)}{\sqrt{\sinh^2(J_cE/T) + e^{-4J_b/T}}}
+        $$
+        And we have that the lower the temperature is, the more the chain aligns with the envoirnment value. 
       </p>
 
       <h4>Experiments</h4>
