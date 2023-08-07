@@ -96,7 +96,7 @@
         This is an example of an interactive abstract. Different types of researcher will have different abstract summarizing what they care the most. Click on the buttons above to have your abstract
       </p>
     </div>
-    <div target_audience="b" style="display: none;">
+    <div target_audience="b" style="display: block;">
       <d-section id="abs">Abstract for Biologists</d-section>
       <p>
         One of the most striking example of Self-organization is the formation of multicellular organisms, where each cell can only interact with its local environment through its cell membrane, but based on the signals it receives from its neighbors and its own internal state, it is able to understand what type of cell it should be and self-regulate. Despite the limited information available to each individual cell, incredibly complex organisms can be formed.
@@ -125,7 +125,7 @@
       </p>
     </div>
 
-    <div target_audience="m" style="display: block;">
+    <div target_audience="m" style="display: none;">
       <d-section id="abs">Abstract for ML researchers</d-section>
       <p>
       The complexity of generating a text with $N$ words with modern machine learning algorithms such as the Transformer is $O(N^2)$. This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
@@ -173,7 +173,7 @@
 
 
 
-    <div target_audience="b" style="display: none;">
+    <div target_audience="b" style="display: block;">
       <d-section id="abs">Introduction for Biologists</d-section>
       
       <figure class="l-side">
@@ -231,7 +231,7 @@
       </p>
     </div>
 
-    <div target_audience="m">
+    <div target_audience="m" style="display: none;">
       <d-section id="abs">Introduction for ML researchers</d-section>
       <figure class="l-side">
         <img src="diagrams/organizing.jpg">
@@ -697,6 +697,12 @@
     </figure>
     <p>
       Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
+      <!-- <ul>
+        <li>Words in a text</li>
+        <li>State of the cells in an organism</li>
+        <li>Actions performed by an agent</li>
+        <li>The value of a title in the stock market</li>
+      </ul> -->
       We also don't really care how the probabilities are evaluated: The architecture of the model doesn't matter.
     </p>
     <p>
@@ -965,7 +971,7 @@
   <d-section>The role of Disorder</d-section>
     <div>
       <p>
-        In all the theorems we saw, we assumed that the Free energy is minimized. This is true at thermal equilibrium, however for some systems the time it can take for a system to reach thermal equilibrium can be larger than the age of the universe. 
+        In all the theorems we saw, we assumed that the Free energy is minimized. This is true at thermal equilibrium, however for some systems the time it can take to reach thermal equilibrium can be larger than the age of the universe. 
       </p>
       <figure class="l-side">
         <img src="website/images/glassy-landscape.png"  style="width:100%; height: auto; float: left;">    
@@ -1251,14 +1257,14 @@
           However, it is unclear if this specific experiment resulted in a model that it is actually capable of retrieving any information inside that effective context of 1 bilion tokens.
         </p>
 
-    <d-subsection>Autoregressive + Envoirnment</d-subsection>
+    <d-subsection>Brain + Envoirnment</d-subsection>
       <p>Lets start with a system inspired on how the brain works.</p>
       <p>
         Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the envoirnment, we can say that the way they evolve is ruled by a set of equations like this
         $$
           \begin{cases}
-          B_{t+1}=f_B[B_t,E_t]\\
-          E_{t+1}=f_E[B_t,E_t]
+          B_{t+1}=f_B(B_t,E_t)\\
+          E_{t+1}=f_E(B_t,E_t)
           \end{cases}
         $$
         Note that this is simply an autoregressive model, however we can assume that the envoirnment is capable of holding on to information for longer.<br>
@@ -1268,9 +1274,11 @@
 
         This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket,a dn $t_\textrm{h}$ is when you are at home writing the shopping list.
       </p>
-
       <p>
-        If we want to translate in an equivalent Ising model, we have two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
+        This sorts of thing happens all the time, our brain constantly interacts with the surrounding envoirnment so much so that is impossible to study the brain indipendently from the envoirnment as such thing doesn't even exist
+      </p>
+      <p>
+        If we want to translate this brain + environment setup in an equivalent Ising model, we can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes
         $$
           H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
