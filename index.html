@@ -150,7 +150,7 @@
             Transformers with attention matrices with a specifically crafted topology, can in principle be able to generate text that is coherent at arbitrarily long distances.
           </li>
           <li>
-            An agent with a finite context size can be capable of enacting long term plans if it is able to interact with an external envoirnment by deliberatly storing and retreiving information.
+            An agent with a finite context size can be capable of enacting long term plans if it is able to interact with an external environment by deliberatly storing and retreiving information.
           </li>
         </ul>
       </p>
@@ -255,7 +255,7 @@
         However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
       </p>
       <p>
-        We also show that, in principle, it is possible to generate long-coherent text by using specifically crafted sparse attention, or by having a model with finite context-lenght that is capable of interacting with an external envoirnment.
+        We also show that, in principle, it is possible to generate long-coherent text by using specifically crafted sparse attention, or by having a model with finite context-lenght that is capable of interacting with an external environment.
       </p>
       <!-- <p>
         This results not only apply to text generation, but to any generative algorithm, and in reinforcment learning
@@ -1260,30 +1260,43 @@
     <d-subsection>Brain + Envoirnment</d-subsection>
       <p>Lets start with a system inspired on how the brain works.</p>
       <p>
-        Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the envoirnment, we can say that the way they evolve is ruled by a set of equations like this
+        One can naively say that the way the state of the brain at the time $t$ depends from the state of the brain at the time $t-1$<d-footnote>We are assuming the time to be discretized, but this can be easily generalized</d-footnote>
+        $$
+          B_{t+1}=f_B(B_t)
+        $$
+        This effectively makes the brain an autoregressive model, thus it is incapable of retaining information for an indefinite amout of time, however we human seem to have this ability. The caveaut here is that the brain is constantly interacting with an outside environment.
+      </p>
+      <p>
+        Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the environment, we can say that the way they evolve is ruled by a set of equations like this
         $$
           \begin{cases}
           B_{t+1}=f_B(B_t,E_t)\\
           E_{t+1}=f_E(B_t,E_t)
           \end{cases}
         $$
-        Note that this is simply an autoregressive model, however we can assume that the envoirnment is capable of holding on to information for longer.<br>
+        Note that this is simply an autoregressive model made of two coupled autoregressive models, however we can assume that the environment is capable of holding on to information for longer.<br>
       </p>
       <p>
         For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
 
         This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket,a dn $t_\textrm{h}$ is when you are at home writing the shopping list.
       </p>
+      <figure class="l-page-outset">
+        <img src="website/images/brain-env_interaction.svg">
+        <figcaption>
+          Diagramatic representation of brain-environment interaction
+        </figcaption>
+      </figure>
       <p>
-        This sorts of thing happens all the time, our brain constantly interacts with the surrounding envoirnment so much so that is impossible to study the brain indipendently from the envoirnment as such thing doesn't even exist
+        This sorts of thing happens all the time, our brain constantly interacts with the surrounding environment so much so that is impossible to study the brain indipendently from the environment as such thing doesn't even exist
       </p>
       <p>
-        If we want to translate this brain + environment setup in an equivalent Ising model, we can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the envoirnment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
+        If we want to translate this brain + environment setup in an equivalent Ising model, we can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes
         $$
           H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
         $$
-        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the envoirnment.
+        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the environment.
       </p>
       <figure class="l-page-outset">
         <canvas id="canvasBE" width="1100" height="40" style="border: 1px solid #000;"></canvas>
@@ -1308,13 +1321,13 @@
         
         <figcaption>
           Here is an example of the system defined in the Hamiltonian above. The $E_t$ are the spins above, while the spins below are the $B_{t}$.<br>
-          For example at $T\approx 1$ if you set $J_E \approx 5$  the coherence length of the envoirnment is going to be large. You can also see that if you set the other two coupling constants relatively small $J_B, J_C\approx 1$ you are going to see that the value of the brain state $B_i$ will oscillate, but it is going to be most of the time equal to the value of the envoirnment $E_t$.<br>
-          If you want to decouple the brain with the envoirnment just set $J_C=0$
+          For example at $T\approx 1$ if you set $J_E \approx 5$  the coherence length of the environment is going to be large. You can also see that if you set the other two coupling constants relatively small $J_B, J_C\approx 1$ you are going to see that the value of the brain state $B_i$ will oscillate, but it is going to be most of the time equal to the value of the environment $E_t$.<br>
+          If you want to decouple the brain with the environment just set $J_C=0$
         </figcaption>
       </figure>
       
       <p>
-        Lets take the Hamiltonian for our brain + envoirnment system and assume that the envoirnment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the envoirnment is constant with a value of $E$. The Hamiltonian becomes
+        Lets take the Hamiltonian for our brain + environment system and assume that the environment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the environment is constant with a value of $E$. The Hamiltonian becomes
         $$
           H=J_b\sum_tB_tB_{t+1} + J_cE\sum_t B_t
         $$
@@ -1323,12 +1336,12 @@
         $$
           B=\frac {\sinh (J_cE/T)}{\sqrt{\sinh^2(J_cE/T) + e^{-4J_b/T}}}
         $$
-        And we have that the lower the temperature is, the more the chain aligns with the envoirnment value. 
+        And we have that the lower the temperature is, the more the chain aligns with the environment value. 
       </p>
 
       <h4>Experiments</h4>
         <p>
-          Systems like this made from a model with limited context lenght + an external envoirnment can be found in the language modelling + reinforcement learning literature. One that I particularly like is Vojager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
+          Systems like this made from a model with limited context lenght + an external environment can be found in the language modelling + reinforcement learning literature. One that I particularly like is Vojager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
         </p>
         <figure class="l-page-outset">
           <img src="website/images/voyager_scheme.png">
