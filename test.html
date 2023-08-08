@@ -3,36 +3,93 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Binary Sequence Simulation</title>
+  <title>Interactive Graph with D3.js</title>
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"></script>
+  <script >
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement(document.body, {
+            delimiters: [
+                {left: '$$', right: '$$', display: true},
+                {left: '$', right: '$', display: false},
+                {left: '\\(', right: '\\)', display: false},
+                {left: '\\[', right: '\\]', display: true}
+            ],
+            throwOnError: false
+        });
+    });
+</script>
+  <style>
+    .graph-container {
+      display: flex;
+      align-items: center;
+    }
+    .square {
+      background-color: #3498db; /* Blue color */
+    }
+    .highlight {
+      stroke: #e74c3c;
+      stroke-width: 2px;
+      fill: none;
+    }
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h1>Binary Sequence Simulation</h1>
-    <figure>
-        <canvas id="canvasBE" width="1100" height="40" style="border: 1px solid #000;"></canvas>
-        <div>
-            <label for="temperatureBE">$T=$</label>
-            <span id="BE_temperature-value" width="50">1.0</span>
-            <input type="range" id="temperatureBE" min="0.1" max="3" step="0.1" value="1">
-
-            <label for="JeBE">$J_\textrm E=$</label>
-            <span id="BE_Je-value">1.0</span>
-            <input type="range" id="JeBE" min="0" max="10" step="0.01" value="3">
-
-            <label for="JbBE">$J_\textrm B=$</label>
-            <span id="BE_Jb-value">1.0</span>
-            <input type="range" id="JbBE" min="0" max="10" step="0.01" value="0.3">
-
-            <label for="JcBE">$J_\textrm C=$</label>
-            <span id="BE_Jc-value">1.0</span>
-            <input type="range" id="JcBE" min="0" max="10" step="0.01" value="1">
-        </div>
-        
-      <figcaption>
-        Simulation of the 1D Ising Model (TODO)
-      </figcaption>
-    </figure>
+  <div class="graph-container">
+    <svg id="graph"></svg>
   </div>
-  <script src="website/scripts/B+E_Ising.js"></script>
+
+  <script>
+    const numVisible = 8; // Number of visible squares
+    const data = Array.from({ length: numVisible + 2 }, (_, i) => i);
+
+    const square_side = 40;
+    const margin = 10;
+    const area_side = square_side + 2 * margin;
+
+    const window_width = 3;
+
+    const svg = d3.select("#graph")
+      .attr("width", numVisible * area_side) // Adjust width based on the number of visible squares
+      .attr("height", area_side);
+
+    const squares = svg.selectAll(".square")
+      .data(data)
+      .enter()
+      .append("g")
+      .attr("class", "square")
+      .attr("transform", (d, i) => `translate(${i * area_side}, 10) scale(1, 1)`)
+      .on("mouseover", handleMouseOver)
+      .on("mouseout", handleMouseOut);
+
+    squares.append("rect")
+      .attr("width", square_side)
+      .attr("height", square_side)
+      .style("fill", "#3498db"); // Set the background color to blue
+
+      squares.append("foreignObject")
+      .attr("x", square_side / 2 - 10)
+      .attr("y", 0)
+      .attr("width", 40)
+      .attr("height", 40)
+      .html(d => `<div class="katex">$x_{${d}}$</div>`);
+
+    function handleMouseOver(_, i) {
+      svg.selectAll(".highlight").remove();
+
+      svg.append("rect")
+        .attr("class", "highlight")
+        .attr("x", (i - 1) * area_side - margin / 2)
+        .attr("y", 5)
+        .attr("width", square_side * window_width + margin * (2 * window_width - 1))
+        .attr("height", square_side + 10);
+    }
+
+    function handleMouseOut() {
+      svg.selectAll(".highlight").remove();
+    }
+  </script>
 </body>
 </html>
