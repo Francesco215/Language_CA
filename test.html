@@ -41,55 +41,6 @@
     <svg id="graph"></svg>
   </div>
 
-  <script>
-    const numVisible = 8; // Number of visible squares
-    const data = Array.from({ length: numVisible + 2 }, (_, i) => i);
-
-    const square_side = 40;
-    const margin = 10;
-    const area_side = square_side + 2 * margin;
-
-    const window_width = 3;
-
-    const svg = d3.select("#graph")
-      .attr("width", numVisible * area_side) // Adjust width based on the number of visible squares
-      .attr("height", area_side);
-
-    const squares = svg.selectAll(".square")
-      .data(data)
-      .enter()
-      .append("g")
-      .attr("class", "square")
-      .attr("transform", (d, i) => `translate(${i * area_side}, 10) scale(1, 1)`)
-      .on("mouseover", handleMouseOver)
-      .on("mouseout", handleMouseOut);
-
-    squares.append("rect")
-      .attr("width", square_side)
-      .attr("height", square_side)
-      .style("fill", "#3498db"); // Set the background color to blue
-
-      squares.append("foreignObject")
-      .attr("x", square_side / 2 - 10)
-      .attr("y", 0)
-      .attr("width", 40)
-      .attr("height", 40)
-      .html(d => `<div class="katex">$x_{${d}}$</div>`);
-
-    function handleMouseOver(_, i) {
-      svg.selectAll(".highlight").remove();
-
-      svg.append("rect")
-        .attr("class", "highlight")
-        .attr("x", (i - 1) * area_side - margin / 2)
-        .attr("y", 5)
-        .attr("width", square_side * window_width + margin * (2 * window_width - 1))
-        .attr("height", square_side + 10);
-    }
-
-    function handleMouseOut() {
-      svg.selectAll(".highlight").remove();
-    }
-  </script>
+  <script src="website/scripts/windowed_ham.js"></script>
 </body>
 </html>

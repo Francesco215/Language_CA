@@ -208,3 +208,20 @@ canvas{
     margin-left: auto;
     display: block;
 }
+
+.graph-container {
+  display: flex;
+  align-items: center;
+}
+.square {
+  background-color: #6db4e2; /* Blue color */
+}
+.highlight {
+  stroke: #e74c3c;
+  stroke-width: 2px;
+  fill: none;
+}
+
+figure{
+  margin-bottom: 1em;
+}

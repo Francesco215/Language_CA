@@ -3,6 +3,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=1200">
     <script src="https://distill.pub/template.v2.js"></script>
+    <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="website/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
     <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
@@ -310,7 +311,6 @@
           <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
           <span id="FC_temperature-value">1.0</span>
       </div>
-    
       <figcaption>
         Simulation of the Fully connected Ising Model
       </figcaption>
@@ -335,7 +335,7 @@
         </div>
         
         <figcaption>
-          Simulation of the 1D Ising Model (TODO)
+          Simulation of the 1D Ising Model (TODO: make it longer)
         </figcaption>
       </figure>
       <p>
@@ -383,15 +383,16 @@
       Where $\langle i, j\rangle$ means that we sum over all the neighboring spins. And let's see how it behaves
       
     </p>
-    <canvas id="canvas2D" width="700" height="700" style="border: 1px solid #000;"></canvas>
-    <div>
-        <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
-        <label for="temperature2D">$T=$</label>
-    </div>
-    <figcaption>
-      Simulation of the 2D Ising model
-    </figcaption>
-    
+    <figure>
+      <canvas id="canvas2D" width="700" height="700" style="border: 1px solid #000;"></canvas>
+      <div>
+          <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
+          <label for="temperature2D">$T=$</label>
+      </div>
+      <figcaption>
+        Simulation of the 2D Ising model
+      </figcaption>
+    </figure>
     <p>
       As you can see, when the temperature is sufficiently low, the system will slowly reach an ordered phase. 
     </p>
@@ -444,13 +445,13 @@
         So, let's take a breaf look at the Ising model on a Tree<d-cite key="breuckmann2020critical"></d-cite>. <br>
         Interestingly, the Ising model on a tree can be thought as a 2D Ising model in hyperbolic geometry, this means that the same proof for the existence of an ordered phase is pretty much the same as the one in the 2D case, but with the extra flavour of hyperbolic geometry.
       </p>
-      <d-figure>
+      <figure>
         <img src="website/images/hyperbolic_tiling.png" width="100%">
         <img src="website/images/pentagon_tree.png" width="100%">
         <figcaption>
           Ising model in a hyperbolic geometry. On the left the triangular hyperbolic lattice is equivalent to a tree with each 2 children nodes, on the right the pentagonal hyperbolic lattice is equivalent to the tree below FIND BETTER IMAGES
         </figcaption>
-      </d-figure>
+      </figure>
       <p>
       It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$.<br>
         WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry
@@ -526,12 +527,12 @@
     </p>
     <p>
       In general, a associative memory can be modeled as a energy landscape with with a discrete number of minima, each of which corresponding to a stored memory
-      <d-figure>
+      <figure>
         <img src="website/images/associative_memory-1.png" width="100%">
         <figcaption>
           Example of associative memory, in this case each member of the Simpsons family has his own enegry minimum. When given a guess of the system will converge to the closest Simpsons member.
         </figcaption>
-      </d-figure>
+      </figure>
     </p>
     <p>
       Associative memories, just like the merory inside a computer have finite capacity, but how do you quintify this?<br>
@@ -655,12 +656,6 @@
     <p class="definition_text">
       A Hamiltonian window $H_i$ is an Hamiltonian that acts only on the spins inside his finite window of interaction $\mathcal W_i$. Without loss of generality, we are going to assume that the lowest energy state has a value of zero.
     </p>
-    <d-figure>
-      <img src="website/images/temp_window_hamiltonian.png" width="100%">
-      <figcaption>
-        Hamiltonian window,  TODO MAKE A BETTER IMAGE
-      </figcaption>
-    </d-figure>
     <b class="Definition">Definition: Local Hamiltonian</b>
     <p class="definition_text">
       A Local Hamiltonian $H=\sum_i H_i$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window width $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i < E^\textrm{max}$
@@ -669,6 +664,15 @@
       As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line.<br><br>
       Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
     </p>
+    <figure>
+      <div class="graph-container">
+        <svg id="graph"></svg>
+      </div>
+      <figcaption>
+        The time evolution of this chain is governed by a local Hamiltonian which is the sum of several Hamiltonian windows, you can see all the Hamiltonian windows by hovering on top of the chain elements.
+      </figcaption>
+    </figure>
+    
     <b class="Definition">Definition: Memory or Pattern stored</b>
     <p class="definition_text">
       A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots, s_{-1}, s_0, s_1,\dots )$ such that the energy of the Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^{(n)}$ = $(\dots,s^{(n)}_1,s^{(n)}_0,s^{(n)}_1,\dots)$.
@@ -1387,6 +1391,8 @@
   <script src="website/scripts/2Dhopfield.js"></script>
   <script src="website/scripts/autoregressive_Ising.js"></script>
   <script src="website/scripts/B+E_Ising.js"></script>
+  <script src="website/scripts/windowed_ham.js"></script>
+
   
   <script rel="text/javascript" src="website/sourcecode.js"> </script>
 
