@@ -213,8 +213,10 @@ canvas{
   display: flex;
   align-items: center;
 }
-.square {
+.squar {
   background-color: #6db4e2; /* Blue color */
+  width: 40px;
+  height: 40px;
 }
 .highlight {
   stroke: #e74c3c;
