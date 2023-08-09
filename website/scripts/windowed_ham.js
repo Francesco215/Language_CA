@@ -28,14 +28,14 @@ squares.append("rect")
     .attr("y",globat_top_padding)
     .attr("rx", square_side/6) // Horizontal radius for rounded corners
     .attr("ry", square_side/6) // Vertical radius for rounded corners
-    .style("fill", "#3498db"); // Set the background color to blue
+    .style("fill", "#648FFF"); // Set the background color to blue
 
 squares.append("foreignObject")
-    .attr("x", square_side / 2 - 10)
+    .attr("x", d=> square_side / 2 - 10 -5*(d<numVisible/2-1))
     .attr("y", 7+globat_top_padding)
     .attr("width", 40)
     .attr("height", 40)
-    .html(d => `<div class="katex">$x_{${d+1}}$</div>`);
+    .html(d => `<div class="katex">$\\textcolor{white}{s_{${d-numVisible/2+1}}}$</div>`);
 
 function handleMouseOver(_, i) {
     svg.selectAll(".highlight-group").remove();
@@ -54,9 +54,9 @@ function handleMouseOver(_, i) {
         .attr("class","highlight-text")
         .attr("y",-10)
         .attr("x",((window_width- 1)/2) * area_side - margin / 2 + global_left_padding + 13)
-        .attr("width", 40)
+        .attr("width", 70)
         .attr("height", 30)
-        .html(d => `<div class="katex">$H_{${i+1}}$</div>`);
+        .html(d => `<div class="katex">$\\textcolor{FE6100}{H_{${i-numVisible/2+1}}}$</div>`);
 
     renderMathInElement(highlightGroup.node(), {
         delimiters: [
