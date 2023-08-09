@@ -10,6 +10,8 @@ const temperatureSlider2D = document.getElementById('temperature2D');
 let temperature2D = temperatureSlider2D.value;
 let isSimulationPaused2D = false;
 
+canvas2D.gridSize=gridSize2D;
+
 function createLattice2D(cols, rows) {
   console.log(cols, rows)
   const lattice2D = new Array(cols);
@@ -33,6 +35,7 @@ function update2D() {
         ctx2D.fillRect(col * gridSize2D, row * gridSize2D, gridSize2D, gridSize2D);
       }
     }
+    drawHoverSquare2D(hoverCol, hoverRow);
 
     for (let i = 0; i < 10; i++) {
       const col = Math.floor(Math.random() * numCols2D);
@@ -70,5 +73,40 @@ const observer2D = new IntersectionObserver(handleVisibilityChange2D, { threshol
 // Observe the canvas element
 observer2D.observe(canvas2D);
 
+canvas2D.addEventListener('mousemove', handleMouseMove2D);
+canvas2D.addEventListener('mouseleave', hideSquare);
+
+let hoverCol = -1;
+let hoverRow = -1;
+
+function handleMouseMove2D(event) {
+  const rect = this.getBoundingClientRect();
+  const mouseX = event.clientX - rect.left;
+  const mouseY = event.clientY - rect.top;
+
+
+  hoverCol = Math.floor(mouseX / this.gridSize);
+  hoverRow = Math.floor(mouseY / this.gridSize);
+}
+
+function hideSquare() {
+  hoverCol = -1;
+  hoverRow = -1;
+}
+
+function drawHoverSquare2D(col, row) {
+  if (col !== -1 && row !== -1) {
+    const size = 3*gridSize2D; // Adjust the size of the square as needed
+    const startX = col * gridSize2D + (gridSize2D - size) / 2;
+    const startY = row * gridSize2D + (gridSize2D - size) / 2;
+    
+    ctx2D.strokeStyle = '#FE6100';
+    ctx2D.lineWidth = 2;
+    ctx2D.strokeRect(startX, startY, size, size);
+  }
+}
+
 
 update2D();
+
+

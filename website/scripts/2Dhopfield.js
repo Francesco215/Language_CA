@@ -6,6 +6,8 @@ const heightHop2D = canvasHop2D.height;
 const side_lenghtHop2D = 64;
 const gridSizeHop2D = canvasHop2D.width / side_lenghtHop2D;
 
+canvasHop2D.gridSize=gridSizeHop2D;
+
 //window size represents the number of elements between the center of the grid
 //and the last element on the right of the grid
 let window_size = 5;
@@ -77,6 +79,7 @@ function updateHop2D() {
                 latticeHop2D[col][row] = -spin;
             }
         }
+        drawHoverSquareHop2D(hoverCol,hoverRow);
     }
     requestAnimationFrame(updateHop2D);
 }
@@ -93,3 +96,19 @@ const observerHop2D = new IntersectionObserver(handleVisibilityChangeHop2D, { th
 
 // Observe the canvas element
 observerHop2D.observe(canvasHop2D);
+
+canvasHop2D.addEventListener('mousemove', handleMouseMove2D);
+canvasHop2D.addEventListener('mouseleave', hideSquare);
+
+
+function drawHoverSquareHop2D(col, row) {
+    if (col !== -1 && row !== -1) {
+      const size = window_size*gridSizeHop2D; // Adjust the size of the square as needed
+      const startX = col * gridSizeHop2D + (gridSizeHop2D - size) / 2;
+      const startY = row * gridSizeHop2D + (gridSizeHop2D - size) / 2;
+      
+      ctxHop2D.strokeStyle = '#FE6100';
+      ctxHop2D.lineWidth = 2;
+      ctxHop2D.strokeRect(startX, startY, size, size);
+    }
+  }
