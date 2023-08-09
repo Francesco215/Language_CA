@@ -13,10 +13,13 @@ canvasHop2D.gridSize=gridSizeHop2D;
 let window_size = 5;
 
 
-const J_Hop2D = 1 / window_size ** 2 //is this right?
+let J_Hop2D = 1 / window_size ** 2 //is this right?
 const temperatureSliderHop2D = document.getElementById('temperatureHop2D-slider');
 const temperatureValueHop2D = document.getElementById('temperatureHop2D-value');
 const overlapValuePrint = document.getElementById('overlap');
+
+const windowSliderHop2D = document.getElementById('windowHop2D-slider');
+const windowValueHop2D = document.getElementById('windowHop2D-value');
 
 
 let latticeHop2D = createLattice2D(side_lenghtHop2D, side_lenghtHop2D);
@@ -41,6 +44,9 @@ function neighborhood_of(col,row,window_size,side_lenght){
 }
 
 function simulateHop2D(){
+    window_size= parseFloat(windowSliderHop2D.value);
+    windowValueHop2D.textContent = window_size;
+    J_Hop2D = 1 / window_size ** 2;
     for (let i = 0; i < 70; i++) {
         const col = Math.floor(Math.random() * side_lenghtHop2D);
         const row = Math.floor(Math.random() * side_lenghtHop2D);
@@ -48,6 +54,7 @@ function simulateHop2D(){
 
         let deltaE = 0;
         const neighborhood=neighborhood_of(col,row,window_size,side_lenghtHop2D);
+
 
         for (j = 0; j < n_elements_in_window(window_size); j++){
             const colj=neighborhood[j][0];

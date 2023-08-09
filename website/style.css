@@ -69,8 +69,10 @@ div.proof_text{
   padding: 0.01em 16px;
 }
 
-
-
+span.value{
+  display: inline-block;
+  width: 25px;
+}
 
 
 

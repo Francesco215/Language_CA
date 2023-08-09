@@ -586,9 +586,12 @@
     <figure>
       <canvas id="canvasHop2D" width="600" height="600"></canvas>
         <div>
-            <label for="temperatureHop2D-slider">Temperature:</label>
+            <label for="temperatureHop2D-slider">$T=$</label>
+            <span class="value" id="temperatureHop2D-value">1.0</span>
             <input type="range" id="temperatureHop2D-slider" min="0.01" max="5.0" step=".1" value="1.0">
-            <span id="temperatureHop2D-value">1.0</span>
+            <label for="windowHop2D-slider">$W=$</label>
+            <span class="value" id="windowHop2D-value">5</span>
+            <input type="range" id="windowHop2D-slider" min="3" max="21" step="2" value="5">
         </div>
       <figcaption>
         asd
@@ -695,7 +698,7 @@
       <canvas id="canvasAR" width="700" height="20" style="border: 1px solid #000;"></canvas>
       <div>
           <label for="temperatureAR">$T=$</label>
-          <span id="AR_temperature-value">1.0</span>
+          <span class="value" id="AR_temperature-value">1.0</span>
           <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
       </div>
       <figcaption>
@@ -1310,19 +1313,19 @@
         <div>
           
           <label for="temperatureBE">$T=$</label>
-          <span id="BE_temperature-value" style="width: 40xp;">1.00</span>
+          <span class="value" id="BE_temperature-value">1.0</span>
           <input type="range" id="temperatureBE" min="0.1" max="3" step="0.01" value="1">
 
           <label for="JeBE">$J_E=$</label>
-          <span id="BE_Je-value">3.0</span>
+          <span class="value" id="BE_Je-value">3.0</span>
           <input type="range" id="JeBE" min="0" max="10" step="0.1" value="3">
 
           <label for="JbBE">$J_B=$</label>
-          <span id="BE_Jb-value">0.3</span>
+          <span class="value" id="BE_Jb-value">0.3</span>
           <input type="range" id="JbBE" min="0" max="10" step="0.1" value="0.3">
 
           <label for="JcBE">$J_C=$</label>
-          <span id="BE_Jc-value">1.0</span>
+          <span class="value" id="BE_Jc-value">1.0</span>
           <input type="range" id="JcBE" min="0" max="10" step="0.1" value="1">
         </div>
         
