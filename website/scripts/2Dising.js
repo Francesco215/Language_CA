@@ -24,8 +24,36 @@ function createLattice2D(cols, rows) {
   return lattice2D;
 }
 
-function update2D() {
+function simulate2D() {
+  for (let i = 0; i < 10; i++) {
+    const col = Math.floor(Math.random() * numCols2D);
+    const row = Math.floor(Math.random() * numRows2D);
+    const spin = lattice2D[col][row];
+    const neighbors = [
+      lattice2D[(col - 1 + numCols2D) % numCols2D][row],
+      lattice2D[(col + 1) % numCols2D][row],
+      lattice2D[col][(row - 1 + numRows2D) % numRows2D],
+      lattice2D[col][(row + 1) % numRows2D],
+    ];
+    const sum = neighbors.reduce((acc, neighbor) => acc + neighbor, 0);
+    const deltaE = 2 * spin * sum;
+    if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature2D)) {
+      lattice2D[col][row] = -spin;
+    }
+  }
+}
+
+function simulationLoop() {
   if (!document.hidden && !isSimulationPaused2D) {
+    simulate2D(); // Update the simulation
+    setTimeout(simulationLoop, 0);
+  }else{
+    requestAnimationFrame(simulationLoop); // Adjust the delay as needed
+  }
+}
+
+function renderLoop() {
+  if (!document.hidden && !isSimulationPaused2D){
     ctx2D.clearRect(0, 0, width2D, height2D);
 
     for (let col = 0; col < numCols2D; col++) {
@@ -37,24 +65,8 @@ function update2D() {
     }
     drawHoverSquare2D(hoverCol, hoverRow);
 
-    for (let i = 0; i < 10; i++) {
-      const col = Math.floor(Math.random() * numCols2D);
-      const row = Math.floor(Math.random() * numRows2D);
-      const spin = lattice2D[col][row];
-      const neighbors = [
-        lattice2D[(col - 1 + numCols2D) % numCols2D][row],
-        lattice2D[(col + 1) % numCols2D][row],
-        lattice2D[col][(row - 1 + numRows2D) % numRows2D],
-        lattice2D[col][(row + 1) % numRows2D],
-      ];
-      const sum = neighbors.reduce((acc, neighbor) => acc + neighbor, 0);
-      const deltaE = 2 * spin * sum;
-      if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature2D)) {
-        lattice2D[col][row] = -spin;
-      }
-    }
   }
-  requestAnimationFrame(update2D);
+  requestAnimationFrame(renderLoop);
 }
 
 temperatureSlider2D.addEventListener('input', function () {
@@ -106,7 +118,9 @@ function drawHoverSquare2D(col, row) {
   }
 }
 
+// Start the simulation loop
+simulationLoop();
 
-update2D();
-
+// Start the rendering loop
+renderLoop();
 

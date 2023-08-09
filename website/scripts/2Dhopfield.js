@@ -40,7 +40,49 @@ function neighborhood_of(col,row,window_size,side_lenght){
     return neigborhood
 }
 
+function simulateHop2D(){
+    for (let i = 0; i < 70; i++) {
+        const col = Math.floor(Math.random() * side_lenghtHop2D);
+        const row = Math.floor(Math.random() * side_lenghtHop2D);
+        const spin = latticeHop2D[col][row];
+
+        let deltaE = 0;
+        const neighborhood=neighborhood_of(col,row,window_size,side_lenghtHop2D);
+
+        for (j = 0; j < n_elements_in_window(window_size); j++){
+            const colj=neighborhood[j][0];
+            const rowj=neighborhood[j][1];
+
+            let interaction=0;
+            for (p=0; p<patterns.length;p++)
+                interaction += patterns[p][col][row] * patterns[p][colj][rowj];
+            
+            deltaE+=interaction*latticeHop2D[colj][rowj];
+        }
+        deltaE *= 2 * spin* J_Hop2D;
+        
+        const temperature = parseFloat(temperatureSliderHop2D.value);
+        temperatureValueHop2D.textContent = temperature.toFixed(1);
+
+        if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
+            latticeHop2D[col][row] = -spin;
+        }
+    }
+}
+
+
+
 function updateHop2D() {
+    if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
+        simulateHop2D();
+        setTimeout(updateHop2D,0);
+    }
+    else{
+        requestAnimationFrame(updateHop2D);
+    }
+}
+
+function renderLoopHop2D(){
     if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
         ctxHop2D.clearRect(0, 0, widthHop2D, heightHop2D);
 
@@ -51,44 +93,19 @@ function updateHop2D() {
                 ctxHop2D.fillRect(col * gridSizeHop2D, row * gridSizeHop2D, gridSizeHop2D, gridSizeHop2D);
             }
         }
-
-        for (let i = 0; i < 300; i++) {
-            const col = Math.floor(Math.random() * side_lenghtHop2D);
-            const row = Math.floor(Math.random() * side_lenghtHop2D);
-            const spin = latticeHop2D[col][row];
-
-            let deltaE = 0;
-            const neighborhood=neighborhood_of(col,row,window_size,side_lenghtHop2D);
-
-            for (j = 0; j < n_elements_in_window(window_size); j++){
-                const colj=neighborhood[j][0];
-                const rowj=neighborhood[j][1];
-
-                let interaction=0;
-                for (p=0; p<patterns.length;p++)
-                    interaction += patterns[p][col][row] * patterns[p][colj][rowj];
-                
-                deltaE+=interaction*latticeHop2D[colj][rowj];
-            }
-            deltaE *= 2 * spin* J_Hop2D;
-            
-            const temperature = parseFloat(temperatureSliderHop2D.value);
-            temperatureValueHop2D.textContent = temperature.toFixed(1);
-
-            if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
-                latticeHop2D[col][row] = -spin;
-            }
-        }
         drawHoverSquareHop2D(hoverCol,hoverRow);
     }
-    requestAnimationFrame(updateHop2D);
+    requestAnimationFrame(renderLoopHop2D);
 }
 
 
 function handleVisibilityChangeHop2D(entries) {
     const isVisible = entries[0].isIntersecting;
     isSimulationPausedHop2D = !isVisible;
-    if (isVisible) updateHop2D();
+    if (isVisible) {
+        requestAnimationFrame(updateHop2D);
+        requestAnimationFrame(renderLoopHop2D);
+    }
 }
 
 // Create an intersection observer2D
