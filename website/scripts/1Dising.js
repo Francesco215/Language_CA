@@ -48,8 +48,8 @@ function renderLoop1D() {
   if (!document.hidden && !isSimulationPaused1D) {
     ctx1D.clearRect(0, 0, width, height);
     for (let i = 0; i < numSpins; i++) {
-      ctx1D.fillStyle = spins[i] === 1 ? "#000" : "#fff";
-      const position = serpentine(i, numSpinsHorizontal)
+      ctx1D.fillStyle = spins[i] === 1 ? "#000" : "#ccc";
+      const position = Serpentine(i, numSpinsHorizontal)
       ctx1D.fillRect(position[0] * gridSize, position[1]*gridSize, gridSize, gridSize);
     }
   }
@@ -77,7 +77,7 @@ observer.observe(canvas1D);
 simulationLoop1D();
 renderLoop1D();
 
-function serpentine(i, nSH) {
+function Serpentine(i, nSH) {
   //nSH represents the variable numSpinsHorizontal
   if (i<nSH) return [i, 0]
   if (i==nSH) return [nSH-1, 1]
@@ -85,10 +85,8 @@ function serpentine(i, nSH) {
   if (i==2*nSH+1) return [0,3]
   
   
-  let recursive=serpentine(i%(2*(nSH+1)),nSH);
+  let recursive=Serpentine(i%(2*(nSH+1)),nSH);
   recursive[1]+=4*Math.floor(i/(2*nSH+2));
   
   return recursive
 }
-
-
