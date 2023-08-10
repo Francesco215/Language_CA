@@ -136,3 +136,5 @@ function drawHoverSquareHop2D(col, row) {
       ctxHop2D.strokeRect(startX, startY, size, size);
     }
   }
+
+  
