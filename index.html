@@ -2,7 +2,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=1200">
-    <script src="https://distill.pub/template.v2.js"></script>
+    <script src="website/template.v2.js"></script>
     <script src="https://d3js.org/d3.v7.min.js"></script>
     <link rel="stylesheet" href="website/style.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
@@ -50,23 +50,7 @@
     
   </d-title>
 
-  <script>    
-    function showContent(target) {
-      // Get all the div elements
-      const divs = document.querySelectorAll('div[target_audience]');
-
-      // Loop through each div
-      divs.forEach(div => {
-        if (div.getAttribute('target_audience').includes(target)) {
-          // Display the selected div
-          div.style.display = 'block';
-        } else {
-          // Hide the other divs
-          div.style.display = 'none';
-        }
-      });
-    }
-  </script>
+  <script src="website/scripts/audience-selection.js"></script>
 
   <d-article>
     <div style="position:relative;" class="l-body">
@@ -267,112 +251,101 @@
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-    <div target_audience="b m">
-    <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
-    <p>
-      Initially, when I delved into the study of the Ising model, I found it utterly useless and couldn't comprehend why physicists were so fixated on this seemingly mundane model. Consequently, I mustered the bare minimum effort required to pass my exams, and as expected, my brain discarded the information it deemed irrelevant, causing me to completely forget about it.<br><br>
-
-      Upon graduating I had an abundance of time on my hands. Curiously, I found myself engrossed in studying more than I ever did during my university days. A few months prior to graduating, I had even published a piece on self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>. However, the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote> and, therefore, turned back to the realm of statistical physics in search of answers.
-      <blockquote>
-        I now understood that in order to understand Self-Organizing systems in general, I had to understand the simplest of them all: The Ising model.
-      </blockquote>
-    </p>
-    <p>
-      But what exactly is the Ising model? Originally conceived as a simple explanation for magnetization effects in matter, the Ising model explores the interplay between interacting spins. These spins, when in proximity, have a preference to align with each other, leading to an interaction energy denoted by $H=-Js_1\cdot s_2$.<br><br>
-
-      But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
-    </p>
-
-    <d-subsection>Fully connected Ising model</d-subsection>
-    <p>
-      In the fully connected Ising model we have L spins, all interacting with each other. The Hamiltonian of the system is 
-
-      $$H=-\frac JN\sum_{i\neq j}s_is_j$$
-
-      Now lets see how the system behaves as a function of the temperature.
-    </p>
-    <figure>
-      <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
-      <div>
-          <label for="temperature-slider">Temperature:</label>
-          <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
-          <span id="FC_temperature-value">1.0</span>
-      </div>
-      <figcaption>
-        Simulation of the Fully connected Ising Model
-      </figcaption>
-    </figure>
-    <p>
-      As you can see, below a certain <i>Critical Temperature</i> $T_\textrm c$ you have an <i>Ordered Phase</i>, while above you have a <i>Disordered Phase</i>
-    </p>
-
-    <d-subsection>1D Ising Model</d-subsection>
+    <details target_audience="b m">
+      <summary style="display: inline-block">
+        <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
+      </summary>
       <p>
-      In the 1D Ising Model, spins are arranged in a chain and interact with their neighboring spins. The system's Hamiltonian can be expressed as:
-      $$
-      H=-J\sum_{i}s_is_{i+1}
-      $$
-      Now, let's examine the behavior of this system in relation to temperature.
+        Initially, when I delved into the study of the Ising model, I found it utterly useless and couldn't comprehend why physicists were so fixated on this seemingly mundane model. Consequently, I mustered the bare minimum effort required to pass my exams, and as expected, my brain discarded the information it deemed irrelevant, causing me to completely forget about it.<br><br>
+
+        Upon graduating I had an abundance of time on my hands. Curiously, I found myself engrossed in studying more than I ever did during my university days. A few months prior to graduating, I had even published a piece on self-organization in Cellular Automata<d-cite key="cavuoti2022adversarial"></d-cite>. However, the results didn't seem general enought for me<d-footnote>Most of the results in Machine learning are like this, you find an algorithm that works, and then you say something handwavy that tries to explain wat is going on</d-footnote> and, therefore, turned back to the realm of statistical physics in search of answers.
+        <blockquote>
+          I now understood that in order to understand Self-Organizing systems in general, I had to understand the simplest of them all: The Ising model.
+        </blockquote>
+      </p>
+      <p>
+        But what exactly is the Ising model? Originally conceived as a simple explanation for magnetization effects in matter, the Ising model explores the interplay between interacting spins. These spins, when in proximity, have a preference to align with each other, leading to an interaction energy denoted by $H=-Js_1\cdot s_2$.<br><br>
+
+        But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
+      </p>
+
+      <d-subsection>Fully connected Ising model</d-subsection>
+      <p>
+        In the fully connected Ising model we have L spins, all interacting with each other. The Hamiltonian of the system is 
+
+        $$H=-\frac JN\sum_{i\neq j}s_is_j$$
+
+        Now lets see how the system behaves as a function of the temperature.
       </p>
       <figure>
-        <canvas id="canvas1D" width="700" height="600"></canvas>
+        <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
         <div>
-            <label for="temperature">Temperature:</label>
-            <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
+            <label for="temperature-slider">Temperature:</label>
+            <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
+            <span id="FC_temperature-value">1.0</span>
         </div>
-        
         <figcaption>
-          Simulation of the 1D Ising Model each spin interacts with the spin before and after. For space efficiency the spins have been put in a serpentine shape, as you can see even at low temperature the system stays unordered
+          Simulation of the Fully connected Ising Model
         </figcaption>
       </figure>
       <p>
-      As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This can be proven mathematically with the following theorem
+        As you can see, below a certain <i>Critical Temperature</i> $T_\textrm c$ you have an <i>Ordered Phase</i>, while above you have a <i>Disordered Phase</i>
       </p>
-      <b class="theorem">Theorem</b>
-      <p class="theorem_text">
-        The 1D Ising chain doesn't have an ordered phase
-      </p>
-      <details >
-        <summary>
-          <b>proof</b>
-        </summary>
-        <div class="proof_text">
+
+      <d-subsection>1D Ising Model</d-subsection>
         <p>
-          At thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of useful energy that can be extracted from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
-        <p>
-          To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, we have to examine what occurs when a domain wall forms.
+        In the 1D Ising Model, spins are arranged in a chain and interact with their neighboring spins. The system's Hamiltonian can be expressed as:
+        $$
+        H=-J\sum_{i}s_is_{i+1}
+        $$
+        Now, let's examine the behavior of this system in relation to temperature.
         </p>
         <figure>
-          <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
+          <canvas id="canvas1D" width="700" height="600"></canvas>
+          <div>
+              <label for="temperature">Temperature:</label>
+              <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
+          </div>
+          
           <figcaption>
-            The top image shows the ordered phase of the Ising model, while the bottom image depicts a state with a domain wall.
+            Simulation of the 1D Ising Model each spin interacts with the spin before and after. For space efficiency the spins have been put in a serpentine shape, as you can see even at low temperature the system stays unordered
           </figcaption>
         </figure>
         <p>
-          Upon the formation of a domain wall, the energy change increases by $2J$. This is because only a single link now comprises two opposite spins.<br><br>
-          If the chain is $L$ spins long, there can be $L-1$ possible locations for the domain wall. Consequently, the size of the configuration space where a domain wall is present, denoted as $\Omega$, equals $\Omega = L-1$. Since entropy is the logarithm of the configuration space, we have $\Delta S = \log(L-1)$.<br><br>
-          Therefore, the change in Free Energy upon the formation of a domain wall is given by:
-          $$
-          \Delta F= \Delta E -T\Delta S= J - T\log(L-1)
-          $$
-          In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
-          Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
+        As observed, regardless of how low the temperature is, the system never manages to achieve an ordered phase. This can be proven mathematically with the following theorem
         </p>
+        <b class="theorem">Theorem</b>
+        <p class="theorem_text">
+          The 1D Ising chain doesn't have an ordered phase
+        </p>
+        <details >
+          <summary>
+            <b>proof</b>
+          </summary>
+          <div class="proof_text">
+          <p>
+            At thermal equilibrium, the Free Energy $F$ is minimized.<d-footnote>This is because the Free Energy measures the amount of useful energy that can be extracted from a thermodynamic system. At thermal equilibrium, no useful energy can be extracted.</d-footnote></p>
+          <p>
+            To demonstrate that the ordered state, where all spins align, is not the minimum of Free Energy, we have to examine what occurs when a domain wall forms.
+          </p>
+          <figure>
+            <img src="website/images/domain_wall.png" style="width:100%; height:auto; float:left;">
+            <figcaption>
+              The top image shows the ordered phase of the Ising model, while the bottom image depicts a state with a domain wall.
+            </figcaption>
+          </figure>
+          <p>
+            Upon the formation of a domain wall, the energy change increases by $2J$. This is because only a single link now comprises two opposite spins.<br><br>
+            If the chain is $L$ spins long, there can be $L-1$ possible locations for the domain wall. Consequently, the size of the configuration space where a domain wall is present, denoted as $\Omega$, equals $\Omega = L-1$. Since entropy is the logarithm of the configuration space, we have $\Delta S = \log(L-1)$.<br><br>
+            Therefore, the change in Free Energy upon the formation of a domain wall is given by:
+            $$
+            \Delta F= \Delta E -T\Delta S= J - T\log(L-1)
+            $$
+            In the thermodynamic limit, as $L$ approaches infinity, and since $J$ is a constant, we find that for any temperature $T$, $\Delta F < 0$.<br><br>
+            Thus no matter how low the temperature (or the noise) is, it is impossible to reach an ordered state
+          </p>
         </div>
-      </details>
+    </details>
       
     <d-subsection>2D Ising model</d-subsection>
     <p>
@@ -470,7 +443,7 @@
       </p>
     </details>
 
-    </div>
+    </details>
     <d-subsection>Main takeaway from the Ising model</d-subsection>
     <p>
       We have seen that the ability of a self-organizing system to reach an ordered state can indeed be understood through the lens of phase transitions. 
@@ -535,7 +508,7 @@
       </figure>
     </p>
     <p>
-      Associative memories, just like the merory inside a computer have finite capacity, but how do you quintify this?<br>
+      Associative memories, just like the memory inside a computer have finite capacity, but how do we quintify this?<br>
       Intuitively what ends up happening when you try to store too many separate memories, is that the configuration space becomes too crammed and some of the saved patterns fuse toghered.
       <d-figure>
         <img src="website/images/associative_memory-2.png" width="100%">
