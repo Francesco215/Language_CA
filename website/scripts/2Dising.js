@@ -25,7 +25,7 @@ function createLattice2D(cols, rows) {
 }
 
 function simulate2D() {
-  for (let i = 0; i < 10; i++) {
+  for (let i = 0; i < 100; i++) {
     const col = Math.floor(Math.random() * numCols2D);
     const row = Math.floor(Math.random() * numRows2D);
     const spin = lattice2D[col][row];

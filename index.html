@@ -160,64 +160,20 @@
 
     <div target_audience="b" style="display: block;">
       <d-section id="abs">Introduction for Biologists</d-section>
-      
-      <figure class="l-side">
-        <img src="diagrams/organizing.jpg">
-        <figcaption>
-          In many self-organizing systems, you see a hierarchical structures emerge
-        </figcaption>
-      </figure>
-      <p>
-        Advancements in machine learning technologies have brought about a revolution in various areas of biomedical research. However, can the exchange of ideas between biology and machine learning work both ways? Can insights from biology prove beneficial in the field of machine learning?
-      </p>
-      <p>
-        This paper aims to showcase how the process of self-organization, observed in biological systems, can be harnessed to develop coherent narrative skills within linguistic space. By allowing words in a text to self-organize, a cohesive and meaningful whole can be created.
-      </p>
-      <p>
-        In textual context, words organize themselves into sentences, which further organize into chapters, ultimately forming complete books. Similarly, in biological organisms, cells organize into specific structures, which then combine to form organs, culminating in fully grown organisms
-      </p>
-      <p>
-        Certain machine learning algorithms, such as neural cellular automata, have shown remarkable ability to replicate the behavior of cells in biological organisms.<d-cite key="mordvintsev2020growing"></d-cite> 
-      </p>
-      <p>
-        However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms are 3-dimentional so don't have this problem.
-      </p>
-      <p>
-        We also show that, in principle, it is possible to generate long-coherent text by changing how the elements of a sequence interact with one another
-      </p>
-      <p>
-        <b>Why focus on text to study self-organization?</b>
-        <ul>
-          <li>
-            Long-range cohesion is a necessary feature of text, and it is something that current language processing algorithms don’t possess. This will mean that any improvement on the theoretical front, will directly translate into an application in the field of natural language processing.
-          </li>
-          <li>
-            In text, spotting a misspelled word is easy. In biological (and virtual) organisms spotting an off place cell is hard.<br>
-            This raises the bar of difficulty so it will give a more rigorous test on the ability of self-organizing systems
-          </li>
-          <li>
-            It’s easier to run experiments on code rather than biological organisms.
-          </li>
-          <li>
-            Since text is a 1-dimentional sequence it can give insights into other types of 1D sequences, for example a sequence of actions performed by an agent.<br>
-            Having long term coherence for a sequence of actions performed by an agent means that the agent is able to stick to a plan and use information from the distant past to make decisions on what to do next.
-          </li>
-        </ul>
-      </p>
     </div>
-
-
-
+    
 
     <div target_audience="p" style="display: none;">
       <d-section id="abs">Introduction for Physicists</d-section>
       <p>
-        TODO
+        The simplest example of self-organizing system is the Ising model, because of its importance it has been extensively studied in the field of statistical physics. 
       </p>
     </div>
 
     <div target_audience="m" style="display: none;">
       <d-section id="abs">Introduction for ML researchers</d-section>
+    </div>
+    <div target_audience="bmp">
       <figure class="l-side">
         <img src="diagrams/organizing.jpg">
         <figcaption>
@@ -242,16 +198,38 @@
       <p>
         We also show that, in principle, it is possible to generate long-coherent text by using specifically crafted sparse attention, or by having a model with finite context-lenght that is capable of interacting with an external environment.
       </p>
+    </div>
+
+    <div target_audience="b" style="display: block;">
+      <p>
+        <b>Why focus on text to study self-organization?</b>
+        <ul>
+          <li>
+            Long-range cohesion is a necessary feature of text, and it is something that current language processing algorithms don’t possess. This will mean that any improvement on the theoretical front, will directly translate into an application in the field of natural language processing.
+          </li>
+          <li>
+            In text, spotting a misspelled word is easy. In biological (and virtual) organisms spotting an off place cell is hard.<br>
+            This raises the bar of difficulty so it will give a more rigorous test on the ability of self-organizing systems
+          </li>
+          <li>
+            It’s easier to run experiments on code rather than biological organisms.
+          </li>
+          <li>
+            Since text is a 1-dimentional sequence it can give insights into other types of 1D sequences, for example a sequence of actions performed by an agent.<br>
+            Having long term coherence for a sequence of actions performed by an agent means that the agent is able to stick to a plan and use information from the distant past to make decisions on what to do next.
+          </li>
+        </ul>
+      </p>
+    </div>
       <!-- <p>
         This results not only apply to text generation, but to any generative algorithm, and in reinforcment learning
       </p> -->
-    </div>
 
 
 
 
 
-    <details target_audience="b m">
+    <details target_audience="b m" open="">
       <summary style="display: inline-block">
         <d-section id="intro">The simplest example of self-organization: The Ising Model</d-section>
       </summary>
@@ -426,8 +404,8 @@
         </figcaption>
       </figure>
       <p>
-      It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$.<br>
-        WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry
+      It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$.
+        <!-- WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry -->
       </p>
     </details>
 
@@ -564,14 +542,14 @@
             <input type="range" id="temperatureHop2D-slider" min="0.01" max="5.0" step=".1" value="1.0">
             <label for="windowHop2D-slider">$W=$</label>
             <span class="value" id="windowHop2D-value">5</span>
-            <input type="range" id="windowHop2D-slider" min="3" max="21" step="2" value="5">
+            <input type="range" id="windowHop2D-slider" min="3" max="21" step="2" value="9">
         </div>
       <figcaption>
         Example of a Hopfiled network with just local interaction. By hovering the mouse over the figure you can see all the interaction windows. You can set the size of the interaction windows $W$ by moving the relative slider. 
       </figcaption>
     </figure>
     <p>
-      As you can see the system strugles more to converge to one of the saved patters, and the smaller the window size is, the harder it becomes.<br> What it is possible to conclude even with this small demo is that the memory capacity of a local Hopfield Model is lower, we will later analize by how much.
+      As you can see the system strugles more to converge to one of the saved patters, and the smaller the window size is, the harder it becomes.<br> What it is possible to conclude even with this small demo is that the memory capacity of a local Hopfield model is lower, we will later analize by how much.
     </p>
   <d-subsection>Transformers and Hopfield networks</d-subsection>
     <p>
@@ -639,10 +617,6 @@
     <p class="definition_text">
       A Local Hamiltonian $H=\sum_i H_i$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window width $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i < E^\textrm{max}$
     </p>
-    <p>
-      As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line.<br><br>
-      Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
-    </p>
     <figure class="l-page-outset">
       <div class="graph-container">
         <svg id="graph"></svg>
@@ -651,7 +625,10 @@
         The time evolution of this chain is governed by a local Hamiltonian which is the sum of several Hamiltonian windows, you can see all the Hamiltonian windows by hovering on top of the chain elements. In this case the elements of the sequence interact in groups of five.
       </figcaption>
     </figure>
-    
+    <p>
+      As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line.<br>
+      Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
+    </p>
     <b class="Definition">Definition: Memory or Pattern stored</b>
     <p class="definition_text">
       A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots, s_{-1}, s_0, s_1,\dots )$ such that the energy of the Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^{(n)}$ = $(\dots,s^{(n)}_1,s^{(n)}_0,s^{(n)}_1,\dots)$.
@@ -675,7 +652,7 @@
           <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
       </div>
       <figcaption>
-        Simulation of an autoregressive Ising model. The Hamiltonian windows are all equal to $H_t=-Js_ts_{t+1}$, it is possible to evaluate the spin flip probability which is $p=\left(1+e^{J/T}\right)^{-1}$. SHOULD I PUT THIS ELSEWHERE?
+        Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimentional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
       </figcaption>
     </figure>
     <p>
@@ -722,7 +699,7 @@
               $$
               Through Botzmann's equation it's possible to turn a probability distribution to some energy levels
               $$
-                  p_c=Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
+                  p_c=\frac 1Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
               $$
               Without loss of generality, we can assume $T=1$ and set the energy associated with every prediction turns out to be
               $$
@@ -980,21 +957,26 @@
           In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
         </d-footnote> <d-cite key="castellani2005spin"></d-cite>.
       </p>
+
       <p>
-        Spin-glass systems are frequently found in machine learning algorithms. <d-cite key="choromanska2015loss"></d-cite><br>
-        For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
-        $$
-            F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
-        $$
-        However different parameters will yield give different free energies, and since they are learned they follow a distribution $p(\theta|\mathcal D)$ dependent on the dataset $\mathcal D$. A more meaningful variable will be the expected free energy $\langle F\rangle$
-        $$
-            \langle F\rangle=\int F(\theta)p(\theta|\mathcal D)d\theta
-        $$
-        Since the loss function is the negative log likelyhood of the parameters $l(\theta|\mathcal D)=-\log p(\theta|\mathcal D)$ we can combine this with the last two equations to get
-        $$
-            F=-T\int e^{-l(\theta|\mathcal D)}\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right] D\theta
-        $$
-        This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
+        <details>
+          <summary>
+            Spin-glass systems are frequently found in machine learning algorithms. <d-cite key="choromanska2015loss"></d-cite><br>
+          </summary>
+          For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
+          $$
+              F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
+          $$
+          However different parameters will yield give different free energies, and since they are learned they follow a distribution $p(\theta|\mathcal D)$ dependent on the dataset $\mathcal D$. A more meaningful variable will be the expected free energy $\langle F\rangle$
+          $$
+              \langle F\rangle=\int F(\theta)p(\theta|\mathcal D)d\theta
+          $$
+          Since the loss function is the negative log likelyhood of the parameters $l(\theta|\mathcal D)=-\log p(\theta|\mathcal D)$ we can combine this with the last two equations to get
+          $$
+              F=-T\int e^{-l(\theta|\mathcal D)}\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right] D\theta
+          $$
+          This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
+        </details>
       </p>
     </div>
     <p>
@@ -1189,35 +1171,32 @@
             </p>
           </div>
         </details>
+        <p>
+          In other words, if our elements have the right topology to be able to self organize, the entire self-organizing system will have a memory capacity equal to the memory capacity of each of its sub-modules
+        </p>        
+        <p>
+          It is crucial to bear in mind that these represent some of the essential prerequisites.<br>Similar to how possessing Turing Completeness does not guarantee intelligence, having an ordered phase in a system does not automatically imply that the output will be actually coherent and meaningful.
+        </p>
+        <p>
+          We now possess all the necessary elements to ascertain whether a system can ever exhibit the capacity to generate data coherently.
+            <ol>
+              <li>
+                Select a topology of comunication of the cells that is equivalent to an iIsing model that has an ordered phase
+              </li>
+              <li>
+                Make sure that the system in not bottlenecked by the memory capacity (either by having a large enought window size and a large enought number of trainable parameters)
+              </li>
+            </ol>
+          Now let's see some examples form the literature
+        </p>
 
-
-
-
-
-        
   <d-section>Some practical examples</d-section>
-    <p>
-      It is crucial to bear in mind that these represent some of the essential prerequisites.<br>Similar to how possessing Turing Completeness does not guarantee intelligence, having an ordered phase in a system does not automatically imply that the output will be actually coherent and meaningful.
-    </p>
-    <p>
-      We now possess all the necessary elements to ascertain whether a system can ever exhibit the capacity to generate data coherently.
-        <ol>
-          <li>
-            Select a topology of comunication of the cells that is equivalent to an ising model that has an ordered phase
-          </li>
-          <li>
-            Make sure that the system bottlenecked by the memory capacity (either by having a large enought window size and a large enought number of trainable parameters)
-          </li>
-        </ol>
-      Lets get so some example to show the procedure:
-    </p>
-
     <d-subsection>Tree language model</d-subsection>
       <p>
         We want to see if a tranformer that has an attention matrix with the topology of a tree can ever generate text.
         <ul>
           <li>
-            Since the ising model on the tree does have an ordered phase, the possibility of generating an infinitely long, coherent text is not constrained by the topology
+            Since the Ising model on the tree does have an ordered phase <d-cite key="breuckmann2020critical"></d-cite>, the possibility of generating an infinitely long, coherent text is not constrained by the topology
           </li>
           <li>
             The bottleneck provided by the memory capacity can be widened by increasing the window size and the number of parameters
@@ -1247,10 +1226,27 @@
         $$
           B_{t+1}=f_B(B_t)
         $$
-        This effectively makes the brain an autoregressive model, thus it is incapable of retaining information for an indefinite amout of time, however we human seem to have this ability. The caveaut here is that the brain is constantly interacting with an outside environment.
+        This effectively makes the brain an autoregressive model, thus it is incapable of retaining information for an indefinite amout of time. One one hand we humans do forget lots of stuff, but on the other hand we seem to be able to also have long term memory and the ability to stick to a plan for even years.
       </p>
       <p>
-        Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the environment, we can say that the way they evolve is ruled by a set of equations like this
+        However we humans also augment our finite memory by deliberatly interacting with the envoirnment, this way we are able to remember stuff for much longer
+      </p>
+      <p>
+        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
+
+        This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket, adn $t_\textrm{h}$ is when you are at home writing the shopping list.
+      </p>
+      <figure class="l-page-outset">
+        <img src="website/images/brain-env_interaction.svg">
+        <figcaption>
+          Diagramatic representation of brain-environment interaction
+        </figcaption>
+      </figure>
+      <p>
+        This sorts of thing happens all the time, our brain constantly interacts with the surrounding environment so much so that is impossible to study the brain indipendently from the environment as such thing doesn't even exist.<br>Now lets look at the system from a more formal point of view.
+      </p>
+      <p>
+         Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the environment, we can say that the way they evolve is ruled by a set of equations like this
         $$
           \begin{cases}
           B_{t+1}=f_B(B_t,E_t)\\
@@ -1260,21 +1256,10 @@
         Note that this is simply an autoregressive model made of two coupled autoregressive models, however we can assume that the environment is capable of holding on to information for longer.<br>
       </p>
       <p>
-        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
-
-        This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket,a dn $t_\textrm{h}$ is when you are at home writing the shopping list.
-      </p>
-      <figure class="l-page-outset">
-        <img src="website/images/brain-env_interaction.svg">
-        <figcaption>
-          Diagramatic representation of brain-environment interaction
-        </figcaption>
-      </figure>
-      <p>
-        This sorts of thing happens all the time, our brain constantly interacts with the surrounding environment so much so that is impossible to study the brain indipendently from the environment as such thing doesn't even exist
+        We can simplify a system like this by assuming that both the brain and the envoirnment have only two possible states: 0 or 1.
       </p>
       <p>
-        If we want to translate this brain + environment setup in an equivalent Ising model, we can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
+        We can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes
         $$
           H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
