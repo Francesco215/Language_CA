@@ -18,6 +18,8 @@ const temperatureSliderHop2D = document.getElementById('temperatureHop2D-slider'
 const temperatureValueHop2D = document.getElementById('temperatureHop2D-value');
 const overlapValuePrint = document.getElementById('overlap');
 
+let temperatureHop2D=temperatureSliderHop2D.value;
+
 const windowSliderHop2D = document.getElementById('windowHop2D-slider');
 const windowValueHop2D = document.getElementById('windowHop2D-value');
 
@@ -67,17 +69,17 @@ function simulateHop2D(){
             deltaE+=interaction*latticeHop2D[colj][rowj];
         }
         deltaE *= 2 * spin* J_Hop2D;
-        
-        const temperature = parseFloat(temperatureSliderHop2D.value);
-        temperatureValueHop2D.textContent = temperature.toFixed(1);
 
-        if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
+        if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperatureHop2D)) {
             latticeHop2D[col][row] = -spin;
         }
     }
 }
 
-
+temperatureSliderHop2D.addEventListener('input', function () {
+    temperatureHop2D = temperatureSliderHop2D.value;
+    temperatureValueHop2D.textContent=parseFloat(temperatureHop2D).toFixed(1); 
+  });
 
 function updateHop2D() {
     if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
