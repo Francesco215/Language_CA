@@ -244,7 +244,7 @@
       <p>
         But what exactly is the Ising model? Originally conceived as a simple explanation for magnetization effects in matter, the Ising model explores the interplay between interacting spins. These spins, when in proximity, have a preference to align with each other, leading to an interaction energy denoted by $H=-Js_1\cdot s_2$.<br><br>
 
-        But what happens when lots of spins interact? Whell, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
+        But what happens when lots of spins interact? Well, it depends on how they interact: The Ising Model comes in many different flavors, we are going to look at the 3 simplest ones: the fully connected, the 1D and the 2D one.
       </p>
 
       <d-subsection>Fully connected Ising model</d-subsection>
@@ -258,9 +258,9 @@
       <figure>
         <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
         <div>
-            <label for="temperature-slider">Temperature:</label>
+            <label for="temperature-slider">$T=$</label>
+            <span id="FC_temperature-value" class="value">1.0</span>
             <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
-            <span id="FC_temperature-value">1.0</span>
         </div>
         <figcaption>
           Simulation of the Fully connected Ising Model
@@ -281,7 +281,8 @@
         <figure>
           <canvas id="canvas1D" width="700" height="600"></canvas>
           <div>
-              <label for="temperature">Temperature:</label>
+              <label for="temperature">$T=$</label>
+              <span id="1D_temperature-value" class="value"></span>
               <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
           </div>
           
@@ -337,8 +338,9 @@
     <figure>
       <canvas id="canvas2D" width="700" height="700" style="border: 1px solid #000;"></canvas>
       <div>
-          <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
           <label for="temperature2D">$T=$</label>
+          <span id="temperature2D-value" class="value">1.0</span>
+          <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
       </div>
       <figcaption>
         Simulation of the 2D Ising model. If you hover over the image you the interaction window is displayed in orange
@@ -510,9 +512,9 @@
       <d-figure>
         <canvas id="canvasHop" width="600" height="600"></canvas>
         <div>
-            <label for="temperatureHop-slider">Temperature:</label>
-            <input type="range" id="temperatureHop-slider" min="0.1" max="3.0" step=".01" value="1.0">
+            <label for="temperatureHop-slider">$T=$</label>
             <span id="temperatureHop-value">1.0</span>
+            <input type="range" id="temperatureHop-slider" min="0.1" max="3.0" step=".01" value="1.0">
         </div>
 
     
@@ -1367,7 +1369,7 @@
       We have shown how the right topology for cell comunication is a necessary feature for long range coherence by framing the problem of data generation as interactions of multiple sub-units.
     </p>
     <p>
-      Biological systems have long exploited self-organization and indeed possess the right topology to be able to self-organize, furthermore we showed how current NLP algorithms don't possess the needed topology and because of that are incapable of generating long and coherent text.,
+      Biological systems have long exploited self-organization and indeed possess the right topology to be able to self-organize, furthermore we showed how current NLP algorithms don't possess the needed topology and because of that are incapable of generating long and coherent text.
     </p>
     <p>
       The same requirements needed for generating coherent text apply to agents trying to navigate a problem space by performing a series of actions, thus all the results also apply in the field of reinforcement learing if the agent has to remember past actions in order to correctly act in the future.

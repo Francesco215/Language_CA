@@ -7,6 +7,7 @@ const numCols2D = Math.floor(width2D / gridSize2D);
 const numRows2D = Math.floor(height2D / gridSize2D);
 const lattice2D = createLattice2D(numCols2D, numRows2D);
 const temperatureSlider2D = document.getElementById('temperature2D');
+const temperatureValue2D = document.getElementById('temperature2D-value');
 let temperature2D = temperatureSlider2D.value;
 let isSimulationPaused2D = false;
 
@@ -71,6 +72,7 @@ function renderLoop() {
 
 temperatureSlider2D.addEventListener('input', function () {
   temperature2D = temperatureSlider2D.value;
+  temperatureValue2D.textContent=parseFloat(temperature2D).toFixed(1); 
 });
 
 // Pause simulation when canvas is not visible

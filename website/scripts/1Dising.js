@@ -8,9 +8,11 @@ const numSpinsHorizontal = Math.floor(width / gridSize);
 const numSpins = numSpinsHorizontal*numSpinsVertical - (numSpinsHorizontal-1)*Math.floor(numSpinsVertical/2);
 const spins = createSpins(numSpins);
 const temperatureSlider = document.getElementById("temperature");
+const temperatureValue1D = document.getElementById('1D_temperature-value');
 let temperature = temperatureSlider.value;
 let isSimulationPaused1D = false;
 
+temperatureValue1D.textContent = parseFloat(temperature).toFixed(1)
 function createSpins(numSpins) {
   const spins = new Array(numSpins);
   for (let i = 0; i < numSpins; i++) {
@@ -58,6 +60,7 @@ function renderLoop1D() {
 
 temperatureSlider.addEventListener("input", function () {
   temperature = temperatureSlider.value;
+  temperatureValue1D.textContent = parseFloat(temperature).toFixed(1)
 });
 
 // Pause simulation when canvas is not visible
