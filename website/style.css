@@ -5,6 +5,10 @@
   text-align: center;
   width: 170px;
   height: 16px;
+  cursor: pointer
+}
+#colab-hero:hover {
+  background-color: rgb(231, 237, 244);
 }
 .colab-root {
   display: inline-block;
@@ -220,12 +224,13 @@ figure {
 }
 
 details h2::before{
-  content:'> ';
+  content:'▶ ';
   display: 'block-inline';
   position: 'absolute';
+  width: '40px';
 }
 details[open] h2::before{
-  content:'V ';
+  content:'▼ ';
   display: 'block-inline';
   position: 'absolute';
 }

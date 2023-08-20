@@ -26,7 +26,7 @@ function createLattice2D(cols, rows) {
 }
 
 function simulate2D() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 30; i++) {
     const col = Math.floor(Math.random() * numCols2D);
     const row = Math.floor(Math.random() * numRows2D);
     const spin = lattice2D[col][row];
@@ -37,7 +37,7 @@ function simulate2D() {
       lattice2D[col][(row + 1) % numRows2D],
     ];
     const sum = neighbors.reduce((acc, neighbor) => acc + neighbor, 0);
-    const deltaE = 2 * spin * sum;
+    const deltaE = 2 * spin * sum*Math.log(1+Math.sqrt(2))/2;
     if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature2D)) {
       lattice2D[col][row] = -spin;
     }
