@@ -35,8 +35,20 @@
       {
         "author": "Francesco Sacco",
         "authorURL": "https://github.com/Francesco215",
-        "affiliation": "Tufts University",
+        "affiliation": "Allen Discovery Center",
         "affiliationURL": "http://www.tufts.edu"
+      },
+      {
+        "author": "Dalton Sakthivadivel",
+        "authorURL": "https://darsakthi.github.io/",
+        "affiliation": "VERSES, Stony Brooks University",
+        "affiliationURL": "https://www.verses.ai/"
+      },
+      {
+        "author": "Michael Levin",
+        "authorURL": "https://www.drmichaellevin.org/",
+        "affiliation": "Wyss Institute at Harvard University",
+        "affiliationURL": "https://wyss.harvard.edu/"
       }
       ]
   }</script>
@@ -84,10 +96,13 @@
     <div target_audience="b" style="display: block;">
       <d-section id="abs">Abstract for Biologists</d-section>
       <p>
-        One of the most striking example of Self-organization is the formation of multicellular organisms, where each cell can only interact with its local environment through its cell membrane, but based on the signals it receives from its neighbors and its own internal state, it is able to understand what type of cell it should be and self-regulate. Despite the limited information available to each individual cell, incredibly complex organisms can be formed.
+        One of the most striking examples of Self-organization is the formation of multicellular organisms, where most cells interact with their local environment through their cell membrane. The signals it receives from its neighbors, and shifts in its own internal state, enable it to reach a specific cell type and self-regulate a variety of behaviors such as differentiation, proliferation, migration, and signaling. Despite the limited information available to each individual cell, incredibly complex organisms can be formed by cellular collectives.
       </p>
       <p>
-        In this work we show how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole.
+        We have previously suggested that the ability of cell groups to traverse anatomical morphospace (during regulative development, regeneration, and cancer suppression) is a kind of unconventional problem-solving capacity that shares important features with other kinds of intelligence, such as familiar behavior and communication at the level of individual organisms
+      </p>
+      <p>
+        In this work we show how the same process of self-organization that occurs in biological systems can be used to create cohesive narrative skills in linguistic space, where the words in a text self-organize to create a coherent whole. This is an important step towards characterizing the fundamental invariants that unify not merely emergence of complexity, but goal-directed behavior, across diverse problem spaces and physical embodiments. This is an important step towards characterizing the fundamental invariants that unify not merely emergence of complexity, but goal-directed behavior, across diverse problem spaces and physical embodiments.
       </p>
       <p>
         But what makes a system capable of self-organizing in the first place? In this paper we show that the ability of a system to self-organize relies on having the right topology for cell communication. Furthermore, using tools from Statistical Physics, we show that current state of the art architectures for text generation lack the appropriate topology to be able to generate arbitrarily long, coherent text.
@@ -113,7 +128,7 @@
     <div target_audience="m" style="display: none;">
       <d-section id="abs">Abstract for ML researchers</d-section>
       <p>
-      The complexity of generating a text with $N$ words with modern machine learning algorithms such as the Transformer is $O(N^2)$. This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
+      The complexity of generating a text with $N$ words with modern machine learning algorithms such as the Transformer is $O(N^2)$ <d-cite key="vaswani2017attention"></d-cite>. This makes it computationally infeasible to generate coherent pieces of text as long as books. Self-organizing systems, on the other hand, have two big strenghts that transformers lack
       </p>
       <p>
         <ul>
@@ -193,7 +208,7 @@
         Certain machine learning algorithms, such as neural cellular automata, have shown remarkable ability to replicate the behavior of cells in biological organisms <d-cite key="mordvintsev2020growing"></d-cite> .
       </p>
       <p>
-        However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text, is a 1-dimentional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimentional so don't have this problem.
+        However, we demonstrate that attempting to teach a machine learning algorithm to generate text by simply providing each word with information solely from its neighboring words is unsuccessful in achieving self-organization.<br> This is due to the fact that text, is a 1-dimensional sequence of words, and self organization in 1D is impossible. Biological organisms, are 3-dimensional so don't have this problem.
       </p>
       <p>
         We also show that, in principle, it is possible to generate long-coherent text by using specifically crafted sparse attention, or by having a model with finite context-lenght that is capable of interacting with an external environment.
@@ -215,7 +230,7 @@
             It’s easier to run experiments on code rather than biological organisms.
           </li>
           <li>
-            Since text is a 1-dimentional sequence it can give insights into other types of 1D sequences, for example a sequence of actions performed by an agent.<br>
+            Since text is a 1-dimensional sequence it can give insights into other types of 1D sequences, for example a sequence of actions performed by an agent.<br>
             Having long term coherence for a sequence of actions performed by an agent means that the agent is able to stick to a plan and use information from the distant past to make decisions on what to do next.
           </li>
         </ul>
@@ -297,7 +312,7 @@
         <p class="theorem_text">
           The 1D Ising chain doesn't have an ordered phase
         </p>
-        <details >tu
+        <details>
           <summary>
             <b>proof</b>
           </summary>
@@ -568,7 +583,7 @@
         </figcaption>
       </figure>
       <p>
-        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphologiacal space
+        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphological space
         <d-cite key="fields2022competency"></d-cite>.
       </p>
       <p>
@@ -628,7 +643,7 @@
       </figcaption>
     </figure>
     <p>
-      As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line.<br>
+      As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line or evolving though time.<br>
       Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
     </p>
     <b class="Definition">Definition: Memory or Pattern stored</b>
@@ -636,15 +651,67 @@
       A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots, s_{-1}, s_0, s_1,\dots )$ such that the energy of the Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^{(n)}$ = $(\dots,s^{(n)}_1,s^{(n)}_0,s^{(n)}_1,\dots)$.
     </p>
     <p>
-      We will now make the parallelism explicit with Natural Language Processing. Most state of the art language models of today are Autoregressive, meaning to predict the next word (or token) they look at all the previous elements on the text.<br>
-      However, as the context increases, it becames computationally infeasable to predict the next token, and only the last few words are fed as input to the model.
+      Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
+      <!-- <ul>
+        <li>Words in a text</li>
+        <li>State of the cells in an organism</li>
+        <li>Actions performed by an agent</li>
+        <li>The value of a title in the stock market</li>
+      </ul> -->
+      We also don't really care how the values of the Hamiltonian are evaluated: The architecture of the model doesn't matter.
     </p>
     <p>
-      Intuitively, this leads the model to completely forget what is left outside of its input window
+      We are now going to prove that local Hamiltonians in 1D, no matter how low the temperature, cannot have a condensed phase.
     </p>
-    <b class="Definition">Definition: Autoregressive Model</b>
+    <b class="theorem">Theorem</b>
+        <p class="theorem_text">
+          Let $H$ be a local Hamiltonian with $N$ > 1 stored patterns. At non-zero temperature the system will be unable to converge to single stored pattern.
+        </p>
+        <details >
+          <summary>
+            <b>proof</b>
+          </summary>
+          <div class="proof_text">
+            <p>
+              Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier is thermodynamically favorable.
+
+              $$
+                  \Delta F=\Delta E -T\Delta S< 0
+              $$
+              For that to be true, the Free energy of the system must decrease upon the formation of a domain barrier.
+
+              Upon the formation of a domain barrier, The windowed Hamiltonians that intersect it will have a non zero, positive energy. Therefore $\Delta E >0$, however, we know that the energy of each window Hamiltonian is smaller than $E^\textrm{max}$ and no more that $\mathcal W-1$ windows can be affected by a domain wall, therefore
+
+              $$
+                  0\le\Delta E\le (\mathcal W-1)E^\textrm{max}
+              $$
+
+              At the same time we know that in a sequence long $L$ there can be $L-1$ possible places where a domain wall can appear, and for each of this possible places it can lead to any of the $N-1$ other patterns saved, therefore there are $(L-1)(N-1)$ possible configurations where the system has a single domain wall. This means that the change of the entropy of the system is 
+
+              $$
+                  \Delta S=\log [(N-1)(L-1)] 
+              $$
+
+              Putting equations \ref{eq:de} and \ref{eq:s} all together we have that
+
+              $$
+                  \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
+              $$
+              In the thermodynamic limit ($L\to \infty$) we have that the right hand side of the equation becomes eventually negative, therefore the domain barriers are inevitable.
+            </p>
+          </div>
+        </details>
+    <p>
+      We have now seen that 1-dimensional self-organizing systems can't really exists. Sure, there are worms and snakes that are more or less one dimensional, but they are usually less than 50 times longer than their diameter.
+    </p>
+  <d-subsection>Autoregressive models</d-subsection>
+  <b class="Definition">Definition: Autoregressive Model</b>
     <p class="definition_text">
-      During inference time, given some input tokens $\{s_i\,|\, i_\textrm{first}\le i\le i_\textrm{last}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$.
+      Given some input tokens $\{s_{i_\textrm{first}},\dots, s_{i_\textrm{last}}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$
+      $$
+        p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
+      $$
+      where $p_c$ is the porbability that the next spin $s_{i_\textrm{pred}}$ is equal to the $c$-th token of the vocabulary
     </p>
     <figure>
       <canvas id="canvasAR" width="700" height="20" style="border: 1px solid #000;"></canvas>
@@ -654,32 +721,23 @@
           <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
       </div>
       <figcaption>
-        Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimentional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
+        Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimensional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
       </figcaption>
     </figure>
     <p>
-      Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
-      <!-- <ul>
-        <li>Words in a text</li>
-        <li>State of the cells in an organism</li>
-        <li>Actions performed by an agent</li>
-        <li>The value of a title in the stock market</li>
-      </ul> -->
-      We also don't really care how the probabilities are evaluated: The architecture of the model doesn't matter.
+      We will now make the parallelism explicit with Natural Language Processing. Most state of the art language models of today are Autoregressive, meaning to predict the next word (or token) they look at all the previous elements on the text.<br>
+      However, as the context increases, it becomes computationally infeasable to predict the next token, and only the last few words are fed as input to the model.
     </p>
+    <p>
+      Intuitively, this leads the model to completely forget what is left outside of its input window
+    </p>
+    
     <p>
       Keep in mind that how well you can predict the next element in a senquence can be considered a measure of intelligence. After all what any intelligent agent does is just finding the best next action.
     </p>
     <p>
-      But how do we prove <i>mathematically</i> that autoregressive models with finite context are bound to lose the thread?
-      <ul>
-        <li>
-          Firstly, we show that Autoregressive models, no matter the architecture, are equivalent to a thermodynamic system with a specifically crafted local Hamiltonian
-        </li>
-        <li>
-          We then prove that local Hamiltonians in one dimentional systems are inherently incapable of reaching an ordered phase
-        </li>
-      </ul>
+      But how do we prove <i>mathematically</i> that autoregressive models with finite context are bound to lose the thread?<br>
+      We show that Autoregressive models, no matter the architecture, are equivalent to a thermodynamic system with a specifically crafted local Hamiltonian
     </p>
     <p>
       The significance of demonstrating the incapability of autoregressive models doesn't lie solely in the theorem itself. Intuitively, we already understand that autoregressive models, due to their inherent loss of information over time, are unable to generate lengthy texts. What holds importance is that through mathematical proof, we gain the knowledge necessary to establish the coherence of text generation through alternative methods.
@@ -722,52 +780,12 @@
           </div>
         </details>
     <p>
-      So, we now know that autoregressive data generation is equivalent to sampling form the Boltzmann distribution of a local Hamiltonian (usually at $T\approx 1$). We are now going to show that at finite temperature local Hamiltoninans are unstable
+      So, we now know that autoregressive data generation is equivalent to sampling form the Boltzmann distribution of a local Hamiltonian (usually at $T\approx 1$), and since 1-dimensional local Hamiltonians are inherently unstable it means that autoregressive models with a finite context window are too.
     </p>
-    <b class="theorem">Theorem</b>
-        <p class="theorem_text">
-          Let $H$ be a local Hamiltonian with $N$ > 1 stored patterns. At non-zero temperature the system will be unable to converge to single stored pattern.
-        </p>
-        <details >
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier is thermodynamically favorable.
-
-              $$
-                  \Delta F=\Delta E -T\Delta S< 0
-              $$
-              For that to be true, the Free energy of the system must decrease upon the formation of a domain barrier.
-
-              Upon the formation of a domain barrier, The windowed Hamiltonians that intersect it will have a non zero, positive energy. Therefore $\Delta E >0$, however, we know that the energy of each window Hamiltonian is smaller than $E^\textrm{max}$ and no more that $\mathcal W-1$ windows can be affected by a domain wall, therefore
-
-              $$
-                  0\le\Delta E\le (\mathcal W-1)E^\textrm{max}
-              $$
-
-              At the same time we know that in a sequence long $L$ there can be $L-1$ possible places where a domain wall can appear, and for each of this possible places it can lead to any of the $N-1$ other patterns saved, therefore there are $(L-1)(N-1)$ possible configurations where the system has a single domain wall. This means that the change of the entropy of the system is 
-
-              $$
-                  \Delta S=\log [(N-1)(L-1)] 
-              $$
-
-              Putting equations \ref{eq:de} and \ref{eq:s} all together we have that
-
-              $$
-                  \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
-              $$
-              In the thermodynamic limit ($L\to \infty$) we have that the right hand side of the equation becomes eventually negative, therefore the domain barriers are inevitable.
-            </p>
-          </div>
-        </details>
-    <p>
-      We have now seen that 1-dimentional self-organizing systems can't really exists. Sure, there are worms and snakes that are more or less one dimentional, but they are usually less than 50 times longer than their diameter.
-    </p>
+    
   <!-- <d-subsection>The 2D case</d-subsection>
     <p>
-      2-dimentional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
+      2-dimensional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
     </p>
     <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p> -->
   <d-subsection>More complex Topologies</d-subsection>
@@ -799,9 +817,9 @@
     </p>
     <p>
       For simplicity we are going to consider that the links of the graph are fixed in time.<d-footnote>
-      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid comunication each person interacted only with the people nearby thus the topology was 2-dimentional. Today, with the internet we can interact with people far away.<br>
+      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid comunication each person interacted only with the people nearby thus the topology was 2-dimensional. Today, with the internet we can interact with people far away.<br>
       However, we can say that even though the interaction graph changes with time, it usually changes slowly relative to the dynamics of the time evolution of its elements. 
-    </d-footnote><br> 
+    </d-footnote></p>
     <b class="Definition">Definition: Graph Hamiltonian</b>
     <p class="definition_text">
       Let G be the adjacency matrix of a graph, then a Graph Hamiltoninan H is a Hamiltonian that can be written as
@@ -944,9 +962,13 @@
       <p>
         This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever get the chance to get to one of the global minima. In the rare occurrance that the system manages to escape the local minimum it will most likely go to another local minimum. 
       </p>
+
       <p>
-        When a system is like this we say that it is a <i>spin-glass system</i>
-        <d-footnote>
+        <details>
+          <summary>
+            When a system is like this we say that it is a <i>spin-glass system</i><d-cite key="castellani2005spin"></d-cite>.<br>
+          </summary>
+          <br>
           A spin glass system is a type of physical system that exhibits what's called "quenched disorder." This disorder arises due to random couplings, denoted as $\theta$ among the different degrees of freedom within the system, which are represented by the variable $s$. The disorder is explicitly incorporated into the Hamiltonian of the system, and is completely specified by its probability distribution, $p(\theta) d\theta$.
           $$
             H=H(\theta,s)
@@ -957,14 +979,9 @@
           $$
 
           In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
-        </d-footnote> <d-cite key="castellani2005spin"></d-cite>.
-      </p>
 
-      <p>
-        <details>
-          <summary>
-            Spin-glass systems are frequently found in machine learning algorithms. <d-cite key="choromanska2015loss"></d-cite><br>
-          </summary>
+          Spin-glass systems are frequently found in machine learning algorithms. <d-cite key="choromanska2015loss"></d-cite>
+
           For example lets say our system searches trough a family of Hamiltonians dependent from a set of parameters $\theta$, then the Free energy will depend on theta as such
           $$
               F(\theta)=-T\log\left[\int e^{-H(\{s_i\}|\theta)/T}Ds_i\right]
@@ -980,11 +997,12 @@
           This systems, more often than not, exhibit glassy behaviors, and as such, must be treated with extra care.
         </details>
       </p>
+      <p>
+        But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disorderd spin glass?
+        For Hopfield models peaple have figured it out. 
+      </p>
     </div>
-    <p>
-      But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disorderd spin glass?<br>
-      For Hopfield models peaple have figured it out.
-    </p>
+    
     <d-subsection>Memory of an Hopfield model</d-subsection>
     
     <div>
