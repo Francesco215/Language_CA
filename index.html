@@ -568,10 +568,10 @@
     <p>
       As you can see the system strugles more to converge to one of the saved patters, and the smaller the window size is, the harder it becomes.<br> What it is possible to conclude even with this small demo is that the memory capacity of a local Hopfield model is lower, we will later analize by how much.
     </p>
-  <d-subsection>Transformers and Hopfield networks</d-subsection>
+  <!-- <d-subsection>Transformers and Hopfield networks</d-subsection>
     <p>
       MAYBE ITS BEST TO PUT THIS SUBSECTION LATER
-    </p>
+    </p> -->
 
 
     <d-subsection>Morphogenesis and Language Modelling</d-subsection>
@@ -692,7 +692,7 @@
                   \Delta S=\log [(N-1)(L-1)] 
               $$
 
-              Putting equations \ref{eq:de} and \ref{eq:s} all together we have that
+              Putting all the equations together we have that
 
               $$
                   \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
@@ -702,7 +702,8 @@
           </div>
         </details>
     <p>
-      We have now seen that 1-dimensional self-organizing systems can't really exists. Sure, there are worms and snakes that are more or less one dimensional, but they are usually less than 50 times longer than their diameter.
+      We have now seen that 1-dimensional self-organizing systems can't really exists<d-footnote>We are assuming that there are at least two different ground states, </d-footnote>. 
+      <!-- Sure, there are worms and snakes that are more or less one dimensional, but they are usually less than 50 times longer than their diameter. -->
     </p>
   <d-subsection>Autoregressive models</d-subsection>
   <b class="Definition">Definition: Autoregressive Model</b>
@@ -752,12 +753,12 @@
           </summary>
           <div class="proof_text">
             <p>
-              Let $M$ be out outoregressive model, and $s_{i_\textrm{first}},\dots,s_{i_\textrm{last}}$ our input sequence.
+              Let $M$ be out autoregressive model, and $s_{i_\textrm{first}},\dots,s_{i_\textrm{last}}$ our input sequence.
               then the probability that the next token in the sequence is equal to $c$ is.
               $$
                 p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
               $$
-              Through Botzmann's equation it's possible to turn a probability distribution to some energy levels
+              Through Boltzmann's equation it's possible to turn a probability distribution to some energy levels
               $$
                   p_c=\frac 1Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
               $$
@@ -770,7 +771,7 @@
               $$
                   H_{i_\textrm{pred}}(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}},s_{i_\textrm{pred}})=-\log\left[  M(s_{i_\textrm{pred}}|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})\right]+\textrm{const}
               $$
-              And the full local Hamiltoninan can now be seen as the sum of all the $H=\sum H_{i_\textrm{pred}}$ of the sequence.<br>
+              And the full local Hamiltonian can now be seen as the sum of all the $H=\sum H_{i_\textrm{pred}}$ of the sequence.<br>
               The generation process of an autoregressive model can now be seen as sampling from the Boltzmann distribution given from 
               $$
                   p_\textrm{sequence}=\frac 1Z 
@@ -790,7 +791,7 @@
     <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p> -->
   <d-subsection>More complex Topologies</d-subsection>
     <p>
-      As you have seen from the two examples, determining whether or not an ordered phase can exists boils down to a counting problem.
+      As you have seen from the examples, determining whether or not an ordered phase can exists boils down to a counting problem.
       <ol>
         <li>
           Start with the system being equal to one of the patterns stored
@@ -817,7 +818,7 @@
     </p>
     <p>
       For simplicity we are going to consider that the links of the graph are fixed in time.<d-footnote>
-      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid comunication each person interacted only with the people nearby thus the topology was 2-dimensional. Today, with the internet we can interact with people far away.<br>
+      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid communication each person interacted only with the people nearby thus the topology was 2-dimensional. Today, with the internet we can interact with people far away.<br>
       However, we can say that even though the interaction graph changes with time, it usually changes slowly relative to the dynamics of the time evolution of its elements. 
     </d-footnote></p>
     <b class="Definition">Definition: Graph Hamiltonian</b>
@@ -915,7 +916,7 @@
           </div>
         </details>
 
-  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary saize and many patterns stored, we can just look at a simple next-neighbour Ising model to see if we have a coherent phase</p>
+  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary size and many patterns stored, we can just look at a simple next-neighbour Ising model to see if we have a coherent phase</p>
   <!-- <b class="Theorem">Theorem</b>
       <p class="theorem_text">
         Suppose we have a Potts grid $\mathcal C$ of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
@@ -960,7 +961,7 @@
         </figcaption>
       </figure>
       <p>
-        This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever get the chance to get to one of the global minima. In the rare occurrance that the system manages to escape the local minimum it will most likely go to another local minimum. 
+        This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever get the chance to get to one of the global minima. In the rare occurrence that the system manages to escape the local minimum it will most likely go to another local minimum. 
       </p>
 
       <p>
@@ -1201,7 +1202,7 @@
           We now possess all the necessary elements to ascertain whether a system can ever exhibit the capacity to generate data coherently.
             <ol>
               <li>
-                Select a topology of comunication of the cells that is equivalent to an iIsing model that has an ordered phase
+                Select a topology of communication of the cells that is equivalent to an iIsing model that has an ordered phase
               </li>
               <li>
                 Make sure that the system in not bottlenecked by the memory capacity (either by having a large enought window size and a large enought number of trainable parameters)
@@ -1384,7 +1385,7 @@
 
   <d-section>Conclusions</d-section>
     <p>
-      We have shown how the right topology for cell comunication is a necessary feature for long range coherence by framing the problem of data generation as interactions of multiple sub-units.
+      We have shown how the right topology for cell communication is a necessary feature for long range coherence by framing the problem of data generation as interactions of multiple sub-units.
     </p>
     <p>
       Biological systems have long exploited self-organization and indeed possess the right topology to be able to self-organize, furthermore we showed how current NLP algorithms don't possess the needed topology and because of that are incapable of generating long and coherent text.
