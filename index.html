@@ -263,7 +263,31 @@
       </p> -->
 
 
-
+      <d-subsection>Morphogenesis and Language Modelling</d-subsection>
+      <div>
+        <figure class="l-side">
+          <img src="website/images/navigation.webp">
+          <figcaption>
+            Side by side comparison between text generation and morphogenesis
+          </figcaption>
+        </figure>
+        <p>
+          Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphological space.
+          <d-cite key="fields2022competency"></d-cite>.
+        </p>
+        <p>
+          In various fields like biology, linguistics and computer science, a morphological space refers to a conceptual space where each point represents a specific configuration or form of an entity. The term "morphological" refers to the form, structure, or shape of something.
+        </p>
+        <p>
+          Navigating a morphological space involves exploring and moving through this conceptual space to observe or analyze the different configurations or forms that an entity can take. It is often used to understand the relationships between different variations or possibilities within a system. Better configurations are associated to a lower energy value, and the system evolves rolling down this energy landscape
+        </p>
+        <p>
+          One common example is in biology, where the concept of morphological space can be used to describe the range of physical forms that a species can exhibit. By navigating this space, the organism changes shape over time. Both processes of morphogenesis and damage repair can be thought as navigating this morphological space towards the stable adult form of the organism. The damage becomes impossible to heal for the organism if it puts it in a point into the morphological space outside the basin of attraction of the stable configuration.
+        </p>
+        <p>
+          Drawing parallels between text generation and morphogenesis, text generation starts with a prompt (analogous to an embryo) and progresses, generating the rest of the text until completion. Similarly, correcting errors in text, such as misspelled or missing words, bears similarity to the process of repairing damage in biological organisms. Both tasks are error correction procedures that involve navigating a morphological space to rectify errors and achieve the desired final state.
+        </p>
+      </div>
 
 
     <details target_audience="b m" open="">
@@ -425,11 +449,11 @@
     <details>
       <summary><b>Ising model on a Tree</b></summary>
       <p>
-        Many self-organizing systems seem to gravitate towards a hierarchical structure, in earlier sections of the paper we talked about how cells and words on the text organize into bigger and bigger structures. The same goes for how peaple organize into teams, companies, and so on.
+        Many self-organizing systems seem to gravitate towards a hierarchical structure, in earlier sections of the paper we talked about how cells and words on the text organize into bigger and bigger structures. The same goes for how people organize into teams, companies, and so on.
       </p>
       <p>
-        So, let's take a breaf look at the Ising model on a Tree<d-cite key="breuckmann2020critical"></d-cite>. <br>
-        Interestingly, the Ising model on a tree can be thought as a 2D Ising model in hyperbolic geometry, this means that the same proof for the existence of an ordered phase is pretty much the same as the one in the 2D case, but with the extra flavour of hyperbolic geometry.
+        So, let's take a briaf look at the Ising model on a Tree<d-cite key="breuckmann2020critical"></d-cite>. <br>
+        Interestingly, the Ising model on a tree can be thought as a 2D Ising model in hyperbolic geometry, this means that the same proof for the existence of an ordered phase is pretty much the same as the one in the 2D case, but with the extra flavor of hyperbolic geometry.
       </p>
       <figure>
         <img src="website/images/hyperbolic_tiling.png" width="100%">
@@ -439,7 +463,7 @@
         </figcaption>
       </figure>
       <p>
-      It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$.
+        It does have the additional benefit that the average distance between a couple of spins in the same chain increases as $\log N$, so the information to go from one point to another needs to travel shorter distances.
         <!-- WRITE SOME OF THE ADVANTAGES ON REACHING THE EQULIBRIUM FASTER (does it?). maybe an interesting note would be the interesting properties of error correcting codes in hyperbolic geometry -->
       </p>
     </details>
@@ -459,7 +483,8 @@
     </details>
     <d-subsection>Main takeaway from the Ising model</d-subsection>
     <p>
-      We have seen that the ability of a self-organizing system to reach an ordered state can indeed be understood through the lens of phase transitions. 
+      We have seen that the ability of a self-organizing system to reach an ordered state can indeed be understood through the lens of phase transitions.In fact developmental biology has studied this phenomenon in the context of planar polarity of cells in a 2D tissue <d-cite key="goodrich2011principles, zallen2007planar, henderson2018planar"></d-cite>, including the use of Ising models <d-cite key="weber2016cellular, tuszynski2012mean, torquato2011toward"></d-cite> to understand collective decision-making in this patterning task.
+
     </p>
     <p>
       When it comes to self-organizing systems, the concept of an ordered state typically refers to a highly organized and coherent configuration. For example, in the Ising model, an ordered state corresponds to spins aligning in a particular direction. In other self-organizing systems, it may involve patterns, structures, or coordinated behaviors emerging among the individual elements of the system.
@@ -468,7 +493,7 @@
       Understanding the behavior of self-organizing systems in terms of phase transitions allows us to analyze their equilibrium properties, and gain insights into the underlying mechanisms driving the emergence of order. By studying the conditions and factors that influence phase transitions in self-organizing systems, we can better comprehend their ability to reach ordered states.
     </p>
     <p>
-      We will now give an overview of a more complicated self-organizing system though the lens of phase-transition: The Hopfield Network
+      We will now give an overview of a more complicated self-organizing system through the lens of phase-transition: The Hopfield Network
     </p>
 
 
@@ -499,17 +524,18 @@
 
     <d-section>Associative Memory</d-section>
     <p>
-      The brain is capable of storing and retreiving memories, but the way it does that is very different on how the memories are managed in a computer.
+      The brain is capable of storing and retrieving memories, but the way it does that is very different from how the memories are managed in a computer.
       <ul>
         <li>
           <b>Address based memories</b>, which are the kind of memories stored in a computer, work that given a memory address, it gives you back the information stored in that specific address.
         </li>
         <li>
-          <b>Associative memories</b> are how memories are stored and extracted in human brains. In an associative memory system, a memory becomes easier to extract the more “hints” or related memories are given.
+          <b>Associative memories</b> are how memories are stored and extracted in human brains. In an associative memory system, when given an input, the system returns the most associated memory it has stored; furthermore a memory becomes easier to extract the more “hints” or related memories are given.
         </li>
       </ul>
-    </p><p>
-      So basically, in an associative memory, when you give him a prompt, it gives you the most associated memory stored to the prompt given<d-footnote>You might already suspect where this is going, but for now we will stay away from Natural Language Processing</d-footnote><d-footnote>One such example in computer science is what happens when you Google something, it gives you a list of related links stored somewhere on the internet.</d-footnote>.
+    </p>
+    <p>
+      An example of associative memories are search engines. What a search engine does is to return the most associated results to the query given by the user.
     </p>
     <p>
       In general, a associative memory can be modeled as a energy landscape with with a discrete number of minima, each of which corresponding to a stored memory
@@ -521,8 +547,8 @@
       </figure>
     </p>
     <p>
-      Associative memories, just like the memory inside a computer have finite capacity, but how do we quintify this?<br>
-      Intuitively what ends up happening when you try to store too many separate memories, is that the configuration space becomes too crammed and some of the saved patterns fuse toghered.
+      Associative memories, just like the memory inside a computer, have finite capacity. How do we quantify this?<br>
+      Intuitively what ends up happening when you try to store too many separate memories, is that the configuration space becomes too crammed and some of the saved patterns fuse together. 
       <d-figure>
         <img src="website/images/associative_memory-2.png" width="100%">
         <figcaption>
@@ -534,10 +560,10 @@
     
     <d-subsection>Hopfield Networks</d-subsection>
     <p>
-      Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>. It is the perfect working bench to understand what are the capabilities of associative memeories.
+      Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>.  It is the perfect working bench to understand what are the capabilities of associative memories.
     </p>
     <p>
-      The standard Hopfield Network with $N$ patterns stored equation is the following
+      The standard Hopfield Network with NN patterns stored equation is the following 
       $$
         H=\sum_{ij}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
       $$
@@ -558,18 +584,18 @@
       </d-figure>
     </p>
     <p>
-      As you can see at low temperature the system converges to the closest state, but at hight temperature the system is noisy.
+      As you can see at low temperature the system converges to the closest state, but at high temperature the system is noisy.
     </p>
   
   <d-subsection>Hopfield networks with local interaction</d-subsection>
     <p>
-      Many of the self-organizing systems in real life are capable to reach an highly ordered state even with just local interactions, so what happens if the Hamiltonian of the Hopfield network makes spins interact only if they are close by?
+      Many of the self-organizing systems in real life are capable of reaching a highly ordered state even with just local interactions, so what happens if the Hamiltonian of the Hopfield network makes spins interact only if they are close by? 
       $$
         H=\sum_{\langle i,j\rangle}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
       $$
-      In this case $\langle i,j\rangle$ means that $i$ and $j$ are in the same window of interaction. Here is a simutation to play with.
+      In this case $\langle i,j\rangle$ means that $i$ and $j$ are in the same window of interaction. Here is a simulation to play with.
     </p>
-    <figure>
+    <figure id="local_hop_sim">
       <canvas id="canvasHop2D" width="600" height="600"></canvas>
         <div>
             <label for="temperatureHop2D-slider">$T=$</label>
@@ -584,7 +610,8 @@
       </figcaption>
     </figure>
     <p>
-      As you can see the system strugles more to converge to one of the saved patters, and the smaller the window size is, the harder it becomes.<br> What it is possible to conclude even with this small demo is that the memory capacity of a local Hopfield model is lower, we will later analize by how much.
+      As you can see the system struggles more to converge to one of the saved patterns, and the smaller the window size is, the harder it becomes.<br>
+      What is possible to conclude even with this small demo is that the memory capacity of a local Hopfield model is lower, we will later analyze by how much.
     </p>
   <!-- <d-subsection>Transformers and Hopfield networks</d-subsection>
     <p>
@@ -592,31 +619,6 @@
     </p> -->
 
 
-    <d-subsection>Morphogenesis and Language Modelling</d-subsection>
-    <div>
-      <figure class="l-side">
-        <img src="website/images/navigation.webp">
-        <figcaption>
-          Side by side comparison between text generation and morphogenesis
-        </figcaption>
-      </figure>
-      <p>
-        Many phenomena in self-organizing systems are interpreted in the literature as navigation in a morphological space
-        <d-cite key="fields2022competency"></d-cite>.
-      </p>
-      <p>
-        In various fields like biology, linguistics, computer science, and design, a morphological space refers to a conceptual space where each point represents a specific configuration or form of an entity. The term "morphological" refers to the form, structure, or shape of something.
-      </p>
-      <p>
-        Navigating a morphological space involves exploring and moving through this conceptual space to observe or analyze the different configurations or forms that an entity can take. It is often used to understand the relationships between different variations or possibilities within a system. Better configurations are associated to a lower energy value, and the system evolves rolling down this energy landscape
-      </p>
-      <p>
-        One common example is in biology, where the concept of morphological space can be used to describe the range of physical forms that a species can exhibit. By navigating this space, the organism changes shape over time. Both processes of morphogenesis and damage repair can be thought as navigating this morphological space towards the stable adult form of the organism. The damage becomes impossible to heal for the organism if it puts it in a point into the morphological space outside the bacin of attraction of the stable configuration.
-      </p>
-      <p>
-        Drawing parallels between text generation and morphogenesis, text generation starts with a prompt (analogous to an embryo) and progresses, generating the rest of the text until completion. Similarly, correcting errors in text, such as misspelled or missing words, bears similarity to the process of repairing damage in biological organisms. Both tasks are error correction procedures that involve navigating a morphological space to rectify errors and achieve the desired final state.
-      </p>
-    </div>
     
     
 <d-section>
@@ -632,6 +634,9 @@
       <li>Windowed Hopfield wich are a generalization of the 2D Ising model are in principle capable of self organizing, but their memory capacity is lower than the one of standard Hopfield Networks, and it takes time to self-organize</li>
     </ul>
     But is there a unified way of determining if any system is capable of self organizing?
+  </p>
+  <p>
+    It turns out that a system can be capable of self-organizing if it is topologically equivalent to an Ising model which has a condensed phase at low temperatures.
   </p>
   <p>
     It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.<br>First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any integer value from $0$ to $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
@@ -979,7 +984,7 @@
         </figcaption>
       </figure>
       <p>
-        This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever get the chance to get to one of the global minima. In the rare occurrence that the system manages to escape the local minimum it will most likely go to another local minimum. 
+        This usually happens when the energy landscape is rugged. Essentially the system stays trapped in a local minima before it ever gets the chance to get to one of the global minima. In the rare occurrence that the system manages to escape the local minimum it will most likely go to another local minimum. 
       </p>
 
       <p>
@@ -1017,8 +1022,8 @@
         </details>
       </p>
       <p>
-        But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disorderd spin glass?
-        For Hopfield models peaple have figured it out. 
+        But how can we make sure that our self organizing system behaves more like an Ising model, and not like a completely disordered spin glass?
+        For Hopfield models people have figured it out. 
       </p>
     </div>
     
@@ -1034,12 +1039,12 @@
       </figure>
       <p>
         An Hopfield model with one pattern stored is mathematically equivalent to the Ising model.<br>
-        As you add more and more patterns it start being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
+        As you add more and more patterns it starts being more and more difficult for the system to converge to any given pattern, until it can't take it no more and it becomes glassy.
       </p>
-      <p>This can be schematized in a phase diagram.</p>
-       <p>
-        The statistics of this system has been extensively studied in the literature <d-cite key="mezard2017mean, amit1987statistical"></d-cite>, and it has been shown that the total number of patterns $N$ that it is possible to store  in this kind of memory is $N\approx 0.14\times P$<d-footnote>This estimate assumes that the patterns are statistically indipendent. For real life data this is usually not true as the patterns are hardly ever statistically indipendent, so it should be taken as an upper bound</d-footnote>.<br>
-        Studying the phase diagram rigorously can be challenging, but there are some less rigorous way that are good enought and are much easier to generalize.
+      <p>But how many patterns can our system have before it becomes glassy?</p>
+      <p>
+        The statistics of this system have been extensively studied in the literature <d-cite key="mezard2017mean, amit1987statistical"></d-cite> and can be schematized in the phase diagram.<br><br> It has been shown that the total number of patterns N that it is possible to store in this kind of memory is $N\approx 0.14\times P$. This estimate assumes that the patterns are statistically independent. For real life data this is usually not true as the patterns are hardly ever statistically independent, so it should be taken as an upper bound.<br>
+        Studying the phase diagram rigorously can be challenging, but there are some less rigorous ways that are good enough and are much easier to generalize.
       </p>
       <p>
         In <d-cite key="krotov2016dense"></d-cite> the authors proved this theorem
@@ -1098,14 +1103,53 @@
         </details>
     <p>      
       Similarly, in <d-cite key="demircigil2017model"></d-cite> the authors proved that if $F(x)\approx e^x$ the the storage capacity goes like $e^{\alpha L}$.<br>
-      Their proof is more rigorous, but the main idea is the same
+      Their proof is more rigorous, but the main idea is the same.
     </p>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     <d-subsection>Local Hopfield Networks</d-subsection>
     <p>
-      While this tecqniques are effective in increasing the memory capacity of the Hopfield network, each spin effectively interacts with every other spin.
+      While these techniques are effective in increasing the memory capacity of the Hopfield network, each spin effectively interacts with every other spin. What we want is a system that is capable of self-organizing with just local interactions.
     </p>
     <p>
-      Let's define a Hopfield Network where all the interactions are local
+      Let's define a generalized Hopfield Network where all the interactions are local.
     </p>
     <b class="Definition">Definition: Local Hopfield Network</b>
     <p class="definition_text">
@@ -1117,11 +1161,16 @@
       $$
       A nice way to imagine local Hopfield network is as a patchwork of several overlapping Hopfield networks
     </p>
-    <p>Now that all interaction are inside a certain window, how does it change the number of stored patterns?</p>
+    <p>
+      Previously we have already seen <a href="#local_hop_sim" >a simulation of a local Hopfield Network with pairwise interactions </a>.
+    </p>
+    <p>
+      Now that all interaction are inside a certain window, how does it change the number of stored patterns?
+    </p>
 
     <b class="Theorem">Theorem</b>
       <p class="theorem_text">
-         A Local Hopfield network with an energy function that is the sum of several sub-Hopfield networks with window size of $W$ has a storage capacity equal to that of any given sub-network
+        A Local Hopfield network with an energy function that is the sum of several sub-Hopfield networks with window size of W has a storage capacity equal to that of any given sub-network.
       </p>
         <details>
           <summary>
@@ -1214,16 +1263,17 @@
           In other words, if our elements have the right topology to be able to self organize, the entire self-organizing system will have a memory capacity equal to the memory capacity of each of its sub-modules
         </p>        
         <p>
-          It is crucial to bear in mind that these represent some of the essential prerequisites.<br>Similar to how possessing Turing Completeness does not guarantee intelligence, having an ordered phase in a system does not automatically imply that the output will be actually coherent and meaningful.
+          It is crucial to bear in mind that these represent some of the essential prerequisites.<br>
+          Similar to how possessing Turing Completeness does not guarantee intelligence, having an ordered phase in a system does not automatically imply that the output will be actually coherent and meaningful.
         </p>
         <p>
           We now possess all the necessary elements to ascertain whether a system can ever exhibit the capacity to generate data coherently.
             <ol>
               <li>
-                Select a topology of communication of the cells that is equivalent to an iIsing model that has an ordered phase
+                Select a topology of communication of the cells that is equivalent to an Ising model that has an ordered phase
               </li>
               <li>
-                Make sure that the system in not bottlenecked by the memory capacity (either by having a large enought window size and a large enought number of trainable parameters)
+                Make sure that the system in not bottlenecked by the memory capacity (either by having a large enough window size and a large enough number of trainable parameters)
               </li>
             </ol>
           Now let's see some examples form the literature
@@ -1254,10 +1304,10 @@
       </p> -->
     <d-subsection>Tree language model</d-subsection>
       <p>
-        We want to see if a tranformer that has an attention matrix with the topology of a tree can ever generate text.
+        We want to see if a transformer that has an attention matrix with the topology of a tree can ever generate text.
         <ul>
           <li>
-            Since the Ising model on the tree does have an ordered phase <d-cite key="breuckmann2020critical"></d-cite>, the possibility of generating an infinitely long, coherent text is not constrained by the topology
+            Since the Ising model on the tree does have an ordered phase <d-cite key="breuckmann2020critical"></d-cite>,the possibility of generating an infinitely long, coherent text is not constrained by the topology
           </li>
           <li>
             The bottleneck provided by the memory capacity can be widened by increasing the window size and the number of parameters
@@ -1266,7 +1316,7 @@
       </p>
       <h4>Experiments</h4>
         <p>
-          Recently a paper has come out that uses a tree-like attention structure <d-cite key="ding2023longnet"></d-cite> where the authors where able to generate text that has a linear complexity and an effective context size of 1 bilion tokens.
+          Recently a paper has come out that uses a tree-like attention structure <d-cite key="ding2023longnet"></d-cite> where the authors were able to generate text that has a linear complexity and an effective context size of 1 billion tokens.
         </p>
         <figure>
           <img src="website/images/longnet_attention.png">
@@ -1277,25 +1327,24 @@
           </figcaption>
         </figure>
         <p>
-          However, it is unclear if this specific experiment resulted in a model that it is actually capable of retrieving any information inside that effective context of 1 bilion tokens.
+          However, it is unclear if this specific experiment resulted in a model that is actually capable of retrieving any information inside that effective context of 1 billion tokens.
         </p>
 
     <d-subsection>Brain + Envoirnment</d-subsection>
-      <p>Lets start with a system inspired on how the brain works.</p>
+      <p>Let's start with a system inspired on how the brain works.</p>
       <p>
-        One can naively say that the way the state of the brain at the time $t$ depends from the state of the brain at the time $t-1$<d-footnote>We are assuming the time to be discretized, but this can be easily generalized</d-footnote>
+        One can naively say that the way the state of the brain at the time $t$ depends from the state $t-1$<d-footnote>We are assuming the time to be discretized, but this can be easily generalized</d-footnote>
         $$
           B_{t+1}=f_B(B_t)
         $$
-        This effectively makes the brain an autoregressive model, thus it is incapable of retaining information for an indefinite amout of time. One one hand we humans do forget lots of stuff, but on the other hand we seem to be able to also have long term memory and the ability to stick to a plan for even years.
+        This effectively makes the brain an autoregressive model, thus it is incapable of retaining information for an indefinite amount of time. On one hand we humans do forget lots of stuff, but on the other hand we seem to be able to also have long term memory and the ability to stick to a plan for even years.
       </p>
       <p>
-        However we humans also augment our finite memory by deliberatly interacting with the envoirnment, this way we are able to remember stuff for much longer
+        However we humans also augment our finite memory by deliberately interacting with the environment, this way we are able to remember stuff for much longer.
       </p>
       <p>
-        For example when you go shopping, you write down what you have to buy in a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
-
-        This example also raises an intresting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket, adn $t_\textrm{h}$ is when you are at home writing the shopping list.
+        For example when you go shopping, you write down what you have to buy on a piece of paper, this is because information stays there longer and more reliably than if you try to remember it.<br>
+        This example also raises an interesting observation: When you read your shopping list, you effectively "interact" with your past self though interacting with a piece of paper. In some sense we can say that effectively $B(t_\textrm{s})=B(t_\textrm{h})$ where $t_\textrm{s}$ is when you are at the supermaket, and $t_\textrm{h}$ is when you are at home writing the shopping list.
       </p>
       <figure class="l-page-outset">
         <img src="website/images/brain-env_interaction.svg">
@@ -1304,28 +1353,33 @@
         </figcaption>
       </figure>
       <p>
-        This sorts of thing happens all the time, our brain constantly interacts with the surrounding environment so much so that is impossible to study the brain indipendently from the environment as such thing doesn't even exist.<br>Now lets look at the system from a more formal point of view.
+        This sort of thing happens all the time, our brain constantly interacts with the surrounding environment so much that it is impossible to study the brain independently from the environment as such a thing doesn't even exist.
       </p>
       <p>
-         Let $B_t$ be the state of the brain at the time $t$ and $E_t$ the state of the environment, we can say that the way they evolve is ruled by a set of equations like this
+        We humans are not the only ones engaged in this intricate dance of information exchange with their environment. Nature has its own fascinating mechanisms for information storage and communication, one of which is known as "stigmergy". For example ants leave pheromone traces or signals in their environment as they go about their tasks. When a group of foraging ants discovers a food source, they lay down a chemical pheromone trail on their way back to the colony. As a result, the rest of the colony is more likely to find and follow the trail to the food source.
+      </p>
+      <p>
+        Now let's look at the brain+environment system from a more formal point of view.
+      </p>
+      <p>
+         Let $B_t$ be the state of the brain at the time $t$ and $E_t$ he state of the environment, we can say that the way they evolve is ruled by a set of equations like this.
         $$
           \begin{cases}
           B_{t+1}=f_B(B_t,E_t)\\
           E_{t+1}=f_E(B_t,E_t)
           \end{cases}
         $$
-        Note that this is simply an autoregressive model made of two coupled autoregressive models, however we can assume that the environment is capable of holding on to information for longer.<br>
+        Note that this is simply an autoregressive model made of two coupled autoregressive models, however we can assume that the environment is capable of holding on to information for longer.
       </p>
       <p>
-        We can simplify a system like this by assuming that both the brain and the envoirnment have only two possible states: 0 or 1.
+        We can simplify a system like this by assuming that both the brain and the environment have only two possible states: 0 or 1.
       </p>
       <p>
-        We can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence lenght we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
-        The Hamiltonian becomes
+        We can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence length we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant JC​ that couples the neighboring spins of the two chains.<br>
+        The Hamiltonian becomes:
         $$
           H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
         $$
-        What effectively happens, if $J_C$ is not too small, is that the coherence lenght of the brain chain becomes equal to the one of the environment.
       </p>
       <figure class="l-page-outset">
         <canvas id="canvasBE" width="1100" height="40" style="border: 1px solid #000;"></canvas>
@@ -1354,23 +1408,32 @@
           If you want to decouple the brain with the environment just set $J_C=0$
         </figcaption>
       </figure>
-      
       <p>
-        Lets take the Hamiltonian for our brain + environment system and assume that the environment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the environment is constant with a value of $E$. The Hamiltonian becomes
-        $$
-          H=J_b\sum_tB_tB_{t+1} + J_cE\sum_t B_t
-        $$
-        This is equivalent to the Hamiltonian for the 1D Ising model with an external magnetic field, since it is exactly solvable it is possible to evaluare the average value of $B=\langle B_t\rangle$
-
-        $$
-          B=\frac {\sinh (J_cE/T)}{\sqrt{\sinh^2(J_cE/T) + e^{-4J_b/T}}}
-        $$
-        And we have that the lower the temperature is, the more the chain aligns with the environment value. 
+        As you can see, what effectively happens is that when $J_C$ is not too small, the coherence length of the brain chain becomes equal to the one of the environment.
       </p>
+      <details>
+        <summary>
+          <b>
+            A mathematical argument on why the coherence length of the chain lowest coherence length becomes equal to the one with the longest one
+          </b>
+        </summary>
+        <p>
+          Lets take the Hamiltonian for our brain + environment system and assume that the environment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the environment is constant with a value of $E$. The Hamiltonian becomes
+          $$
+            H=J_b\sum_tB_tB_{t+1} + J_cE\sum_t B_t
+          $$
+          This is equivalent to the Hamiltonian for the 1D Ising model with an external magnetic field, since it is exactly solvable it is possible to evaluare the average value of $B=\langle B_t\rangle$
+
+          $$
+            B=\frac {\sinh (J_cE/T)}{\sqrt{\sinh^2(J_cE/T) + e^{-4J_b/T}}}
+          $$
+          And we have that the lower the temperature is, the more the chain aligns with the environment value. 
+        </p>
+      </details>
 
       <h4>Experiments</h4>
         <p>
-          Systems like this made from a model with limited context lenght + an external environment can be found in the language modelling + reinforcement learning literature. One that I particularly like is Vojager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
+          Systems like this made from a model with limited context length + an external environment can be found in the language modeling + reinforcement learning literature. One that I particularly like is Voyager <d-cite key="wang2023voyager"></d-cite>, where the authors make a model that plays Minecraft
         </p>
         <figure class="l-page-outset">
           <img src="website/images/voyager_scheme.png">
@@ -1379,10 +1442,10 @@
           </figcaption>
         </figure>
         <p>
-          In this paper the "brain" is a large language model (GPT-4), and it is able to interact with both the game world, and a code library where the LLM can both read, write and organize information
+          In this paper the "brain" is a large language model (GPT-4), and it is able to interact with both the game world, and a code library where the LLM can both read, write and organize information.
         </p>
         <p>
-          By doing so the agent is capable of using skills and information that has written in the distant past. This effectively increases the context lenght of the language model.
+          By doing so the agent is capable of using skills and information that has been written in the distant past. This effectively increases the context length of the language model.
         </p>
         <p>
           Overall, these examples <d-cite key="ding2023longnet, wang2023voyager"></d-cite> showcase how different approaches and topologies can enhance data coherence in systems, resulting in more meaningful and contextually rich outputs.
@@ -1409,9 +1472,14 @@
       Biological systems have long exploited self-organization and indeed possess the right topology to be able to self-organize, furthermore we showed how current NLP algorithms don't possess the needed topology and because of that are incapable of generating long and coherent text.
     </p>
     <p>
-      The same requirements needed for generating coherent text apply to agents trying to navigate a problem space by performing a series of actions, thus all the results also apply in the field of reinforcement learing if the agent has to remember past actions in order to correctly act in the future.
+      The same requirements needed for generating coherent text apply to agents trying to navigate a problem space by performing a series of actions, thus all the results also apply in the field of reinforcement learning if the agent has to remember past actions in order to correctly act in the future.
     </p>
-
+    <p>
+      However, since disorder can lead to glassy dynamics, we calculated the memory capacity of self-organizing systems made only by local interactions.
+    </p>
+    <p>
+      We also showed how an agent with limited context (such as a transformer based LLM) can in principle be able to extend their context by deliberately interacting with the external environment.
+    </p>
 
   </d-article>
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
