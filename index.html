@@ -29,7 +29,7 @@
 
 <d-front-matter>
   <script type="text/json">{
-    "title": "Topological requirements to self organization",
+    "title": "Requirements for Self Organization",
     "description": "1 or 2 short sentences to describe the thing",
     "authors": [
       {
@@ -55,7 +55,7 @@
 </d-front-matter>
 
   <d-title> 
-    <h1>Topological requirements to self organization</h1>
+    <h1>Requirements for self organization</h1>
     <p>
         What do you need to have a structure emerge spontaneously?<br>
     </p>
@@ -563,7 +563,7 @@
       Hopfield Networks <d-cite key="hopfield1982neural"></d-cite> are one of the most famous examples of associative memories, and, it turns out that, when generalized, they are equivalent to the Transformer architecture <d-cite key="ramsauer2020hopfield"></d-cite>.  It is the perfect working bench to understand what are the capabilities of associative memories.
     </p>
     <p>
-      The standard Hopfield Network with NN patterns stored equation is the following 
+      The standard Hopfield Network with $N$ patterns stored equation is the following 
       $$
         H=\sum_{ij}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
       $$
@@ -639,307 +639,324 @@
     It turns out that a system can be capable of self-organizing if it is topologically equivalent to an Ising model which has a condensed phase at low temperatures.
   </p>
   <p>
-    It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.<br>First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any integer value from $0$ to $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
+    It turns out that there is, but before proving in the general case, we will first prove why autoregressive models for text are incapable of generating text that remains coherent at arbitrary lenghts as it gives us the intuition to prove it in the more general case.
   </p>
-  <d-subsection>The 1D case</d-subsection>
-    <b class="Definition">Definition: Potts Chain</b>
-    <p class="definition_text">
-      A Potts chain is $\mathcal C$ chain of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
-    </p>
+  
+  <details>
+    <summary style="display: inline-block">
+      <h3 class="topo">Topological requirements for self-organization</d-subsection>
+    </summary>
     <p>
-      Ok, now we are going to define how this new spins interact with one onother. We want them to interact with only their neighbours, thus only interactions inside a finite Window are non zero.
+      First, we generalize the value that the spins can take: instead of $-1$ and $1$, they can now take any integer value from $0$ to $V$<d-footnote>For now we are going to ignore the possibility of having continous valued elements</d-footnote>
     </p>
-    <b class="Definition">Definition: Hamiltonian Window</b>
-    <p class="definition_text">
-      A Hamiltonian window $H_i$ is an Hamiltonian that acts only on the spins inside his finite window of interaction $\mathcal W_i$. Without loss of generality, we are going to assume that the lowest energy state has a value of zero.
-    </p>
-    <b class="Definition">Definition: Local Hamiltonian</b>
-    <p class="definition_text">
-      A Local Hamiltonian $H=\sum_i H_i$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window width $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i < E^\textrm{max}$
-    </p>
-    <figure class="l-page-outset">
-      <div class="graph-container">
-        <svg id="graph"></svg>
-      </div>
-      <figcaption>
-        The time evolution of this chain is governed by a local Hamiltonian which is the sum of several Hamiltonian windows, you can see all the Hamiltonian windows by hovering on top of the chain elements. In this case the elements of the sequence interact in groups of five.
-      </figcaption>
-    </figure>
-    <p>
-      As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line or evolving though time.<br>
-      Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
-    </p>
-    <b class="Definition">Definition: Memory or Pattern stored</b>
-    <p class="definition_text">
-      A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots, s_{-1}, s_0, s_1,\dots )$ such that the energy of the Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^{(n)}$ = $(\dots,s^{(n)}_1,s^{(n)}_0,s^{(n)}_1,\dots)$.
-    </p>
-    <p>
-      Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
-      <!-- <ul>
-        <li>Words in a text</li>
-        <li>State of the cells in an organism</li>
-        <li>Actions performed by an agent</li>
-        <li>The value of a title in the stock market</li>
-      </ul> -->
-      We also don't really care how the values of the Hamiltonian are evaluated: The architecture of the model doesn't matter.
-    </p>
-    <p>
-      We are now going to prove that local Hamiltonians in 1D, no matter how low the temperature, cannot have a condensed phase.
-    </p>
-    <b class="theorem">Theorem</b>
-        <p class="theorem_text">
-          Let $H$ be a local Hamiltonian with $N$ > 1 stored patterns. At non-zero temperature the system will be unable to converge to single stored pattern.
-        </p>
-        <details >
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier is thermodynamically favorable.
-
-              $$
-                  \Delta F=\Delta E -T\Delta S< 0
-              $$
-              For that to be true, the Free energy of the system must decrease upon the formation of a domain barrier.
-
-              Upon the formation of a domain barrier, The windowed Hamiltonians that intersect it will have a non zero, positive energy. Therefore $\Delta E >0$, however, we know that the energy of each window Hamiltonian is smaller than $E^\textrm{max}$ and no more that $\mathcal W-1$ windows can be affected by a domain wall, therefore
-
-              $$
-                  0\le\Delta E\le (\mathcal W-1)E^\textrm{max}
-              $$
-
-              At the same time we know that in a sequence long $L$ there can be $L-1$ possible places where a domain wall can appear, and for each of this possible places it can lead to any of the $N-1$ other patterns saved, therefore there are $(L-1)(N-1)$ possible configurations where the system has a single domain wall. This means that the change of the entropy of the system is 
-
-              $$
-                  \Delta S=\log [(N-1)(L-1)] 
-              $$
-
-              Putting all the equations together we have that
-
-              $$
-                  \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
-              $$
-              In the thermodynamic limit ($L\to \infty$) we have that the right hand side of the equation becomes eventually negative, therefore the domain barriers are inevitable.
-            </p>
-          </div>
-        </details>
-    <p>
-      We have now seen that 1-dimensional self-organizing systems can't really exists<d-footnote>We are assuming that there are at least two different ground states, </d-footnote>. 
-      <!-- Sure, there are worms and snakes that are more or less one dimensional, but they are usually less than 50 times longer than their diameter. -->
-    </p>
-  <d-subsection>Autoregressive models</d-subsection>
-  <b class="Definition">Definition: Autoregressive Model</b>
-    <p class="definition_text">
-      Given some input tokens $\{s_{i_\textrm{first}},\dots, s_{i_\textrm{last}}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$
-      $$
-        p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
-      $$
-      where $p_c$ is the porbability that the next spin $s_{i_\textrm{pred}}$ is equal to the $c$-th token of the vocabulary
-    </p>
-    <figure>
-      <canvas id="canvasAR" width="700" height="20" style="border: 1px solid #000;"></canvas>
-      <div>
-          <label for="temperatureAR">$T=$</label>
-          <span class="value" id="AR_temperature-value">1.0</span>
-          <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
-      </div>
-      <figcaption>
-        Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimensional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
-      </figcaption>
-    </figure>
-    <p>
-      We will now make the parallelism explicit with Natural Language Processing. Most state of the art language models of today are Autoregressive, meaning to predict the next word (or token) they look at all the previous elements on the text.<br>
-      However, as the context increases, it becomes computationally infeasable to predict the next token, and only the last few words are fed as input to the model.
-    </p>
-    <p>
-      Intuitively, this leads the model to completely forget what is left outside of its input window
-    </p>
-    
-    <p>
-      Keep in mind that how well you can predict the next element in a senquence can be considered a measure of intelligence. After all what any intelligent agent does is just finding the best next action.
-    </p>
-    <p>
-      But how do we prove <i>mathematically</i> that autoregressive models with finite context are bound to lose the thread?<br>
-      We show that Autoregressive models, no matter the architecture, are equivalent to a thermodynamic system with a specifically crafted local Hamiltonian
-    </p>
-    <p>
-      The significance of demonstrating the incapability of autoregressive models doesn't lie solely in the theorem itself. Intuitively, we already understand that autoregressive models, due to their inherent loss of information over time, are unable to generate lengthy texts. What holds importance is that through mathematical proof, we gain the knowledge necessary to establish the coherence of text generation through alternative methods.
-    </p>
-    <b class="theorem">Theorem</b>
-        <p class="theorem_text">
-          It is possible to associate local Hamiltonian to any auto-regressive model
-        </p>
-        <details >
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              Let $M$ be out autoregressive model, and $s_{i_\textrm{first}},\dots,s_{i_\textrm{last}}$ our input sequence.
-              then the probability that the next token in the sequence is equal to $c$ is.
-              $$
-                p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
-              $$
-              Through Boltzmann's equation it's possible to turn a probability distribution to some energy levels
-              $$
-                  p_c=\frac 1Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
-              $$
-              Without loss of generality, we can assume $T=1$ and set the energy associated with every prediction turns out to be
-              $$
-                  E_c=-\log p_c +\textrm{const} \quad\textrm{with}\quad c=1\dots V
-              $$
-              Where we can set the constant in such a way that the lowest energy state has a energy equal to zero.<br>
-              We can now define a windowed Hamiltonian
-              $$
-                  H_{i_\textrm{pred}}(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}},s_{i_\textrm{pred}})=-\log\left[  M(s_{i_\textrm{pred}}|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})\right]+\textrm{const}
-              $$
-              And the full local Hamiltonian can now be seen as the sum of all the $H=\sum H_{i_\textrm{pred}}$ of the sequence.<br>
-              The generation process of an autoregressive model can now be seen as sampling from the Boltzmann distribution given from 
-              $$
-                  p_\textrm{sequence}=\frac 1Z 
-                  e^{-\frac 1TH(\textrm{sequence})}
-              $$
-            </p>
-          </div>
-        </details>
-    <p>
-      So, we now know that autoregressive data generation is equivalent to sampling form the Boltzmann distribution of a local Hamiltonian (usually at $T\approx 1$), and since 1-dimensional local Hamiltonians are inherently unstable it means that autoregressive models with a finite context window are too.
-    </p>
-    
-  <!-- <d-subsection>The 2D case</d-subsection>
-    <p>
-      2-dimensional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
-    </p>
-    <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p> -->
-  <d-subsection>More complex Topologies</d-subsection>
-    <p>
-      As you have seen from the examples, determining whether or not an ordered phase can exists boils down to a counting problem.
-      <ol>
-        <li>
-          Start with the system being equal to one of the patterns stored
-        </li>
-        <li>
-          Create a domain wall
-        </li>
-        <li>
-          Count the number of such domain walls
-        </li>
-        <li>
-          Estimate the energy gained by the system
-        </li>
-        <li>
-          See if there exists a finite temperature for which the free energy decreases as the size of the domain walls goes to infinity
-        </li>
-      </ol>
-    </p>
+    <d-subsection>The 1D case</d-subsection>
+      <b class="Definition">Definition: Potts Chain</b>
+      <p class="definition_text">
+        A Potts chain is $\mathcal C$ chain of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
+      </p>
       <p>
-        This can be applied to systems with very different topologies, we are now going to explore that
+        Ok, now we are going to define how this new spins interact with one onother. We want them to interact with only their neighbours, thus only interactions inside a finite Window are non zero.
       </p>
-    <p>
-      The most general way to consider the interaction between the elements of our system is if the interactions are represented by a graph Hamiltonian
-    </p>
-    <p>
-      For simplicity we are going to consider that the links of the graph are fixed in time.<d-footnote>
-      This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid communication each person interacted only with the people nearby thus the topology was 2-dimensional. Today, with the internet we can interact with people far away.<br>
-      However, we can say that even though the interaction graph changes with time, it usually changes slowly relative to the dynamics of the time evolution of its elements. 
-    </d-footnote></p>
-    <b class="Definition">Definition: Graph Hamiltonian</b>
-    <p class="definition_text">
-      Let G be the adjacency matrix of a graph, then a Graph Hamiltoninan H is a Hamiltonian that can be written as
-      $$H=H*G$$
-      where the ($*$) operator is the element wise multiplication.
-    </p>
-    <p>
-      Now to see if a ordered phase can ever exist, we must generalize Peierls argument. To see if an ordered phase exists we only care how the enegry and the entropy increase when we create a domain wall
-    </p>
-    <b class="Definition">Definition: Entropy Scaling</b>
+      <b class="Definition">Definition: Hamiltonian Window</b>
       <p class="definition_text">
-        Let $H$ be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the number of possible configurations of domain barrier increases, thus increasing the entropy of the system $\Delta S$.
-        We say that the Entropy gained scales as $f_S$ if 
-        \[
-          \Delta S=O(f_S(P))
-        \]
+        A Hamiltonian window $H_i$ is an Hamiltonian that acts only on the spins inside his finite window of interaction $\mathcal W_i$. Without loss of generality, we are going to assume that the lowest energy state has a value of zero.
       </p>
-    <b class="Definition">Definition: Energy Scaling</b>
+      <b class="Definition">Definition: Local Hamiltonian</b>
       <p class="definition_text">
-        Let H be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the the Higher and Lower bound of the energy gained $\Delta E$ scale as respectively  $O(f_E^\textrm{high}(P))$ and $O(f_E^\textrm{low}(P))$. If $f_E^\textrm{high}=f_E^\textrm{low}\equiv f_E$ we say that the energy gained scales as $f_E$
-        \[
-          \Delta E=O(f_E(P))
-        \]
+        A Local Hamiltonian $H=\sum_i H_i$ is an Hamiltonian that can be written as the sum of several windowed Hamiltonians $H_i$ all with the same window width $\mathcal W$. For sake of simplicity we are going to assume that there exists an upper bound to the highest energy of every windowed Hamiltonian $E^\textrm{max}_i < E^\textrm{max}$
       </p>
-    <p>
-      Once we know how the entropy and the energy scale, we know if there is a ordered phase
-    </p>
-    <b class="Theorem">Theorem</b>
-      <p class="theorem_text">
-        If $O(f_S)=O(f_E)$ there exists a ordered phase
+      <figure class="l-page-outset">
+        <div class="graph-container">
+          <svg id="graph"></svg>
+        </div>
+        <figcaption>
+          The time evolution of this chain is governed by a local Hamiltonian which is the sum of several Hamiltonian windows, you can see all the Hamiltonian windows by hovering on top of the chain elements. In this case the elements of the sequence interact in groups of five.
+        </figcaption>
+      </figure>
+      <p>
+        As you can see this is a very general structure that can be used to model cells, agents, particles, and words arranged in a line or evolving though time.<br>
+        Ok, now what is a memory in this kind of situation? A pattern stored is a particular configutation of spins with zero energy, or more precisely:
       </p>
-      <details>
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              Let's define $O(f)=O(f_S)=O(f_E)$, the change in Free energy is now
-              $$
-                \Delta F= \Delta E -T\Delta S=\lim_{P\to \infty}O(f(P))-TO(f(P))
-              $$
-              If we now do $\lim_{T\to0}$ the term on the right disappears, therefore the creation of a domain wall increases the free energy and so a coherent phase is favored
-            </p>
-          </div>
-      </details>
+      <b class="Definition">Definition: Memory or Pattern stored</b>
+      <p class="definition_text">
+        A stored pattern $\mathcal P$ is a particular sequence of spins $(\dots, s_{-1}, s_0, s_1,\dots )$ such that the energy of the Hamiltonian $H$ associated to this pattern is equal to zero. If more than one stored pattern is present, they can be numbered as $\mathcal P^{(n)}$ = $(\dots,s^{(n)}_1,s^{(n)}_0,s^{(n)}_1,\dots)$.
+      </p>
+      <p>
+        Notice how we don't really care what the spins represent: They can be the words in a text, or the state of the cells of an organism, or the actions performed by an agent, or the value of a title in the stock market.<br>
+        <!-- <ul>
+          <li>Words in a text</li>
+          <li>State of the cells in an organism</li>
+          <li>Actions performed by an agent</li>
+          <li>The value of a title in the stock market</li>
+        </ul> -->
+        We also don't really care how the values of the Hamiltonian are evaluated: The architecture of the model doesn't matter.
+      </p>
+      <p>
+        We are now going to prove that local Hamiltonians in 1D, no matter how low the temperature, cannot have a condensed phase.
+      </p>
+      <b class="theorem">Theorem</b>
+          <p class="theorem_text">
+            Let $H$ be a local Hamiltonian with $N$ > 1 stored patterns. At non-zero temperature the system will be unable to converge to single stored pattern.
+          </p>
+          <details >
+            <summary>
+              <b>proof</b>
+            </summary>
+            <div class="proof_text">
+              <p>
+                Suppose that our Potts chain starts out equal to our first stored pattern $\mathcal C=\mathcal P^1$. Now we want to know if the formation of a single domain barrier is thermodynamically favorable.
+
+                $$
+                    \Delta F=\Delta E -T\Delta S< 0
+                $$
+                For that to be true, the Free energy of the system must decrease upon the formation of a domain barrier.
+
+                Upon the formation of a domain barrier, The windowed Hamiltonians that intersect it will have a non zero, positive energy. Therefore $\Delta E >0$, however, we know that the energy of each window Hamiltonian is smaller than $E^\textrm{max}$ and no more that $\mathcal W-1$ windows can be affected by a domain wall, therefore
+
+                $$
+                    0\le\Delta E\le (\mathcal W-1)E^\textrm{max}
+                $$
+
+                At the same time we know that in a sequence long $L$ there can be $L-1$ possible places where a domain wall can appear, and for each of this possible places it can lead to any of the $N-1$ other patterns saved, therefore there are $(L-1)(N-1)$ possible configurations where the system has a single domain wall. This means that the change of the entropy of the system is 
+
+                $$
+                    \Delta S=\log [(N-1)(L-1)] 
+                $$
+
+                Putting all the equations together we have that
+
+                $$
+                    \Delta F\le (\mathcal W-1)E^\textrm{max} - T\log [(N-1)(L-1)] 
+                $$
+                In the thermodynamic limit ($L\to \infty$) we have that the right hand side of the equation becomes eventually negative, therefore the domain barriers are inevitable.
+              </p>
+            </div>
+          </details>
+      <p>
+        We have now seen that 1-dimensional self-organizing systems can't really exists<d-footnote>We are assuming that there are at least two different ground states, </d-footnote>. 
+        <!-- Sure, there are worms and snakes that are more or less one dimensional, but they are usually less than 50 times longer than their diameter. -->
+      </p>
+    <d-subsection>Autoregressive models</d-subsection>
+    <b class="Definition">Definition: Autoregressive Model</b>
+      <p class="definition_text">
+        Given some input tokens $\{s_{i_\textrm{first}},\dots, s_{i_\textrm{last}}\}$ an auto-regressive model $M$ return a $V$-dimensional $(p_1,\dots,p_V)$ vector with an estimate of the probability for the next element in the sequence $i_\textrm{pred}=i_\textrm{last}+1$
+        $$
+          p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
+        $$
+        where $p_c$ is the porbability that the next spin $s_{i_\textrm{pred}}$ is equal to the $c$-th token of the vocabulary
+      </p>
+      <figure>
+        <canvas id="canvasAR" width="700" height="20" style="border: 1px solid #000;"></canvas>
+        <div>
+            <label for="temperatureAR">$T=$</label>
+            <span class="value" id="AR_temperature-value">1.0</span>
+            <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
+        </div>
+        <figcaption>
+          Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimensional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
+        </figcaption>
+      </figure>
+      <p>
+        We will now make the parallelism explicit with Natural Language Processing. Most state of the art language models of today are Autoregressive, meaning to predict the next word (or token) they look at all the previous elements on the text.<br>
+        However, as the context increases, it becomes computationally infeasible to predict the next token, and only the last few words are fed as input to the model.
+      </p>
+      <p>
+        Intuitively, this leads the model to completely forget what is left outside of its input window
+      </p>
       
-    <p>
-      This means that we don't really care about the exact formula for $E(P)$ and $S(P)$, but only on how they scale as $P\to \infty$, so we can rule out some details that can lead to complications, for example the number of stored patterns
-    </p>
-    <b class="Theorem">Theorem</b>
-      <p class="theorem_text">
-        Let $H$ be a Graph Hamiltonian with $N>1$ stored patterns. At thermal equilibrium, the ability to converge to a ordered phase doesn't depend on $N$
+      <p>
+        Keep in mind that how well you can predict the next element in a senquence can be considered a measure of intelligence. After all, what any intelligent agent does is just finding the best next action.
       </p>
-      <details>
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              The change in entropy due to the creation of a domain barrier can always be written as
-              $$
-                  \Delta S= \log\left[
-                      (N-1)N_\textrm{barriers}\right]=\log N_\textrm{barriers} + \log (N-1)
-              $$
-              Where $N_\textrm{barriers}$ is the number of barriers of a certain shape. In the thermodynamic limit, the term proportional to the number of barriers increases, while the one proportional to the number of patterns stored stays constant, therefore can be ignored as it doesn't change the entropy scaling
-            </p>
-          </div>
-        </details>
-    <p>
-      The importance of this last theorem is that, since the number and the shape of stored pattern doesn't affect the thermodynamics of the problem we might as well stick with a system with just 2 ground state equal to all spin ups and all spin downs. Like in the Ising Model!<br>
-
-      We are also go one step furter we can also show that we don't really care on how strong, complicated the interaction are, and neither on how big the interaction windows are. 
-    </p>
-    <b class="Theorem">Theorem</b>
-      <p class="theorem_text">
-        Let $H=\sum_i H_i$, if there exists two energies $E_\textrm{max},E_\textrm{min}$ which are the biggest and smallest non-zero energy level of all the windowed Hamiltonians $H_i$. At thermal equilibrium, the ability to converge to a ordered phase does not depend from the energy levels and the window sizes
+      <p>
+        But how do we prove <i>mathematically</i> that autoregressive models with finite context are bound to lose the thread?<br>
+        We show that Autoregressive models, no matter the architecture, are equivalent to a thermodynamic system with a specifically crafted local Hamiltonian
       </p>
-      <details>
-          <summary>
-            <b>proof</b>
-          </summary>
-          <div class="proof_text">
-            <p>
-              Let $\mathcal W$ be the biggest window size, and 1 the smallest window size of any $H_i$, and let $P$ be the perimeter length of our domain wall. The energy gain by creating such a domain wall is bounded by 
-              $$
-                  P E^\textrm{min}\le\Delta E\le \mathcal W PE^\textrm {max}
-              $$
-              In both cases we have that
-              $$
-                  E=O(P)
-              $$
-            </p>
-          </div>
+      <p>
+        The significance of demonstrating the incapability of autoregressive models doesn't lie solely in the theorem itself. Intuitively, we already understand that autoregressive models, due to their inherent loss of information over time, are unable to generate lengthy texts. What holds importance is that through mathematical proof, we gain the knowledge necessary to establish the coherence of text generation through alternative methods.
+      </p>
+      <b class="theorem">Theorem</b>
+          <p class="theorem_text">
+            It is possible to associate local Hamiltonian to any auto-regressive model
+          </p>
+          <details >
+            <summary>
+              <b>proof</b>
+            </summary>
+            <div class="proof_text">
+              <p>
+                Let $M$ be out autoregressive model, and $s_{i_\textrm{first}},\dots,s_{i_\textrm{last}}$ our input sequence.
+                then the probability that the next token in the sequence is equal to $c$ is.
+                $$
+                  p_c=M(s_{i_\textrm{pred}}=c|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})
+                $$
+                Through Boltzmann's equation it's possible to turn a probability distribution to some energy levels
+                $$
+                    p_c=\frac 1Ze^{-\frac{E_c}{T}}\quad\textrm{with}\quad c=1\dots V
+                $$
+                Without loss of generality, we can assume $T=1$ and set the energy associated with every prediction turns out to be
+                $$
+                    E_c=-\log p_c +\textrm{const} \quad\textrm{with}\quad c=1\dots V
+                $$
+                Where we can set the constant in such a way that the lowest energy state has a energy equal to zero.<br>
+                We can now define a windowed Hamiltonian
+                $$
+                    H_{i_\textrm{pred}}(s_{i_\textrm{first}},\dots,s_{i_\textrm{last}},s_{i_\textrm{pred}})=-\log\left[  M(s_{i_\textrm{pred}}|s_{i_\textrm{first}},\dots,s_{i_\textrm{last}})\right]+\textrm{const}
+                $$
+                And the full local Hamiltonian can now be seen as the sum of all the $H=\sum H_{i_\textrm{pred}}$ of the sequence.<br>
+                The generation process of an autoregressive model can now be seen as sampling from the Boltzmann distribution given from 
+                $$
+                    p_\textrm{sequence}=\frac 1Z 
+                    e^{-\frac 1TH(\textrm{sequence})}
+                $$
+              </p>
+            </div>
+          </details>
+      <p>
+        So, we now know that autoregressive data generation is equivalent to sampling form the Boltzmann distribution of a local Hamiltonian (usually at $T\approx 1$), and since 1-dimensional local Hamiltonians are inherently unstable it means that autoregressive models with a finite context window are too.
+      </p>
+      
+    <!-- <d-subsection>The 2D case</d-subsection>
+      <p>
+        2-dimensional self-organizing systems are plentiful in nature (cities, the human economy before globalization, ecosystems, those fungi with long roots, those trees ...). Most of them are 2D because the surface of the earth is also 2D. REWRITE THIS
+      </p>
+      <p>MAYBE ITS NOT THAT IMPORTANT TO TALK ABOUT IT...</p> -->
+    <d-subsection>More complex Topologies</d-subsection>
+      <p>
+        As you have seen from the examples, determining whether or not an ordered phase can exists boils down to a counting problem.
+        <ol>
+          <li>
+            Start with the system being equal to one of the patterns stored
+          </li>
+          <li>
+            Create a domain wall
+          </li>
+          <li>
+            Count the number of such domain walls
+          </li>
+          <li>
+            Estimate the energy gained by the system
+          </li>
+          <li>
+            See if there exists a finite temperature for which the free energy decreases as the size of the domain walls goes to infinity
+          </li>
+        </ol>
+      </p>
+        <p>
+          This can be applied to systems with very different topologies, we are now going to explore that
+        </p>
+      <p>
+        The most general way to consider the interaction between the elements of our system is if the interactions are represented by a graph Hamiltonian
+      </p>
+      <p>
+        For simplicity we are going to consider that the links of the graph are fixed in time.<d-footnote>
+        This is a simplification and loads of self-organizing systems have a interaction graph that changes with time, for example most of the people you interact daily are different from the people you interacted in your childhood.<br> Sometimes even the topology of the entire graph changes, for example before the invention of means of rapid communication each person interacted only with the people nearby thus the topology was 2-dimensional. Today, with the internet we can interact with people far away.<br>
+        However, we can say that even though the interaction graph changes with time, it usually changes slowly relative to the dynamics of the time evolution of its elements. 
+      </d-footnote></p>
+      <b class="Definition">Definition: Graph Hamiltonian</b>
+      <p class="definition_text">
+        Let G be the adjacency matrix of a graph, then a Graph Hamiltoninan H is a Hamiltonian that can be written as
+        $$H=H*G$$
+        where the ($*$) operator is the element wise multiplication.
+      </p>
+      <p>
+        Now to see if a ordered phase can ever exist, we must generalize Peierls argument. To see if an ordered phase exists we only care how the enegry and the entropy increase when we create a domain wall
+      </p>
+      <b class="Definition">Definition: Entropy Scaling</b>
+        <p class="definition_text">
+          Let $H$ be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the number of possible configurations of domain barrier increases, thus increasing the entropy of the system $\Delta S$.
+          We say that the Entropy gained scales as $f_S$ if 
+          \[
+            \Delta S=O(f_S(P))
+          \]
+        </p>
+      <b class="Definition">Definition: Energy Scaling</b>
+        <p class="definition_text">
+          Let H be a Graph Hamiltonian, and $P$ be the perimeter length, or surface area of a domain wall, as the perimeter length increases, the the Higher and Lower bound of the energy gained $\Delta E$ scale as respectively  $O(f_E^\textrm{high}(P))$ and $O(f_E^\textrm{low}(P))$. If $f_E^\textrm{high}=f_E^\textrm{low}\equiv f_E$ we say that the energy gained scales as $f_E$
+          \[
+            \Delta E=O(f_E(P))
+          \]
+        </p>
+      <p>
+        Once we know how the entropy and the energy scale, we know if there is a ordered phase
+      </p>
+      <b class="Theorem">Theorem</b>
+        <p class="theorem_text">
+          If $O(f_S)=O(f_E)$ there exists a ordered phase
+        </p>
+        <details>
+            <summary>
+              <b>proof</b>
+            </summary>
+            <div class="proof_text">
+              <p>
+                Let's define $O(f)=O(f_S)=O(f_E)$, the change in Free energy is now
+                $$
+                  \Delta F= \Delta E -T\Delta S=\lim_{P\to \infty}O(f(P))-TO(f(P))
+                $$
+                If we now do $\lim_{T\to0}$ the term on the right disappears, therefore the creation of a domain wall increases the free energy and so a coherent phase is favored
+              </p>
+            </div>
         </details>
+        
+      <p>
+        This means that we don't really care about the exact formula for $E(P)$ and $S(P)$, but only on how they scale as $P\to \infty$, so we can rule out some details that can lead to complications, for example the number of stored patterns
+      </p>
+      <b class="Theorem">Theorem</b>
+        <p class="theorem_text">
+          Let $H$ be a Graph Hamiltonian with $N>1$ stored patterns. At thermal equilibrium, the ability to converge to a ordered phase doesn't depend on $N$
+        </p>
+        <details>
+            <summary>
+              <b>proof</b>
+            </summary>
+            <div class="proof_text">
+              <p>
+                The change in entropy due to the creation of a domain barrier can always be written as
+                $$
+                    \Delta S= \log\left[
+                        (N-1)N_\textrm{barriers}\right]=\log N_\textrm{barriers} + \log (N-1)
+                $$
+                Where $N_\textrm{barriers}$ is the number of barriers of a certain shape. In the thermodynamic limit, the term proportional to the number of barriers increases, while the one proportional to the number of patterns stored stays constant, therefore can be ignored as it doesn't change the entropy scaling
+              </p>
+            </div>
+          </details>
+      <p>
+        The importance of this last theorem is that, since the number and the shape of stored pattern doesn't affect the thermodynamics of the problem we might as well stick with a system with just 2 ground state equal to all spin ups and all spin downs. Like in the Ising Model!<br>
 
-  <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary size and many patterns stored, we can just look at a simple next-neighbour Ising model to see if we have a coherent phase</p>
+        We are also go one step furter we can also show that we don't really care on how strong, complicated the interaction are, and neither on how big the interaction windows are. 
+      </p>
+      <b class="Theorem">Theorem</b>
+        <p class="theorem_text">
+          Let $H=\sum_i H_i$, if there exists two energies $E_\textrm{max},E_\textrm{min}$ which are the biggest and smallest non-zero energy level of all the windowed Hamiltonians $H_i$. At thermal equilibrium, the ability to converge to a ordered phase does not depend from the energy levels and the window sizes
+        </p>
+        <details>
+            <summary>
+              <b>proof</b>
+            </summary>
+            <div class="proof_text">
+              <p>
+                Let $\mathcal W$ be the biggest window size, and 1 the smallest window size of any $H_i$, and let $P$ be the perimeter length of our domain wall. The energy gain by creating such a domain wall is bounded by 
+                $$
+                    P E^\textrm{min}\le\Delta E\le \mathcal W PE^\textrm {max}
+                $$
+                In both cases we have that
+                $$
+                    E=O(P)
+                $$
+              </p>
+            </div>
+          </details>
+
+    <p>This means that, even if we have a really complicated local Hamiltonian, with large window sizes, large vocabulary size and many patterns stored, we can just look at a simple next-neighbour Ising model to see if we have a coherent phase</p>
+
+  </details>
+  <d-subsection>Main Takeaway</d-subsection>
+    <p>
+      In this section we saw how the only thing that matters to determine if a system can be capable of self organizing at thermal equilibrium is the topology of the system.
+    </p>
+    <p>
+      This also means that to see if a system has the required topology to have an ordered phase you need to make sure that a topologically equivalent Ising model has an ordered phase.
+    </p>
   <!-- <b class="Theorem">Theorem</b>
       <p class="theorem_text">
         Suppose we have a Potts grid $\mathcal C$ of spins $s_i$ with $i \in \mathbb{Z}$ and each $s_i$ can assume any integer value from $1$ to the vocabulary size $V$
@@ -1422,7 +1439,7 @@
       <details>
         <summary>
           <b>
-            A mathematical argument on why the coherence length of the two chains coupled chains tent do match
+            A mathematical argument on why the coherence length of the two chains coupled chains tend to match
           </b>
         </summary>
         <p>

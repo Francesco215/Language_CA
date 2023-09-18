@@ -235,6 +235,18 @@ details[open] h2::before{
   position: 'absolute';
 }
 
+details h3.topo::before{
+  content:'▶ ';
+  display: 'block-inline';
+  position: 'absolute';
+  width: '40px';
+}
+details[open] h3.topo::before{
+  content:'▼ ';
+  display: 'block-inline';
+  position: 'absolute';
+}
+
 /* this makes sure that the style of the d-section when inside a sumary doesn't fuck up */
 summary d-section {
   margin: 0;
