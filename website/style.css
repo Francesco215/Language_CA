@@ -223,16 +223,18 @@ figure {
   margin-bottom: 1em;
 }
 
-details h2::before{
-  content:'▶ ';
-  display: 'block-inline';
-  position: 'absolute';
-  width: '40px';
+details h2::before {
+  content: '▶ ';
+  display: inline-block;
+  width: 40px;
 }
-details[open] h2::before{
-  content:'▼ ';
-  display: 'block-inline';
-  position: 'absolute';
+
+details[open] h2::before {
+  content: '▼ ';
+}
+
+details summary.custom_spoiler::-webkit-details-marker {
+  display:none;
 }
 
 details h3.topo::before{
