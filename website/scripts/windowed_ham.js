@@ -31,10 +31,10 @@ squares.append("rect")
     .style("fill", "#648FFF"); // Set the background color to blue
 
 squares.append("foreignObject")
-    .attr("x", d=> square_side / 2 - 10 -5*(d<numVisible/2-1))
-    .attr("y", 7+globat_top_padding)
     .attr("width", 40)
     .attr("height", 40)
+    .attr("x", d=> square_side / 2 - 10 -5*(d<numVisible/2-1))
+    .attr("y", 7+globat_top_padding)
     .html(d => `<div class="katex">$\\textcolor{white}{s_{${d-numVisible/2+1}}}$</div>`);
 
 function handleMouseOver(_, i) {

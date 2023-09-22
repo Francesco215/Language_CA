@@ -5,6 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Interactive Graph with D3.js</title>
   <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="website/style.css">
+
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.css" integrity="sha384-zTROYFVGOfTw7JV7KUu8udsvW2fx4lWOsCEDqhBreBwlHI4ioVRtmIvEThzJHGET" crossorigin="anonymous">
   <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/katex.min.js" integrity="sha384-GxNFqL3r9uRJQhR+47eDxuPoNE7yLftQM8LcxzgS4HT73tp970WS/wV5p8UzCOmb" crossorigin="anonymous"></script>
   <script src="https://cdn.jsdelivr.net/npm/katex@0.13.18/dist/contrib/auto-render.min.js" integrity="sha384-vZTG03m+2yp6N6BNi5iM4rW4oIwk5DfcNdFfxkk9ZWpDriOkXX8voJBFrAO7MpVl" crossorigin="anonymous"></script>
@@ -21,26 +23,15 @@
         });
     });
 </script>
-  <style>
-    .graph-container {
-      display: flex;
-      align-items: center;
-    }
-    .square {
-      background-color: #3498db; /* Blue color */
-    }
-    .highlight {
-      stroke: #e74c3c;
-      stroke-width: 2px;
-      fill: none;
-    }
-  </style>
 </head>
 <body>
-  <div class="graph-container">
-    <svg id="graph"></svg>
-  </div>
+  <figure style="width: 1050px;">
+    <div class="graph-container">
+      <svg id="graph"></svg>
+    </div>
+  </figure>
 
-  <script src="website/scripts/windowed_ham.js"></script>
 </body>
+<script src="website/scripts/windowed_ham.js"></script>
+
 </html>
