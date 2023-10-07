@@ -1,0 +1,35 @@
+{
+    "description": "What do you need to have a structure emerge spontaneously?", 
+    "license": "other-open", 
+    "title": "Requirements for self-organization", 
+    "version": "v1.1", 
+    "upload_type": "software", 
+    "publication_date": "2023-10-07", 
+    "creators": [
+        {
+            "affiliation": "Tufts University", 
+            "name": "Francesco Sacco"
+        },
+        {
+            "affiliation": "VERSES",
+            "name": "Dalton Sakthivadivel"
+        },
+        {
+            "affiliation": "Tufts University",
+            "name": "Michel Levin"
+        }
+    ], 
+    "access_right": "open", 
+    "related_identifiers": [
+        {
+            "scheme": "url", 
+            "identifier": "https://github.com/Francesco215/Language_CA/tree/v1.0", 
+            "relation": "isSupplementTo"
+        }, 
+        {
+            "scheme": "doi", 
+            "identifier": "10.5281/zenodo.8416712", 
+            "relation": "isVersionOf"
+        }
+    ]
+}
