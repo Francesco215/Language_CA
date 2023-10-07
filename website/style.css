@@ -255,3 +255,11 @@ summary d-section {
   padding: 0;
   border: none;
 }
+
+
+p.affiliation{
+  width: 300px;
+}
+p.author{
+  width: 150px;
+}
