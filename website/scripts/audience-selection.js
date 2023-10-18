@@ -1,6 +1,10 @@
 function showContent(target) {
   showDivs(target);
   showSpoilers(target);
+  gtag('event', 'click', {
+    'event_category': 'article_version_switch',
+    'event_label': target
+  });
 }
 
 function showDivs(target) {
