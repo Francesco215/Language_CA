@@ -3,6 +3,7 @@
 .vscode
 .idea
 
+
 *.pyc
 *toml
 *.DS_Store
