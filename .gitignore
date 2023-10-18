@@ -1,7 +1,8 @@
 *__pycache__
 .ipynb_checkpoints
 .vscode
-.idea/
+.idea
+
 
 *.pyc
 *toml
