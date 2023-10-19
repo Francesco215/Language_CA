@@ -1,5 +1,5 @@
 var safari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-var numVisible = 14; // Number of visible squares
+var numVisible = 12; // Number of visible squares
 var data = Array.from({ length: numVisible + 2 }, (_, i) => i);
 
 var square_side = 50;
