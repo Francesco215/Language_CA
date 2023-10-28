@@ -267,3 +267,10 @@ p.author{
 svg#graph {
   overflow: visible !important;
 }
+
+.citation-short{
+  background: rgba(0, 0, 0, 0.02);
+  border: 1px solid rgba(0,0,0,0.1);
+  padding-top: 20px ;
+  border-radius: 3px;
+}
