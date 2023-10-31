@@ -10,7 +10,8 @@ const temperatureSlider2D = document.getElementById('temperature2D');
 const temperatureValue2D = document.getElementById('temperature2D-value');
 let temperature2D = temperatureSlider2D.value;
 let isSimulationPaused2D = false;
-
+const simulation_speed2D_slider = document.getElementById("2D_fps-slider");
+const simulation_speed2D_value = document.getElementById("2D_fps-value");
 canvas2D.gridSize=gridSize2D;
 
 function createLattice2D(cols, rows) {
@@ -25,8 +26,9 @@ function createLattice2D(cols, rows) {
   return lattice2D;
 }
 
+let simulation_speed2D=30;
 function simulate2D() {
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < simulation_speed2D; i++) {
     const col = Math.floor(Math.random() * numCols2D);
     const row = Math.floor(Math.random() * numRows2D);
     const spin = lattice2D[col][row];
@@ -74,6 +76,11 @@ temperatureSlider2D.addEventListener('input', function () {
   temperature2D = temperatureSlider2D.value;
   temperatureValue2D.textContent=parseFloat(temperature2D).toFixed(1); 
 });
+
+simulation_speed2D_slider.addEventListener('input',function(){
+  simulation_speed2D = simulation_speed2D_slider.value;
+  simulation_speed2D_value.textContent=parseFloat(simulation_speed2D).toFixed(1);
+})
 
 // Pause simulation when canvas is not visible
 function handleVisibilityChange2D(entries) {
@@ -125,4 +132,3 @@ simulationLoop();
 
 // Start the rendering loop
 renderLoop();
-

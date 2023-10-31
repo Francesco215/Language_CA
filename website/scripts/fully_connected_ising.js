@@ -6,6 +6,9 @@ const contextFC = canvasFC.getContext("2d");
 const temperatureSliderFC = document.getElementById("FC_temperature-slider");
 const temperatureValueFC = document.getElementById("FC_temperature-value");
 
+const fpsSliderFC = document.getElementById("FC_fps-slider");
+const fpsValueFC = document.getElementById("FC_fps-value");
+
 // Define Ising model parameters
 const N_FC = 100; // Number of spins
 const J_FC = 1 / N_FC; // Interaction strength
@@ -143,4 +146,10 @@ const observerFC = new IntersectionObserver(handleVisibilityChangeFC, {
 observerFC.observe(canvasFC);
 
 // Call the update function periodically to animate the simulation
-setInterval(updateSimulationFC, 100);
+
+initFpsSlider(
+  fpsSliderFC,
+  fpsValueFC,
+  document.getElementById('FC_fps-slider-tickmarks'),
+  updateSimulationFC
+);

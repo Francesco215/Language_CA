@@ -6,6 +6,8 @@ const gridSizeAR = 20;
 const numSpinsAR = Math.floor(widthAR / gridSizeAR);
 const temperatureSliderAR = document.getElementById('temperatureAR');
 const temperatureValueAR = document.getElementById('AR_temperature-value');
+const fpsSliderAR = document.getElementById("AR_fps-slider");
+const fpsValueAR = document.getElementById("AR_fps-value");
 let temperatureAR = temperatureSliderAR.value;
 let isSimulationPausedAR = false;
 
@@ -39,8 +41,6 @@ function updateAR() {
     }   
 
   }
-  setTimeout(updateAR, 100);
-
 }
 
 temperatureSliderAR.addEventListener('input', function () {
@@ -60,4 +60,9 @@ const observerAR = new IntersectionObserver(handleVisibilityChangeAR, { threshol
 // Observe the canvas element
 observerAR.observe(canvasAR);
 
-updateAR();
+initFpsSlider(
+  fpsSliderAR,
+  fpsValueAR,
+  document.getElementById('AR_fps-slider-tickmarks'),
+  updateAR
+);
