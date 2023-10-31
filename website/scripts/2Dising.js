@@ -9,6 +9,8 @@ const lattice2D = createLattice2D(numCols2D, numRows2D);
 const temperatureSlider2D = document.getElementById('temperature2D');
 const temperatureValue2D = document.getElementById('temperature2D-value');
 let temperature2D = temperatureSlider2D.value;
+const fpsSlider2D = document.getElementById("2D_fps-slider");
+const fpsValue2D = document.getElementById("2D_fps-value");
 let isSimulationPaused2D = false;
 
 canvas2D.gridSize=gridSize2D;
@@ -47,14 +49,7 @@ function simulate2D() {
 function simulationLoop() {
   if (!document.hidden && !isSimulationPaused2D) {
     simulate2D(); // Update the simulation
-    setTimeout(simulationLoop, 0);
-  }else{
-    requestAnimationFrame(simulationLoop); // Adjust the delay as needed
-  }
-}
 
-function renderLoop() {
-  if (!document.hidden && !isSimulationPaused2D){
     ctx2D.clearRect(0, 0, width2D, height2D);
 
     for (let col = 0; col < numCols2D; col++) {
@@ -65,9 +60,7 @@ function renderLoop() {
       }
     }
     drawHoverSquare2D(hoverCol, hoverRow);
-
   }
-  requestAnimationFrame(renderLoop);
 }
 
 temperatureSlider2D.addEventListener('input', function () {
@@ -120,9 +113,10 @@ function drawHoverSquare2D(col, row) {
   }
 }
 
-// Start the simulation loop
-simulationLoop();
-
-// Start the rendering loop
-renderLoop();
+initFpsSlider(
+  fpsSlider2D,
+  fpsValue2D,
+  document.getElementById('2D_fps-slider-tickmarks'),
+  simulationLoop
+);
 
