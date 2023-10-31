@@ -446,10 +446,9 @@
           <label for="temperature2D">$T=$</label>
           <span id="temperature2D-value" class="value">1.0</span>
           <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
-          <label for="2D_fps-slider">$FPS=$</label>
+          <label for="2D_fps-slider">speed=</label>
           <span id="2D_fps-value" class="value"></span>
-          <input type="range" id="2D_fps-slider" list="2D_fps-slider-tickmarks">
-          <datalist id="2D_fps-slider-tickmarks">
+          <input type="range" id="2D_fps-slider" list="2D_fps-slider-tickmarks" min="1", max="33300", step="1", value="30">
           </datalist>
       </div>
       <figcaption>
