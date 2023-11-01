@@ -9,6 +9,7 @@ const lattice2D = createLattice2D(numCols2D, numRows2D);
 const temperatureSlider2D = document.getElementById('temperature2D');
 const temperatureValue2D = document.getElementById('temperature2D-value');
 let temperature2D = temperatureSlider2D.value;
+let speedValue2D = initSpeedSlider('2D',  3000, 30);
 let isSimulationPaused2D = false;
 
 canvas2D.gridSize=gridSize2D;
@@ -26,7 +27,7 @@ function createLattice2D(cols, rows) {
 }
 
 function simulate2D() {
-  for (let i = 0; i < 30; i++) {
+  for (let i = 0; i < speedValue2D.value; i++) {
     const col = Math.floor(Math.random() * numCols2D);
     const row = Math.floor(Math.random() * numRows2D);
     const spin = lattice2D[col][row];
@@ -47,10 +48,8 @@ function simulate2D() {
 function simulationLoop() {
   if (!document.hidden && !isSimulationPaused2D) {
     simulate2D(); // Update the simulation
-    setTimeout(simulationLoop, 0);
-  }else{
-    requestAnimationFrame(simulationLoop); // Adjust the delay as needed
   }
+  requestAnimationFrame(simulationLoop); // Adjust the delay as needed
 }
 
 function renderLoop() {

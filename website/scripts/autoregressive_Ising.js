@@ -6,6 +6,7 @@ const gridSizeAR = 20;
 const numSpinsAR = Math.floor(widthAR / gridSizeAR);
 const temperatureSliderAR = document.getElementById('temperatureAR');
 const temperatureValueAR = document.getElementById('AR_temperature-value');
+let speedValueAR = initSpeedSlider('AR',  10, 1);
 let temperatureAR = temperatureSliderAR.value;
 let isSimulationPausedAR = false;
 
@@ -24,23 +25,23 @@ let sequenceAR = createSequence(numSpinsAR)
 
 function updateAR() {
   if (!document.hidden && !isSimulationPausedAR) {
-    ctxAR.clearRect(0, 0, widthAR, heightAR);
-    
-    p =  1/(1+Math.exp(-1/temperatureAR));
-    const last_spin=sequenceAR[sequenceAR.length-1];
-    for (let i=1; i<sequenceAR.length; i++)
-        sequenceAR[i-1]=sequenceAR[i];
+    for (let i = 0; i < speedValueAR.value; i++) {
+      ctxAR.clearRect(0, 0, widthAR, heightAR);
 
-    sequenceAR[sequenceAR.length-1] = Math.random() > p ^ last_spin;
+      p = 1 / (1 + Math.exp(-1 / temperatureAR));
+      const last_spin = sequenceAR[sequenceAR.length - 1];
+      for (let i = 1; i < sequenceAR.length; i++)
+        sequenceAR[i - 1] = sequenceAR[i];
 
-    for (let i=0; i<numSpinsAR; i++){
+      sequenceAR[sequenceAR.length - 1] = Math.random() > p ^ last_spin;
+
+      for (let i = 0; i < numSpinsAR; i++) {
         ctxAR.fillStyle = sequenceAR[i] === 0 ? '#000' : '#fff';
         ctxAR.fillRect(i * gridSizeAR, 0, gridSizeAR, heightAR);
-    }   
-
+      }
+    }
   }
-  setTimeout(updateAR, 100);
-
+  requestAnimationFrame(updateAR)
 }
 
 temperatureSliderAR.addEventListener('input', function () {
