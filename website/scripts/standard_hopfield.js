@@ -9,6 +9,7 @@ const gridSizeHop = canvasHop.width/side_lenght;
 const J_Hop=1/side_lenght**2
 const temperatureSliderHop = document.getElementById('temperatureHop-slider');
 const temperatureValueHop = document.getElementById('temperatureHop-value');
+let speedValueHop = initSpeedSlider('Hop',  1000, 100);
 
 
 
@@ -76,7 +77,7 @@ function updateHop() {
             }
         }
 
-        for (let i = 0; i < 100; i++) {
+        for (let i = 0; i < speedValueHop.value; i++) {
             const col = Math.floor(Math.random() * side_lenght);
             const row = Math.floor(Math.random() * side_lenght);
             const spin = latticeHop[col][row];

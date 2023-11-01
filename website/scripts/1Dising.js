@@ -13,6 +13,8 @@ let temperature = temperatureSlider.value;
 let isSimulationPaused1D = false;
 
 temperatureValue1D.textContent = parseFloat(temperature).toFixed(1)
+let speedValue1D = initSpeedSlider('1D',  3000, 30);
+
 function createSpins(numSpins) {
   const spins = new Array(numSpins);
   for (let i = 0; i < numSpins; i++) {
@@ -22,28 +24,28 @@ function createSpins(numSpins) {
 }
 
 function simulate1D() {
-  let i = Math.floor(Math.random() * numSpins);
+  for (let j = 0; j < speedValue1D.value; j++) {
+    let i = Math.floor(Math.random() * numSpins);
 
-  const spin = spins[i];
-  ctx1D.fillStyle = spin === 1 ? "#000" : "#fff";
-  ctx1D.fillRect(i * gridSize, 0, gridSize, height);
+    const spin = spins[i];
+    ctx1D.fillStyle = spin === 1 ? "#000" : "#fff";
+    ctx1D.fillRect(i * gridSize, 0, gridSize, height);
 
-  const leftNeighbor = spins[(i - 1 + numSpins) % numSpins];
-  const rightNeighbor = spins[(i + 1) % numSpins];
-  const sum = leftNeighbor + rightNeighbor;
-  const deltaE = 2 * spin * sum;
-  if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
-    spins[i] = -spin;
+    const leftNeighbor = spins[(i - 1 + numSpins) % numSpins];
+    const rightNeighbor = spins[(i + 1) % numSpins];
+    const sum = leftNeighbor + rightNeighbor;
+    const deltaE = 2 * spin * sum;
+    if (deltaE <= 0 || Math.random() < Math.exp(-deltaE / temperature)) {
+      spins[i] = -spin;
+    }
   }
 }
 
 function simulationLoop1D() {
   if (!document.hidden && !isSimulationPaused1D) {
     simulate1D();
-    setTimeout(simulationLoop1D, 0);
-  } else {
-    requestAnimationFrame(simulationLoop1D);
   }
+  requestAnimationFrame(simulationLoop1D);
 }
 
 function renderLoop1D() {

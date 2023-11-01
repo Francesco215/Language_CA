@@ -16,6 +16,7 @@ let window_size = 5;
 let J_Hop2D = 1 / window_size ** 2 //is this right?
 const temperatureSliderHop2D = document.getElementById('temperatureHop2D-slider');
 const temperatureValueHop2D = document.getElementById('temperatureHop2D-value');
+let speedValueHop2D = initSpeedSlider('Hop2D',  3000, 70);
 const overlapValuePrint = document.getElementById('overlap');
 
 let temperatureHop2D=temperatureSliderHop2D.value;
@@ -49,7 +50,7 @@ function simulateHop2D(){
     window_size= parseFloat(windowSliderHop2D.value);
     windowValueHop2D.textContent = window_size;
     J_Hop2D = 1 / window_size ** 2;
-    for (let i = 0; i < 70; i++) {
+    for (let i = 0; i < speedValueHop2D.value; i++) {
         const col = Math.floor(Math.random() * side_lenghtHop2D);
         const row = Math.floor(Math.random() * side_lenghtHop2D);
         const spin = latticeHop2D[col][row];
@@ -84,11 +85,8 @@ temperatureSliderHop2D.addEventListener('input', function () {
 function updateHop2D() {
     if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
         simulateHop2D();
-        setTimeout(updateHop2D,0);
     }
-    else{
-        requestAnimationFrame(updateHop2D);
-    }
+    requestAnimationFrame(updateHop2D);
 }
 
 function renderLoopHop2D(){
@@ -139,4 +137,3 @@ function drawHoverSquareHop2D(col, row) {
     }
   }
 
-  
