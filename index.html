@@ -604,7 +604,7 @@
     <p>
       The standard Hopfield Network with $N$ patterns stored equation is the following 
       $$
-        H=\sum_{ij}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
+        H=-\sum_{ij}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
       $$
       Notice how this is similar to the equation of the Hamiltonian of the fully connected Ising model <d-footnote>...Actually if there is just one stored pattern they are equivalent up to a Gauge transformation $s_i\to X_is_i$</d-footnote>. What effectively does is that it creates a number of local minima equal to the number of patterns stored, here is a simulation.
       <d-figure>
@@ -630,7 +630,7 @@
     <p>
       Many of the self-organizing systems in real life are capable of reaching a highly ordered state even with just local interactions, so what happens if the Hamiltonian of the Hopfield network makes spins interact only if they are close by? 
       $$
-        H=\sum_{\langle i,j\rangle}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
+        H=-\sum_{\langle i,j\rangle}W_{ij}s_is_j\quad\textrm{ with }\quad W_{ij}=\sum_p^NX^p_{i}X^p_{j}
       $$
       In this case $\langle i,j\rangle$ means that $i$ and $j$ are in the same window of interaction. Here is a simulation to play with.
     </p>
@@ -1055,7 +1055,7 @@
           $$
           One of the most well-known examples of such a system is the Edwards-Anderson model <d-cite key="edwards1975theory"></d-cite>, which is a finite dimensional model where the spins, represented by $s$, are the degrees of freedom and the couplings, represented by $\theta_{ij}$, are Gaussian random variables.
           $$
-            H=\sum_{\langle ij\rangle}J_{ij}s_is_j
+            H=-\sum_{\langle ij\rangle}J_{ij}s_is_j
           $$
 
           In this model, the sum is performed over nearest-neighbor spins. The disorder is said to be "quenched" because the $\theta$ values remain constant over the timescale during which the $s$ values fluctuate.
@@ -1217,7 +1217,7 @@
       $$
       If $F(x)=x^n$ or some other polinomial of $n$-th grade, the Hamiltonian above can be written as
       $$
-          H=\sum_{\langle i_1,\dots,i_n\rangle}W_{i_1,\dots,i_n}\sigma_{i_1}\dots\sigma_{i_n}
+          H=-\sum_{\langle i_1,\dots,i_n\rangle}W_{i_1,\dots,i_n}\sigma_{i_1}\dots\sigma_{i_n}
       $$
       Where $\sum_{\langle i_1,\dots,i_n\rangle}$ means that we are summing over all possible combinations of $n$ spins that are inside the same window of interaction.<br>
       A nice way to imagine local Hopfield network is as a patchwork of several overlapping Hopfield networks
@@ -1439,10 +1439,10 @@
         We can simplify a system like this by assuming that both the brain and the environment have only two possible states: 0 or 1.
       </p>
       <p>
-        We can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence length we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant JC​ that couples the neighboring spins of the two chains.<br>
+        We can think of it as two spin chains with different coupling constants $J_E$ and $J_B$, since the environment has a much bigger coherence length we can assume that $J_E\gg J_B$. We also assume that there is a coupling constant $J_C$ that couples the neighboring spins of the two chains.<br>
         The Hamiltonian becomes:
         $$
-          H = J_E\sum_t E_tE_{t+1} + J_B\sum_t B_{t}B_{t+1}  + J_C\sum_t E_tB_{t}  
+          H = -J_E\sum_t E_tE_{t+1} - J_B\sum_t B_{t}B_{t+1} - J_C\sum_t E_tB_{t}  
         $$
       </p>
       <figure class="l-page-outset">
@@ -1484,7 +1484,7 @@
         <p>
           Lets take the Hamiltonian for our brain + environment system and assume that the environment has a much longer coherence lenght than the brain. We can now focus our attention inside one of the continous domains where the environment is constant with a value of $E$. The Hamiltonian becomes
           $$
-            H=J_b\sum_tB_tB_{t+1} + J_cE\sum_t B_t
+            H=-J_b\sum_tB_tB_{t+1} - J_cE\sum_t B_t
           $$
           This is equivalent to the Hamiltonian for the 1D Ising model with an external magnetic field, since it is exactly solvable it is possible to evaluare the average value of $B=\langle B_t\rangle$
 
