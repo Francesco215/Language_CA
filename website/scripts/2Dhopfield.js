@@ -16,8 +16,10 @@ let window_size = 5;
 let J_Hop2D = 1 / window_size ** 2 //is this right?
 const temperatureSliderHop2D = document.getElementById('temperatureHop2D-slider');
 const temperatureValueHop2D = document.getElementById('temperatureHop2D-value');
+const fpsSliderHop2D = document.getElementById("Hop2D_fps-slider");
+const fpsValueHop2D = document.getElementById("Hop2D_fps-value");
 const overlapValuePrint = document.getElementById('overlap');
-
+let isSimulationPausedHop2D = true;
 let temperatureHop2D=temperatureSliderHop2D.value;
 
 const windowSliderHop2D = document.getElementById('windowHop2D-slider');
@@ -84,17 +86,8 @@ temperatureSliderHop2D.addEventListener('input', function () {
 function updateHop2D() {
     if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
         simulateHop2D();
-        setTimeout(updateHop2D,0);
-    }
-    else{
-        requestAnimationFrame(updateHop2D);
-    }
-}
 
-function renderLoopHop2D(){
-    if (!document.hidden && !isSimulationPausedHop2D && patterns_ready) {
         ctxHop2D.clearRect(0, 0, widthHop2D, heightHop2D);
-
         for (let col = 0; col < side_lenghtHop2D; col++) {
             for (let row = 0; row < side_lenghtHop2D; row++) {
                 const spin = latticeHop2D[col][row];
@@ -104,17 +97,11 @@ function renderLoopHop2D(){
         }
         drawHoverSquareHop2D(hoverCol,hoverRow);
     }
-    requestAnimationFrame(renderLoopHop2D);
 }
-
 
 function handleVisibilityChangeHop2D(entries) {
     const isVisible = entries[0].isIntersecting;
     isSimulationPausedHop2D = !isVisible;
-    if (isVisible) {
-        requestAnimationFrame(updateHop2D);
-        requestAnimationFrame(renderLoopHop2D);
-    }
 }
 
 // Create an intersection observer2D
@@ -139,4 +126,9 @@ function drawHoverSquareHop2D(col, row) {
     }
   }
 
-  
+initFpsSlider(
+  fpsSliderHop2D,
+  fpsValueHop2D,
+  document.getElementById('Hop2D_fps-slider-tickmarks'),
+  updateHop2D
+);
