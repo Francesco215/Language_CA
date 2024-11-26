@@ -13,6 +13,10 @@ let temperature = temperatureSlider.value;
 let isSimulationPaused1D = false;
 
 temperatureValue1D.textContent = parseFloat(temperature).toFixed(1)
+
+const fpsSlider1D = document.getElementById("1D_fps-slider");
+const fpsValue1D = document.getElementById("1D_fps-value");
+
 function createSpins(numSpins) {
   const spins = new Array(numSpins);
   for (let i = 0; i < numSpins; i++) {
@@ -40,14 +44,7 @@ function simulate1D() {
 function simulationLoop1D() {
   if (!document.hidden && !isSimulationPaused1D) {
     simulate1D();
-    setTimeout(simulationLoop1D, 0);
-  } else {
-    requestAnimationFrame(simulationLoop1D);
-  }
-}
 
-function renderLoop1D() {
-  if (!document.hidden && !isSimulationPaused1D) {
     ctx1D.clearRect(0, 0, width, height);
     for (let i = 0; i < numSpins; i++) {
       ctx1D.fillStyle = spins[i] === 1 ? "#000" : "#ccc";
@@ -55,7 +52,6 @@ function renderLoop1D() {
       ctx1D.fillRect(position[0] * gridSize, position[1]*gridSize, gridSize, gridSize);
     }
   }
-  requestAnimationFrame(renderLoop1D);
 }
 
 temperatureSlider.addEventListener("input", function () {
@@ -77,8 +73,12 @@ const observer = new IntersectionObserver(handleVisibilityChange1D, {
 // Observe the canvas element
 observer.observe(canvas1D);
 
-simulationLoop1D();
-renderLoop1D();
+initFpsSlider(
+  fpsSlider1D,
+  fpsValue1D,
+  document.getElementById('1D_fps-slider-tickmarks'),
+  simulationLoop1D
+);
 
 function Serpentine(i, nSH) {
   //nSH represents the variable numSpinsHorizontal

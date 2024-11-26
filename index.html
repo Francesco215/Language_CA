@@ -355,9 +355,14 @@
       <figure>
         <canvas id="FC_ising-canvas" width="700" height="700"></canvas>
         <div>
-            <label for="temperature-slider">$T=$</label>
+            <label for="FC_temperature-slider">$T=$</label>
             <span id="FC_temperature-value" class="value">1.0</span>
             <input type="range" id="FC_temperature-slider" min="0.1" max="5.0" step=".01" value="1.0">
+            <label for="FC_fps-slider">$FPS=$</label>
+            <span id="FC_fps-value" class="value"></span>
+            <input type="range" id="FC_fps-slider" list="FC_fps-slider-tickmarks">
+            <datalist id="FC_fps-slider-tickmarks">
+            </datalist>
         </div>
         <figcaption>
           Simulation of the Fully connected Ising Model
@@ -381,6 +386,11 @@
               <label for="temperature">$T=$</label>
               <span id="1D_temperature-value" class="value"></span>
               <input type="range" id="temperature" min="0.1" max="3" step="0.1" value="1">
+              <label for="1D_fps-slider">$FPS=$</label>
+              <span id="1D_fps-value" class="value"></span>
+              <input type="range" id="1D_fps-slider" list="1D_fps-slider-tickmarks">
+              <datalist id="1D_fps-slider-tickmarks">
+              </datalist>
           </div>
           
           <figcaption>
@@ -437,6 +447,10 @@
           <label for="temperature2D">$T=$</label>
           <span id="temperature2D-value" class="value">1.0</span>
           <input type="range" id="temperature2D" min="0.1" max="3" step="0.1" value="1">
+          <label for="2D_fps-slider">speed=</label>
+          <span id="2D_fps-value" class="value"></span>
+          <input type="range" id="2D_fps-slider" list="2D_fps-slider-tickmarks" min="1", max="33300", step="1", value="30">
+          </datalist>
       </div>
       <figcaption>
         Simulation of the 2D Ising model. If you hover over the image you the interaction window is displayed in orange. The critical temperature is at $T$=1
@@ -613,6 +627,11 @@
             <label for="temperatureHop-slider">$T=$</label>
             <span id="temperatureHop-value">1.0</span>
             <input type="range" id="temperatureHop-slider" min="0.1" max="3.0" step=".01" value="1.0">
+            <label for="Hop_fps-slider">$FPS=$</label>
+            <span id="Hop_fps-value" class="value"></span>
+            <input type="range" id="Hop_fps-slider" list="Hop_fps-slider-tickmarks">
+            <datalist id="Hop_fps-slider-tickmarks">
+            </datalist>
         </div>
 
     
@@ -643,6 +662,11 @@
             <label for="windowHop2D-slider">$W=$</label>
             <span class="value" id="windowHop2D-value">5</span>
             <input type="range" id="windowHop2D-slider" min="3" max="21" step="2" value="9">
+            <label for="Hop2D_fps-slider">$FPS=$</label>
+            <span id="Hop2D_fps-value" class="value"></span>
+            <input type="range" id="Hop2D_fps-slider" list="Hop2D_fps-slider-tickmarks">
+            <datalist id="Hop2D_fps-slider-tickmarks">
+            </datalist>
         </div>
       <figcaption>
         Example of a Hopfiled network with just local interaction. By hovering the mouse over the figure you can see all the interaction windows. You can set the size of the interaction windows $W$ by moving the relative slider. 
@@ -790,6 +814,11 @@
             <label for="temperatureAR">$T=$</label>
             <span class="value" id="AR_temperature-value">1.0</span>
             <input type="range" id="temperatureAR" min="0.1" max="3" step="0.1" value="1">
+            <label for="AR_fps-slider">$FPS=$</label>
+            <span id="AR_fps-value" class="value"></span>
+            <input type="range" id="AR_fps-slider" list="AR_fps-slider-tickmarks">
+            <datalist id="AR_fps-slider-tickmarks">
+            </datalist>
         </div>
         <figcaption>
           Simulation of an autoregressive Ising model. In this example to predict the next element in the sequence $s_{i+1}$ the model only looks at the last known element of the sequence $s_i$, and the vector with a estimate of the probability for $s_{i+1}$ is just a 1-dimensional vector equal to $p=\left(1+e^{J/T}\right)^{-1}$. We can write the Hamiltonian windows of the system wich are equal to $H_t=-Js_ts_{t+1}$
@@ -1580,6 +1609,7 @@
   
   
   <d-bibliography src="website/bibliography.bib"></d-bibliography>
+  <script src="website/scripts/utils.js"></script>
   <script src="website/scripts/fully_connected_ising.js"></script>
   <script src="website/scripts/1Dising.js"></script>
   <script src="website/scripts/2Dising.js"></script>
