@@ -6,6 +6,8 @@ const contextFC = canvasFC.getContext("2d");
 const temperatureSliderFC = document.getElementById("FC_temperature-slider");
 const temperatureValueFC = document.getElementById("FC_temperature-value");
 
+let speedValueFC = initSpeedSlider('FC',  100, 1);
+
 // Define Ising model parameters
 const N_FC = 100; // Number of spins
 const J_FC = 1 / N_FC; // Interaction strength
@@ -102,31 +104,34 @@ function updateSimulationFC() {
     const temperature = parseFloat(temperatureSliderFC.value);
     temperatureValueFC.textContent = temperature.toFixed(1);
 
-    // Implement the update logic based on the Ising model dynamics
-    const randomSpinIndex = Math.floor(Math.random() * N_FC);
-    const randomSpin = spinsFC[randomSpinIndex];
+    for (let i = 0; i < speedValueFC.value; i++) {
+      // Implement the update logic based on the Ising model dynamics
+      const randomSpinIndex = Math.floor(Math.random() * N_FC);
+      const randomSpin = spinsFC[randomSpinIndex];
 
-    const old_energy = -J_FC * spin_sumFC ** 2;
-    const new_energy = -J_FC * (spin_sumFC - 2 * randomSpin) ** 2;
-    // Calculate the energy change upon flipping the random spin
-    const energyChange = new_energy - old_energy;
+      const old_energy = -J_FC * spin_sumFC ** 2;
+      const new_energy = -J_FC * (spin_sumFC - 2 * randomSpin) ** 2;
+      // Calculate the energy change upon flipping the random spin
+      const energyChange = new_energy - old_energy;
 
-    // Implement the Metropolis algorithm to accept or reject the flip
-    if (energyChange <= 0) {
-      // Accept the flip
-      spinsFC[randomSpinIndex] = -randomSpin;
-      spin_sumFC = spin_sumFC - 2 * randomSpin;
-    } else {
-      // Accept the flip with a probability depending on the temperature
-      const probability = Math.exp(-energyChange / temperature);
-      if (Math.random() < probability) {
+      // Implement the Metropolis algorithm to accept or reject the flip
+      if (energyChange <= 0) {
+        // Accept the flip
         spinsFC[randomSpinIndex] = -randomSpin;
         spin_sumFC = spin_sumFC - 2 * randomSpin;
+      } else {
+        // Accept the flip with a probability depending on the temperature
+        const probability = Math.exp(-energyChange / temperature);
+        if (Math.random() < probability) {
+          spinsFC[randomSpinIndex] = -randomSpin;
+          spin_sumFC = spin_sumFC - 2 * randomSpin;
+        }
       }
     }
   }
   // Redraw the simulation
   drawIsingModelFC();
+  requestAnimationFrame(updateSimulationFC);
 }
 
 function handleVisibilityChangeFC(entries) {
@@ -143,4 +148,4 @@ const observerFC = new IntersectionObserver(handleVisibilityChangeFC, {
 observerFC.observe(canvasFC);
 
 // Call the update function periodically to animate the simulation
-setInterval(updateSimulationFC, 100);
+updateSimulationFC()
